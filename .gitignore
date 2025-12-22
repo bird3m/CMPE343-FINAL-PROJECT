@@ -1,0 +1,36 @@
+# Compiled files
+*.class
+
+# JavaFX / build
+out/
+build/
+
+# IDE
+.vscode/
+.idea/
+*.iml
+
+# OS
+.DS_Store
+
+# Logs
+*.log
+
+# Generated / vendor code
+generated/
+legacy/
+main/
+user-api/
+user-impl/
+core-api/
+core-impl/
+protocol-impl/
+
+# Libraries
+lib/*.jar
+
+# MySQL Connector (DO NOT COMMIT)
+main/mysql-connector-j-*/
+
+src/test/
+

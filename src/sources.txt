@@ -1,0 +1,12 @@
+application/Main.java
+controllers/ShoppingCartController.java
+controllers/Login.java
+controllers/CustomerMainController.java
+services/UserDAO.java
+services/ProductService.java
+services/DatabaseAdapter.java
+services/AuthenticationService.java
+services/ProductDAO.java
+models/Product.java
+models/User.java
+interfaces/ProductClickListener.java
