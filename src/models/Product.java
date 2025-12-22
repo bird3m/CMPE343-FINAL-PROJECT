@@ -1,9 +1,13 @@
 package models;
 
 /**
- * Product Model - Represents a grocery product
+ * Product class for GreenGrocer Application.
+ * Represents a product (vegetable or fruit) in the system.
+ * 
  * @author Group04
+ * @version 1.0
  */
+
 public class Product {
     private int id;
     private String name;
@@ -91,3 +95,6 @@ public class Product {
     public byte[] getImage() { return image; }
     public void setImage(byte[] image) { this.image = image; }
 }
+
+
+

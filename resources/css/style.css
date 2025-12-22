@@ -214,4 +214,101 @@
     -fx-border-color: #8e44ad;
     -fx-border-width: 2;
     -fx-border-radius: 6;
-    -fx-
+    -fx-padding: 8;
+}
+
+.add-cart-btn {
+    -fx-background-color: linear-gradient(to right, #e91e63, #f06292);
+    -fx-text-fill: white;
+    -fx-background-radius: 10;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(233, 30, 99, 0.4), 10, 0, 0, 3);
+}
+
+.add-cart-btn:hover {
+    -fx-background-color: linear-gradient(to right, #f06292, #ff80ab);
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+
+/* ==================== SHOPPING CART ==================== */
+.cart-table {
+    -fx-background-color: white;
+    -fx-border-color: #bdc3c7;
+    -fx-border-width: 1;
+    -fx-border-radius: 5;
+}
+
+.cart-table .column-header {
+    -fx-background-color: #8e44ad;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+
+.cart-table .table-row-cell {
+    -fx-background-color: white;
+}
+
+.cart-table .table-row-cell:selected {
+    -fx-background-color: #f8e7ff;
+}
+
+.totals-box {
+    -fx-background-color: white;
+    -fx-border-color: #8e44ad;
+    -fx-border-width: 0 0 0 2;
+}
+
+.remove-btn {
+    -fx-background-color: #e74c3c;
+    -fx-text-fill: white;
+    -fx-background-radius: 6;
+    -fx-cursor: hand;
+}
+
+.remove-btn:hover {
+    -fx-background-color: #c0392b;
+}
+
+.checkout-btn {
+    -fx-background-color: linear-gradient(to right, #27ae60, #2ecc71);
+    -fx-text-fill: white;
+    -fx-background-radius: 8;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(39, 174, 96, 0.4), 10, 0, 0, 3);
+}
+
+.checkout-btn:hover {
+    -fx-background-color: linear-gradient(to right, #2ecc71, #58d68d);
+}
+
+.continue-btn {
+    -fx-background-color: #95a5a6;
+    -fx-text-fill: white;
+    -fx-background-radius: 6;
+    -fx-cursor: hand;
+}
+
+.continue-btn:hover {
+    -fx-background-color: #7f8c8d;
+}
+
+/* ScrollPane Transparent */
+.transparent {
+    -fx-background-color: transparent;
+}
+
+.transparent .viewport {
+    -fx-background-color: transparent;
+}
+
+/* ScrollBar Styling */
+.scroll-bar:vertical .thumb {
+    -fx-background-color: #8e44ad;
+    -fx-background-radius: 5;
+}
+
+.scroll-bar:horizontal .thumb {
+    -fx-background-color: #8e44ad;
+    -fx-background-radius: 5;
+}
