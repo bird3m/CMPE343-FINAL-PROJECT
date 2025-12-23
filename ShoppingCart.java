@@ -10,7 +10,7 @@ import models.Product;
  * Handles cart operations: add, remove, update, merge items.
  * Calculates total with VAT and applies discounts.
  * 
- * @author GroupXX
+ * @author Group04
  * @version 1.0
  */
 public class ShoppingCart {
