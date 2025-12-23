@@ -12,7 +12,7 @@ import models.Product;
  * Note: This is a simple text-based PDF generator.
  * For production, consider using libraries like iText or Apache PDFBox.
  * 
- * @author GroupXX
+ * @author Group04
  * @version 1.0
  */
 public class PDFInvoiceGenerator {
