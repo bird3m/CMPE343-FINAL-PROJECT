@@ -9,7 +9,7 @@ import models.Product;
  * StockManager class for GreenGrocer Application.
  * Manages product stock, threshold alerts, and automatic reordering.
  * 
- * @author GroupXX
+ * @author Group04
  * @version 1.0
  */
 public class StockManager {
