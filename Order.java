@@ -10,7 +10,7 @@ import ShoppingCart.CartItem;
  * Order class for GreenGrocer Application.
  * Handles order creation, validation, cancellation, and status management.
  * 
- * @author GroupXX
+ * @author Group04
  * @version 1.0
  */
 public class Order {
