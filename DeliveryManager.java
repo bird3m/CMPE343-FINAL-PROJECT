@@ -7,7 +7,7 @@ import java.util.stream.Collectors;
  * DeliveryManager class for GreenGrocer Application.
  * Manages carrier deliveries and order assignments.
  * 
- * @author GroupXX
+ * @author Group04
  * @version 1.0
  */
 public class DeliveryManager {
