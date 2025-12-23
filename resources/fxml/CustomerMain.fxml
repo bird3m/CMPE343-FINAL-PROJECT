@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" 
+            prefHeight="540.0" prefWidth="960.0" styleClass="main-root" 
+            xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" 
+            fx:controller="controllers.CustomerMainController">
+   
+   <!-- TOP: Welcome bar -->
+   <top>
+      <HBox alignment="CENTER_LEFT" prefHeight="60.0" spacing="20.0" styleClass="top-bar" 
+            BorderPane.alignment="CENTER">
+         <padding>
+            <Insets left="20.0" right="20.0" />
+         </padding>
+         <children>
+            <Label fx:id="usernameLabel" text="Welcome, Customer" textFill="#2c3e50">
+               <font>
+                  <Font name="Arial Bold" size="16.0" />
+               </font>
+            </Label>
+            <Region HBox.hgrow="ALWAYS" />
+            <Button fx:id="logoutButton" mnemonicParsing="false" onAction="#handleLogout" 
+                   styleClass="logout-btn" text="Logout">
+               <font>
+                  <Font name="Arial Bold" size="13.0" />
+               </font>
+            </Button>
+         </children>
+      </HBox>
+   </top>
+   
+   <!-- LEFT: Menu -->
+   <left>
+      <VBox prefHeight="480.0" prefWidth="200.0" spacing="10.0" styleClass="left-menu" 
+            BorderPane.alignment="CENTER">
+         <padding>
+            <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+         </padding>
+         <children>
+            <!-- Search Section -->
+            <Label text="🔍 Search" textFill="WHITE">
+               <font>
+                  <Font name="Arial Bold" size="14.0" />
+               </font>
+            </Label>
+            
+            <TextField fx:id="searchField" promptText="Type here..." styleClass="search-field">
+               <font>
+                  <Font name="Arial" size="12.0" />
+               </font>
+            </TextField>
+            
+            <Button fx:id="searchButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" 
+                   onAction="#handleSearch" styleClass="menu-btn-primary" text="Search">
+               <font>
+                  <Font name="Arial Bold" size="12.0" />
+               </font>
+            </Button>
+            
+            <Separator />
+            
+            <!-- Menu Label -->
+            <Label text="Quick Menu" textFill="WHITE">
+               <font>
+                  <Font name="Arial Bold" size="14.0" />
+               </font>
+               <VBox.margin>
+                  <Insets top="10.0" />
+               </VBox.margin>
+            </Label>
+            
+            <!-- Menu Buttons -->
+            <Button fx:id="viewCartButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" 
+                   onAction="#handleViewCart" styleClass="menu-btn" text="🛒 Shopping Cart">
+               <font>
+                  <Font name="Arial Bold" size="12.0" />
+               </font>
+            </Button>
+            
+            <Button fx:id="viewOrdersButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" 
+                   onAction="#handleViewOrders" styleClass="menu-btn" text="📋 My Orders">
+               <font>
+                  <Font name="Arial Bold" size="12.0" />
+               </font>
+            </Button>
+            
+            <Button fx:id="profileButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" 
+                   onAction="#handleProfile" styleClass="menu-btn" text="👤 My Profile">
+               <font>
+                  <Font name="Arial Bold" size="12.0" />
+               </font>
+            </Button>
+            
+            <Button fx:id="messagesButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" 
+                   onAction="#handleMessages" styleClass="menu-btn" text="💬 Messages">
+               <font>
+                  <Font name="Arial Bold" size="12.0" />
+               </font>
+            </Button>
+            
+            <Region VBox.vgrow="ALWAYS" />
+            
+            <!-- Info Card -->
+            <VBox alignment="CENTER" spacing="5.0" styleClass="info-card">
+               <padding>
+                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+               </padding>
+               <children>
+                  <Label text="🎉 Free Delivery" textFill="#27ae60">
+                     <font>
+                        <Font name="Arial Bold" size="12.0" />
+                     </font>
+                  </Label>
+                  <Label text="Orders over 200₺" textFill="#7f8c8d">
+                     <font>
+                        <Font name="Arial" size="10.0" />
+                     </font>
+                  </Label>
+               </children>
+            </VBox>
+         </children>
+      </VBox>
+   </left>
+   
+   <!-- CENTER: Product Lists with TitledPane -->
+   <center>
+      <VBox prefHeight="400.0" prefWidth="760.0" BorderPane.alignment="CENTER">
+         <children>
+            <ScrollPane fitToWidth="true" styleClass="transparent" VBox.vgrow="ALWAYS">
+               <content>
+                  <VBox spacing="15.0">
+                     <padding>
+                        <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+                     </padding>
+                     <children>
+                        <!-- VEGETABLES TitledPane -->
+                        <TitledPane fx:id="vegetablePane" animated="false" expanded="true" 
+                                   styleClass="titled-pane-veg" text="🥬 VEGETABLES">
+                           <font>
+                              <Font name="Arial Bold" size="15.0" />
+                           </font>
+                           <content>
+                              <ListView fx:id="vegetableList" prefHeight="200.0" 
+                                       styleClass="product-list">
+                                 <padding>
+                                    <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                 </padding>
+                              </ListView>
+                           </content>
+                        </TitledPane>
+                        
+                        <!-- FRUITS TitledPane -->
+                        <TitledPane fx:id="fruitPane" animated="false" expanded="true" 
+                                   styleClass="titled-pane-fruit" text="🍎 FRUITS">
+                           <font>
+                              <Font name="Arial Bold" size="15.0" />
+                           </font>
+                           <content>
+                              <ListView fx:id="fruitList" prefHeight="200.0" 
+                                       styleClass="product-list">
+                                 <padding>
+                                    <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                 </padding>
+                              </ListView>
+                           </content>
+                        </TitledPane>
+                     </children>
+                  </VBox>
+               </content>
+            </ScrollPane>
+         </children>
+      </VBox>
+   </center>
+   
+   <!-- BOTTOM: Add to Cart -->
+   <bottom>
+      <HBox alignment="CENTER" prefHeight="70.0" spacing="15.0" styleClass="bottom-bar" 
+            BorderPane.alignment="CENTER">
+         <padding>
+            <Insets bottom="15.0" left="20.0" right="20.0" top="15.0" />
+         </padding>
+         <children>
+            <Label text="Quantity (kg):" textFill="#2c3e50">
+               <font>
+                  <Font name="Arial Bold" size="13.0" />
+               </font>
+            </Label>
+            
+            <TextField fx:id="quantityField" prefHeight="35.0" prefWidth="100.0" 
+                      promptText="0.5" styleClass="quantity-input">
+               <font>
+                  <Font name="Arial" size="13.0" />
+               </font>
+            </TextField>
+            
+            <Button fx:id="addToCartButton" mnemonicParsing="false" onAction="#handleAddToCart" 
+                   prefHeight="40.0" prefWidth="180.0" styleClass="add-cart-btn" 
+                   text="🛒 Add to Cart">
+               <font>
+                  <Font name="Arial Black" size="14.0" />
+               </font>
+            </Button>
+         </children>
+      </HBox>
+   </bottom>
+   
+</BorderPane>

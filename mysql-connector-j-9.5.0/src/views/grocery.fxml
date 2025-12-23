@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.String?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane prefWidth="960.0" prefHeight="540.0"
+            xmlns="http://javafx.com/javafx/25"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="Controller.GroceryController">
+
+    <children>
+        <BorderPane AnchorPane.topAnchor="0"
+                    AnchorPane.bottomAnchor="0"
+                    AnchorPane.leftAnchor="0"
+                    AnchorPane.rightAnchor="0"
+                    stylesheets="@../values/style.css">
+
+            <!-- ================= LEFT BAR ================= -->
+            <left>
+                <VBox prefWidth="300"
+                      styleClass="right-bar"
+                      BorderPane.alignment="CENTER"
+                      spacing="10">
+
+                    <!-- TITLE -->
+                    <HBox alignment="CENTER" prefHeight="70">
+                        <Label text="FRUITS" textFill="#da662b">
+                            <font>
+                                <Font name="Arial Black" size="30"/>
+                            </font>
+                        </Label>
+                    </HBox>
+
+                    <!-- SEARCH -->
+                    <HBox alignment="CENTER_LEFT"
+                          styleClass="search-box shadow"
+                          spacing="10">
+                        <padding>
+                            <Insets left="20" right="20"/>
+                        </padding>
+
+                        <TextField fx:id="searchField"
+                                   promptText="Type here to search"
+                                   prefHeight="35"
+                                   styleClass="transparent"
+                                   HBox.hgrow="ALWAYS"/>
+
+                        <Button text="Search"
+                                prefWidth="80"
+                                styleClass="search-button"
+                                onAction="#handleSearch"/>
+                    </HBox>
+
+                    <Pane prefHeight="15"/>
+
+                    <!-- SELECTED FRUIT CARD -->
+                    <VBox fx:id="chosenFruitCard"
+                          alignment="CENTER"
+                          spacing="10"
+                          prefHeight="300"
+                          styleClass="chosen-fruit-card shadow">
+                        <padding>
+                            <Insets left="20" right="20"/>
+                        </padding>
+
+                        <!-- NAME + PRICE -->
+                        <HBox alignment="CENTER">
+                            <Label fx:id="fruitNameLabel"
+                                   text="Orange"
+                                   textFill="WHITE">
+                                <font>
+                                    <Font size="22"/>
+                                </font>
+                            </Label>
+
+                            <Pane HBox.hgrow="ALWAYS"/>
+
+                            <Label fx:id="fruitPriceLabel"
+                                   text="19,99 ₺"
+                                   textFill="WHITE">
+                                <font>
+                                    <Font size="22"/>
+                                </font>
+                            </Label>
+                        </HBox>
+
+                        <!-- IMAGE -->
+                        <ImageView fx:id="fruitImg"
+                                   fitWidth="160"
+                                   fitHeight="120"
+                                   preserveRatio="true">
+                            <image>
+                                <Image url="@../images/fruits/orange.jpg"/>
+                            </image>
+                        </ImageView>
+
+                        <!-- KG -->
+                        <HBox alignment="CENTER_LEFT" spacing="10">
+                            <Label text="Kg" textFill="WHITE"/>
+                            <ComboBox fx:id="kgCombo"
+                                      prefWidth="100"
+                                      promptText="1"/>
+                        </HBox>
+
+                        <!-- OR -->
+                        <HBox alignment="CENTER" spacing="10">
+                            <Separator prefWidth="60"/>
+                            <Label text="or" textFill="WHITE"/>
+                            <Separator prefWidth="60"/>
+                        </HBox>
+
+                        <!-- ALT KG -->
+                        <HBox alignment="CENTER_LEFT" spacing="10">
+                            <Label text="Kg" textFill="WHITE"/>
+                            <ComboBox fx:id="altCombo"
+                                      prefWidth="100"
+                                      promptText="selected"/>
+                        </HBox>
+
+                        <!-- ADD -->
+                        <Button text="ADD TO CART"
+                                prefWidth="180"
+                                prefHeight="40"
+                                styleClass="add-btn"
+                                onAction="#handleAddToCart"/>
+                    </VBox>
+
+                </VBox>
+            </left>
+
+            <!-- ================= CENTER ================= -->
+            <center>
+                <VBox spacing="10">
+
+                    <!-- TOP BAR -->
+                    <HBox alignment="CENTER_LEFT" spacing="15">
+                        <padding>
+                            <Insets left="20" right="20"/>
+                        </padding>
+
+                        <Label text="Language" textFill="#878787"/>
+                        <Label text="English" underline="true" textFill="#878787"/>
+
+                        <Pane HBox.hgrow="ALWAYS"/>
+
+                        <Label text="My Account" textFill="#878787"/>
+
+                        <ImageView fitWidth="28" fitHeight="28">
+                            <image>
+                                <Image url="@../images/symbols/cart.png"/>
+                            </image>
+                        </ImageView>
+                    </HBox>
+
+                    <!-- INFO CARDS -->
+                    <HBox spacing="20" alignment="CENTER">
+                        <HBox styleClass="free-delivery-card"
+                              spacing="10"
+                              alignment="CENTER"
+                              prefWidth="280">
+                            <Label text="Free delivery"/>
+                            <ImageView fitWidth="28" fitHeight="28">
+                                <image>
+                                    <Image url="@../images/symbols/delivery.png"/>
+                                </image>
+                            </ImageView>
+                        </HBox>
+
+                        <HBox styleClass="shopping-online-card"
+                              spacing="10"
+                              alignment="CENTER"
+                              prefWidth="280">
+                            <Label text="Shopping online"/>
+                            <ImageView fitWidth="28" fitHeight="28">
+                                <image>
+                                    <Image url="@../images/symbols/time.png"/>
+                                </image>
+                            </ImageView>
+                        </HBox>
+                    </HBox>
+
+                    <!-- PRODUCT GRID -->
+                    <ScrollPane fx:id="scroll"
+                                fitToWidth="true"
+                                styleClass="transparent">
+                        <content>
+                            <GridPane fx:id="grid"
+                                      hgap="15"
+                                      vgap="15"
+                                      padding="10"/>
+                        </content>
+                    </ScrollPane>
+
+                </VBox>
+            </center>
+
+        </BorderPane>
+    </children>
+</AnchorPane>
