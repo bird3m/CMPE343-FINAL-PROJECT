@@ -17,7 +17,6 @@ public class InputValidation {
     // ==================== GENERAL VALIDATIONS ====================
     
     /**
-     * Validates username input. Must be 3-50 characters, no spaces.
      * 
      * @param username The username to validate
      * @return true if valid, false otherwise
