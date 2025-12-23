@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
  * Generates various reports and statistics for the owner.
  * Reports include: sales by product, time-based sales, revenue analysis.
  * 
- * @author GroupXX
+ * @author Group04
  * @version 1.0
  */
 public class ReportGenerator {
