@@ -9,7 +9,6 @@ import java.time.format.DateTimeParseException;
  * Input validation class for GreenGrocer Application.
  * Handles validation for customer, carrier, and owner interfaces.
  * 
- * @author Group04
  * @version 1.0
  */
 public class InputValidation {
@@ -17,6 +16,7 @@ public class InputValidation {
     // ==================== GENERAL VALIDATIONS ====================
     
     /**
+     * Validates username input. Must be 3-50 characters, no spaces.
      * 
      * @param username The username to validate
      * @return true if valid, false otherwise
@@ -42,7 +42,7 @@ public class InputValidation {
 
     /**
      * Validates password strength according to project requirements.
-     * - Minimum 1 character, maximum 2 characters
+     * - Minimum 2 characters, maximum 50
      * - No spaces allowed
      * 
      * @param password The password to validate
@@ -59,8 +59,8 @@ public class InputValidation {
             return false;
         }
 
-        if (password.length() < 1 || password.length() > 2) {
-            System.err.println("Password must be between 1 and 2 characters!");
+        if (password.length() < 2 || password.length() > 50) {
+            System.err.println("Password must be between 2 and 50 characters!");
             return false;
         }
 
