@@ -1,4 +1,4 @@
-package main;
+package models;
 
 public class OrderItem {
     private int id;
