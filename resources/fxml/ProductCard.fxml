@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<VBox alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" 
+      minWidth="-Infinity" prefHeight="220.0" prefWidth="160.0" 
+      styleClass="product-card" spacing="8.0"
+      xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1">
+   <padding>
+      <Insets bottom="12.0" left="12.0" right="12.0" top="12.0" />
+   </padding>
+   <children>
+      <!-- Product Image -->
+      <ImageView fx:id="productImage" fitHeight="100.0" fitWidth="100.0" 
+                pickOnBounds="true" preserveRatio="true">
+      </ImageView>
+      
+      <!-- Product Name -->
+      <Label fx:id="productName" text="Product Name" textAlignment="CENTER" 
+             wrapText="true" textFill="#2c3e50">
+         <font>
+            <Font name="Arial Bold" size="13.0" />
+         </font>
+      </Label>
+      
+      <!-- Product Price -->
+      <Label fx:id="productPrice" text="0.00₺/kg" textFill="#27ae60">
+         <font>
+            <Font name="Arial Bold" size="14.0" />
+         </font>
+      </Label>
+      
+      <!-- Stock Info -->
+      <Label fx:id="stockLabel" text="Stock: 0 kg" textFill="#7f8c8d">
+         <font>
+            <Font name="Arial" size="11.0" />
+         </font>
+      </Label>
+      
+      <!-- Threshold Warning (Optional) -->
+      <Label fx:id="thresholdWarning" text="⚠️ Low Stock!" textFill="#e74c3c" 
+             visible="false">
+         <font>
+            <Font name="Arial Bold" size="10.0" />
+         </font>
+      </Label>
+   </children>
+</VBox>

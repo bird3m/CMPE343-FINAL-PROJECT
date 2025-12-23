@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
  * Test class for Shopping Cart and Order functionality.
  * Run this to verify everything works before integrating with UI.
  * 
- * @author GroupXX
+ * @author Group04
  * @version 1.0
  */
 public class TestMain {

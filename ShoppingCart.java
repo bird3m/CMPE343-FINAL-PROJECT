@@ -1,14 +1,16 @@
-import java.util.HashMap;
-import java.util.Map;
+
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+
+import models.Product;
 
 /**
  * Shopping Cart class for GreenGrocer Application.
  * Handles cart operations: add, remove, update, merge items.
  * Calculates total with VAT and applies discounts.
  * 
- * @author GroupXX
+ * @author Group04
  * @version 1.0
  */
 public class ShoppingCart {
@@ -398,14 +400,8 @@ public class ShoppingCart {
          * @return Total price for this item
          */
         public double getTotalPrice() {
-            double pricePerKg = product.getPrice();
-            
-            // Check if threshold pricing applies
-            if (product.getStock() <= product.getThreshold()) {
-                pricePerKg *= 2; // Double the price!
-            }
-            
-            return amount * pricePerKg;
+            // Use getCurrentPrice() which already handles threshold logic
+            return amount * product.getCurrentPrice();
         }
 
         @Override

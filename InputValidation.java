@@ -1,13 +1,14 @@
+package utils;
+
+import java.util.regex.Pattern;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.regex.Pattern;
 
 /**
  * Input validation class for GreenGrocer Application.
  * Handles validation for customer, carrier, and owner interfaces.
  * 
- * @author GroupXX
  * @version 1.0
  */
 public class InputValidation {
@@ -41,11 +42,8 @@ public class InputValidation {
 
     /**
      * Validates password strength according to project requirements.
-     * - Minimum 8 characters, maximum 50
-     * - At least 1 uppercase letter
-     * - At least 1 lowercase letter
-     * - At least 1 digit
-     * - At least 1 special character
+     * - Minimum 2 characters, maximum 50
+     * - No spaces allowed
      * 
      * @param password The password to validate
      * @return true if password meets requirements, false otherwise
@@ -61,28 +59,8 @@ public class InputValidation {
             return false;
         }
 
-        if (password.length() < 8 || password.length() > 50) {
-            System.err.println("Password must be between 8 and 50 characters!");
-            return false;
-        }
-
-        if (!Pattern.compile("[A-Z]").matcher(password).find()) {
-            System.err.println("Password must contain at least one uppercase letter!");
-            return false;
-        }
-
-        if (!Pattern.compile("[a-z]").matcher(password).find()) {
-            System.err.println("Password must contain at least one lowercase letter!");
-            return false;
-        }
-
-        if (!Pattern.compile("[0-9]").matcher(password).find()) {
-            System.err.println("Password must contain at least one digit!");
-            return false;
-        }
-
-        if (!Pattern.compile("[^a-zA-Z0-9]").matcher(password).find()) {
-            System.err.println("Password must contain at least one special character!");
+        if (password.length() < 2 || password.length() > 50) {
+            System.err.println("Password must be between 2 and 50 characters!");
             return false;
         }
 
