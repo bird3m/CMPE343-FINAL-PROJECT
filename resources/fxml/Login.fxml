@@ -10,29 +10,16 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane fx:id="rootPane" maxHeight="-Infinity" maxWidth="-Infinity" 
-            minHeight="-Infinity" minWidth="-Infinity" 
-            prefHeight="540.0" prefWidth="960.0" 
-            styleClass="login-root" 
-            stylesheets="@../css/style.css" 
-            xmlns="http://javafx.com/javafx/25" 
-            xmlns:fx="http://javafx.com/fxml/1" 
-            fx:controller="controllers.LoginController">
+<AnchorPane fx:id="rootPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="540.0" prefWidth="960.0" styleClass="login-root" stylesheets="@../css/style.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.LoginController">
    <children>
       <!-- Login Form Container - CENTERED WITH ANCHORS -->
-      <VBox fx:id="loginBox" alignment="CENTER" spacing="22.0" 
-            styleClass="login-box" 
-            AnchorPane.bottomAnchor="70.0" 
-            AnchorPane.leftAnchor="220.0" 
-            AnchorPane.rightAnchor="220.0" 
-            AnchorPane.topAnchor="70.0">
+      <VBox fx:id="loginBox" alignment="CENTER" spacing="22.0" styleClass="login-box" AnchorPane.bottomAnchor="70.0" AnchorPane.leftAnchor="220.0" AnchorPane.rightAnchor="220.0" AnchorPane.topAnchor="70.0">
          <padding>
             <Insets bottom="35.0" left="35.0" right="35.0" top="35.0" />
          </padding>
          <children>
             <!-- Title with Group04 -->
-            <Label fx:id="titleLabel" text="🥬 Group04 GreenGrocer 🍎" 
-                   textAlignment="CENTER" wrapText="true">
+            <Label fx:id="titleLabel" text="🥬 Group04 GreenGrocer 🍎" textAlignment="CENTER" wrapText="true">
                <font>
                   <Font name="Arial Black" size="30.0" />
                </font>
@@ -42,8 +29,7 @@
             </Label>
             
             <!-- Subtitle -->
-            <Label text="Fresh Produce Delivery System" 
-                   textFill="#7f8c8d" textAlignment="CENTER">
+            <Label text="Fresh Produce Delivery System" textAlignment="CENTER" textFill="#7f8c8d">
                <font>
                   <Font name="Arial" size="14.0" />
                </font>
@@ -67,9 +53,7 @@
                         <Font name="Arial" size="13.0" />
                      </font>
                   </Label>
-                  <TextField fx:id="usernameField" prefHeight="45.0" 
-                            promptText="Enter your username" 
-                            styleClass="input-field">
+                  <TextField fx:id="usernameField" prefHeight="45.0" promptText="Enter your username" styleClass="input-field">
                      <font>
                         <Font name="Arial" size="15.0" />
                      </font>
@@ -85,9 +69,7 @@
                         <Font name="Arial" size="13.0" />
                      </font>
                   </Label>
-                  <PasswordField fx:id="passwordField" prefHeight="45.0" 
-                                promptText="Enter your password" 
-                                styleClass="input-field">
+                  <PasswordField fx:id="passwordField" prefHeight="45.0" promptText="Enter your password" styleClass="input-field">
                      <font>
                         <Font name="Arial" size="15.0" />
                      </font>
@@ -96,9 +78,7 @@
             </VBox>
             
             <!-- Error Label -->
-            <Label fx:id="errorLabel" text="❌ Error message here" 
-                   textFill="#e74c3c" visible="false" wrapText="true" 
-                   textAlignment="CENTER">
+            <Label fx:id="errorLabel" text="❌ Error message here" textAlignment="CENTER" textFill="#e74c3c" visible="false" wrapText="true">
                <font>
                   <Font name="Arial Bold" size="13.0" />
                </font>
@@ -110,19 +90,13 @@
                   <Insets top="8.0" />
                </VBox.margin>
                <children>
-                  <Button fx:id="loginButton" mnemonicParsing="false" 
-                         onAction="#handleLogin" 
-                         prefHeight="48.0" prefWidth="140.0" 
-                         styleClass="login-btn" text="Login">
+                  <Button fx:id="loginButton" mnemonicParsing="false" onAction="#handleLogin" prefHeight="48.0" prefWidth="140.0" styleClass="login-btn" text="Login">
                      <font>
                         <Font name="Arial Bold" size="16.0" />
                      </font>
                   </Button>
                   
-                  <Button fx:id="registerButton" mnemonicParsing="false" 
-                         onAction="#handleRegister" 
-                         prefHeight="48.0" prefWidth="140.0" 
-                         styleClass="register-btn" text="Register">
+                  <Button fx:id="registerButton" mnemonicParsing="false" onAction="#handleRegister" prefHeight="48.0" prefWidth="140.0" styleClass="register-btn" text="Register">
                      <font>
                         <Font name="Arial Bold" size="16.0" />
                      </font>
@@ -131,7 +105,7 @@
             </HBox>
             
             <!-- Test Credentials Info -->
-            <VBox spacing="5.0" alignment="CENTER">
+            <VBox alignment="CENTER" spacing="5.0">
                <VBox.margin>
                   <Insets top="15.0" />
                </VBox.margin>
@@ -141,8 +115,7 @@
                         <Font name="Arial Bold" size="11.0" />
                      </font>
                   </Label>
-                  <Label text="Customer: cust / cust  •  Carrier: carr / carr  •  Owner: own / own" 
-                         textFill="#95a5a6" textAlignment="CENTER">
+                  <Label text="Customer: cust / cust  •  Carrier: carr / carr  •  Owner: own / own" textAlignment="CENTER" textFill="#95a5a6">
                      <font>
                         <Font name="Arial" size="10.0" />
                      </font>

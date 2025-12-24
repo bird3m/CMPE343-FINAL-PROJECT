@@ -13,16 +13,11 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" 
-            minWidth="-Infinity" prefHeight="540.0" prefWidth="960.0" 
-            styleClass="main-root" stylesheets="@../css/style.css" 
-            xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" 
-            fx:controller="controllers.OwnerMainController">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="540.0" prefWidth="960.0" styleClass="main-root" stylesheets="@../css/style.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.OwnerMainController">
    
    <!-- TOP: Owner Dashboard Bar -->
    <top>
-      <HBox alignment="CENTER_LEFT" prefHeight="70.0" spacing="20.0" 
-            styleClass="top-bar" BorderPane.alignment="CENTER">
+      <HBox alignment="CENTER_LEFT" prefHeight="70.0" spacing="20.0" styleClass="top-bar" BorderPane.alignment="CENTER">
          <padding>
             <Insets left="25.0" right="25.0" />
          </padding>
@@ -77,9 +72,7 @@
             </HBox>
             
             <!-- Logout Button -->
-            <Button fx:id="logoutButton" mnemonicParsing="false" 
-                   onAction="#handleLogout" styleClass="logout-btn" 
-                   text="Logout">
+            <Button fx:id="logoutButton" mnemonicParsing="false" onAction="#handleLogout" styleClass="logout-btn" text="Logout">
                <font>
                   <Font name="Arial Bold" size="14.0" />
                </font>
@@ -90,8 +83,7 @@
    
    <!-- CENTER: Management Tabs -->
    <center>
-      <TabPane prefHeight="470.0" prefWidth="960.0" 
-              tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="CENTER">
+      <TabPane prefHeight="470.0" prefWidth="960.0" tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="CENTER">
          <tabs>
             <!-- TAB 1: Products Management -->
             <Tab text="🥬 Products">
@@ -111,14 +103,12 @@
                               </Label>
                               <VBox spacing="3.0">
                                  <children>
-                                    <Label text="Product Management" 
-                                          textFill="#2c3e50">
+                                    <Label text="Product Management" textFill="#2c3e50">
                                        <font>
                                           <Font name="Arial Black" size="18.0" />
                                        </font>
                                     </Label>
-                                    <Label text="Add, edit, or remove products from inventory" 
-                                          textFill="#7f8c8d">
+                                    <Label text="Add, edit, or remove products from inventory" textFill="#7f8c8d">
                                        <font>
                                           <Font name="Arial" size="12.0" />
                                        </font>
@@ -129,55 +119,33 @@
                         </HBox>
                         
                         <!-- Product Table -->
-                        <TableView fx:id="productTable" prefHeight="280.0" 
-                                  styleClass="cart-table" VBox.vgrow="ALWAYS">
+                        <TableView fx:id="productTable" prefHeight="280.0" styleClass="cart-table" VBox.vgrow="ALWAYS">
                            <columns>
-                              <TableColumn fx:id="productIdColumn" 
-                                          prefWidth="60.0" text="ID" />
-                              <TableColumn fx:id="productNameColumn" 
-                                          prefWidth="220.0" text="Product Name" />
-                              <TableColumn fx:id="productTypeColumn" 
-                                          prefWidth="130.0" text="Type" />
-                              <TableColumn fx:id="productPriceColumn" 
-                                          prefWidth="130.0" text="Price (₺/kg)" />
-                              <TableColumn fx:id="productStockColumn" 
-                                          prefWidth="130.0" text="Stock (kg)" />
-                              <TableColumn fx:id="productThresholdColumn" 
-                                          prefWidth="145.0" text="Threshold (kg)" />
+                              <TableColumn fx:id="productIdColumn" prefWidth="60.0" text="ID" />
+                              <TableColumn fx:id="productNameColumn" prefWidth="220.0" text="Product Name" />
+                              <TableColumn fx:id="productTypeColumn" prefWidth="130.0" text="Type" />
+                              <TableColumn fx:id="productPriceColumn" prefWidth="130.0" text="Price (₺/kg)" />
+                              <TableColumn fx:id="productStockColumn" prefWidth="130.0" text="Stock (kg)" />
+                              <TableColumn fx:id="productThresholdColumn" prefWidth="145.0" text="Threshold (kg)" />
                            </columns>
                         </TableView>
                         
                         <!-- Action Buttons -->
                         <HBox alignment="CENTER_LEFT" spacing="12.0">
                            <children>
-                              <Button fx:id="addProductButton" 
-                                     mnemonicParsing="false" 
-                                     onAction="#handleAddProduct" 
-                                     prefHeight="45.0" prefWidth="150.0" 
-                                     styleClass="checkout-btn" 
-                                     text="➕ Add Product">
+                              <Button fx:id="addProductButton" mnemonicParsing="false" onAction="#handleAddProduct" prefHeight="45.0" prefWidth="150.0" styleClass="checkout-btn" text="➕ Add Product">
                                  <font>
                                     <Font name="Arial Bold" size="13.0" />
                                  </font>
                               </Button>
                               
-                              <Button fx:id="editProductButton" 
-                                     mnemonicParsing="false" 
-                                     onAction="#handleEditProduct" 
-                                     prefHeight="45.0" prefWidth="150.0" 
-                                     styleClass="menu-btn-primary" 
-                                     text="✏️ Edit Product">
+                              <Button fx:id="editProductButton" mnemonicParsing="false" onAction="#handleEditProduct" prefHeight="45.0" prefWidth="150.0" styleClass="menu-btn-primary" text="✏️ Edit Product">
                                  <font>
                                     <Font name="Arial Bold" size="13.0" />
                                  </font>
                               </Button>
                               
-                              <Button fx:id="deleteProductButton" 
-                                     mnemonicParsing="false" 
-                                     onAction="#handleDeleteProduct" 
-                                     prefHeight="45.0" prefWidth="160.0" 
-                                     styleClass="remove-btn" 
-                                     text="🗑️ Delete Product">
+                              <Button fx:id="deleteProductButton" mnemonicParsing="false" onAction="#handleDeleteProduct" prefHeight="45.0" prefWidth="160.0" styleClass="remove-btn" text="🗑️ Delete Product">
                                  <font>
                                     <Font name="Arial Bold" size="13.0" />
                                  </font>
@@ -185,8 +153,7 @@
                               
                               <Region HBox.hgrow="ALWAYS" />
                               
-                              <Label text="💡 Threshold triggers price doubling" 
-                                    textFill="#e67e22">
+                              <Label text="💡 Threshold triggers price doubling" textFill="#e67e22">
                                  <font>
                                     <Font name="Arial Italic" size="11.0" />
                                  </font>
@@ -216,14 +183,12 @@
                               </Label>
                               <VBox spacing="3.0" HBox.hgrow="ALWAYS">
                                  <children>
-                                    <Label text="All Orders Overview" 
-                                          textFill="#2c3e50">
+                                    <Label text="All Orders Overview" textFill="#2c3e50">
                                        <font>
                                           <Font name="Arial Black" size="18.0" />
                                        </font>
                                     </Label>
-                                    <Label text="Monitor all customer orders and delivery status" 
-                                          textFill="#7f8c8d">
+                                    <Label text="Monitor all customer orders and delivery status" textFill="#7f8c8d">
                                        <font>
                                           <Font name="Arial" size="12.0" />
                                        </font>
@@ -234,13 +199,9 @@
                               <!-- Quick Stats -->
                               <HBox spacing="15.0">
                                  <children>
-                                    <VBox alignment="CENTER" spacing="3.0" 
-                                         style="-fx-background-color: rgba(46, 204, 113, 0.2); 
-                                                -fx-background-radius: 10; 
-                                                -fx-padding: 8;">
+                                    <VBox alignment="CENTER" spacing="3.0" style="-fx-background-color: rgba(46, 204, 113, 0.2);                                                  -fx-background-radius: 10;                                                  -fx-padding: 8;">
                                        <children>
-                                          <Label text="✅ Completed" 
-                                                textFill="#27ae60">
+                                          <Label text="✅ Completed" textFill="#27ae60">
                                              <font>
                                                 <Font name="Arial Bold" size="10.0" />
                                              </font>
@@ -253,13 +214,9 @@
                                        </children>
                                     </VBox>
                                     
-                                    <VBox alignment="CENTER" spacing="3.0" 
-                                         style="-fx-background-color: rgba(241, 196, 15, 0.2); 
-                                                -fx-background-radius: 10; 
-                                                -fx-padding: 8;">
+                                    <VBox alignment="CENTER" spacing="3.0" style="-fx-background-color: rgba(241, 196, 15, 0.2);                                                  -fx-background-radius: 10;                                                  -fx-padding: 8;">
                                        <children>
-                                          <Label text="🚚 In Transit" 
-                                                textFill="#f39c12">
+                                          <Label text="🚚 In Transit" textFill="#f39c12">
                                              <font>
                                                 <Font name="Arial Bold" size="10.0" />
                                              </font>
@@ -272,13 +229,9 @@
                                        </children>
                                     </VBox>
                                     
-                                    <VBox alignment="CENTER" spacing="3.0" 
-                                         style="-fx-background-color: rgba(52, 152, 219, 0.2); 
-                                                -fx-background-radius: 10; 
-                                                -fx-padding: 8;">
+                                    <VBox alignment="CENTER" spacing="3.0" style="-fx-background-color: rgba(52, 152, 219, 0.2);                                                  -fx-background-radius: 10;                                                  -fx-padding: 8;">
                                        <children>
-                                          <Label text="⏳ Pending" 
-                                                textFill="#3498db">
+                                          <Label text="⏳ Pending" textFill="#3498db">
                                              <font>
                                                 <Font name="Arial Bold" size="10.0" />
                                              </font>
@@ -296,19 +249,13 @@
                         </HBox>
                         
                         <!-- Order Table -->
-                        <TableView fx:id="orderTable" prefHeight="345.0" 
-                                  styleClass="cart-table" VBox.vgrow="ALWAYS">
+                        <TableView fx:id="orderTable" prefHeight="345.0" styleClass="cart-table" VBox.vgrow="ALWAYS">
                            <columns>
-                              <TableColumn fx:id="orderIdColumn" 
-                                          prefWidth="100.0" text="Order ID" />
-                              <TableColumn fx:id="orderCustomerColumn" 
-                                          prefWidth="200.0" text="Customer" />
-                              <TableColumn fx:id="orderDateColumn" 
-                                          prefWidth="170.0" text="Order Date" />
-                              <TableColumn fx:id="orderTotalColumn" 
-                                          prefWidth="130.0" text="Total (₺)" />
-                              <TableColumn fx:id="orderStatusColumn" 
-                                          prefWidth="175.0" text="Status" />
+                              <TableColumn fx:id="orderIdColumn" prefWidth="100.0" text="Order ID" />
+                              <TableColumn fx:id="orderCustomerColumn" prefWidth="200.0" text="Customer" />
+                              <TableColumn fx:id="orderDateColumn" prefWidth="170.0" text="Order Date" />
+                              <TableColumn fx:id="orderTotalColumn" prefWidth="130.0" text="Total (₺)" />
+                              <TableColumn fx:id="orderStatusColumn" prefWidth="175.0" text="Status" />
                            </columns>
                         </TableView>
                      </children>
@@ -334,14 +281,12 @@
                               </Label>
                               <VBox spacing="3.0">
                                  <children>
-                                    <Label text="Carrier Management" 
-                                          textFill="#2c3e50">
+                                    <Label text="Carrier Management" textFill="#2c3e50">
                                        <font>
                                           <Font name="Arial Black" size="18.0" />
                                        </font>
                                     </Label>
-                                    <Label text="Hire carriers and monitor their performance" 
-                                          textFill="#7f8c8d">
+                                    <Label text="Hire carriers and monitor their performance" textFill="#7f8c8d">
                                        <font>
                                           <Font name="Arial" size="12.0" />
                                        </font>
@@ -352,40 +297,26 @@
                         </HBox>
                         
                         <!-- Carrier Table -->
-                        <TableView fx:id="carrierTable" prefHeight="280.0" 
-                                  styleClass="cart-table" VBox.vgrow="ALWAYS">
+                        <TableView fx:id="carrierTable" prefHeight="280.0" styleClass="cart-table" VBox.vgrow="ALWAYS">
                            <columns>
-                              <TableColumn fx:id="carrierIdColumn" 
-                                          prefWidth="80.0" text="ID" />
-                              <TableColumn fx:id="carrierNameColumn" 
-                                          prefWidth="220.0" text="Carrier Name" />
-                              <TableColumn fx:id="carrierPhoneColumn" 
-                                          prefWidth="180.0" text="Phone" />
-                              <TableColumn fx:id="carrierRatingColumn" 
-                                          prefWidth="140.0" text="Rating" />
-                              <TableColumn fx:id="carrierDeliveriesColumn" 
-                                          prefWidth="155.0" text="Deliveries" />
+                              <TableColumn fx:id="carrierIdColumn" prefWidth="80.0" text="ID" />
+                              <TableColumn fx:id="carrierNameColumn" prefWidth="220.0" text="Carrier Name" />
+                              <TableColumn fx:id="carrierPhoneColumn" prefWidth="180.0" text="Phone" />
+                              <TableColumn fx:id="carrierRatingColumn" prefWidth="140.0" text="Rating" />
+                              <TableColumn fx:id="carrierDeliveriesColumn" prefWidth="155.0" text="Deliveries" />
                            </columns>
                         </TableView>
                         
                         <!-- Action Buttons -->
                         <HBox alignment="CENTER_LEFT" spacing="12.0">
                            <children>
-                              <Button mnemonicParsing="false" 
-                                     onAction="#handleEmployCarrier" 
-                                     prefHeight="45.0" prefWidth="170.0" 
-                                     styleClass="checkout-btn" 
-                                     text="➕ Employ Carrier">
+                              <Button mnemonicParsing="false" onAction="#handleEmployCarrier" prefHeight="45.0" prefWidth="170.0" styleClass="checkout-btn" text="➕ Employ Carrier">
                                  <font>
                                     <Font name="Arial Bold" size="13.0" />
                                  </font>
                               </Button>
                               
-                              <Button mnemonicParsing="false" 
-                                     onAction="#handleFireCarrier" 
-                                     prefHeight="45.0" prefWidth="160.0" 
-                                     styleClass="remove-btn" 
-                                     text="🚫 Fire Carrier">
+                              <Button mnemonicParsing="false" onAction="#handleFireCarrier" prefHeight="45.0" prefWidth="160.0" styleClass="remove-btn" text="🚫 Fire Carrier">
                                  <font>
                                     <Font name="Arial Bold" size="13.0" />
                                  </font>
@@ -393,8 +324,7 @@
                               
                               <Region HBox.hgrow="ALWAYS" />
                               
-                              <Label text="⭐ Average Rating: 4.7/5.0" 
-                                    textFill="#f39c12">
+                              <Label text="⭐ Average Rating: 4.7/5.0" textFill="#f39c12">
                                  <font>
                                     <Font name="Arial Bold" size="13.0" />
                                  </font>
@@ -422,14 +352,12 @@
                                     <Font name="Arial" size="36.0" />
                                  </font>
                               </Label>
-                              <Label text="Business Analytics Dashboard" 
-                                    textFill="#2c3e50">
+                              <Label text="Business Analytics Dashboard" textFill="#2c3e50">
                                  <font>
                                     <Font name="Arial Black" size="22.0" />
                                  </font>
                               </Label>
-                              <Label text="Monitor your business performance in real-time" 
-                                    textFill="#7f8c8d">
+                              <Label text="Monitor your business performance in real-time" textFill="#7f8c8d">
                                  <font>
                                     <Font name="Arial" size="13.0" />
                                  </font>
@@ -441,11 +369,9 @@
                         <HBox alignment="CENTER" spacing="30.0">
                            <children>
                               <!-- Total Sales Card -->
-                              <VBox alignment="CENTER" spacing="15.0" 
-                                   styleClass="info-card">
+                              <VBox alignment="CENTER" spacing="15.0" styleClass="info-card">
                                  <padding>
-                                    <Insets bottom="30.0" left="40.0" 
-                                           right="40.0" top="30.0" />
+                                    <Insets bottom="30.0" left="40.0" right="40.0" top="30.0" />
                                  </padding>
                                  <children>
                                     <Label text="💰" textFill="WHITE">
@@ -453,17 +379,17 @@
                                           <Font name="Arial" size="36.0" />
                                        </font>
                                     </Label>
-                                    <Label text="Total Sales" textFill="WHITE">
+                                    <Label text="Total Sales" textFill="#d04acc">
                                        <font>
                                           <Font name="Arial Bold" size="15.0" />
                                        </font>
                                     </Label>
-                                    <Label text="12,450₺" textFill="WHITE">
+                                    <Label text="12,450₺" textFill="#7894c3">
                                        <font>
                                           <Font name="Arial Black" size="26.0" />
                                        </font>
                                     </Label>
-                                    <Label text="+18% this month" textFill="#fee140">
+                                    <Label text="+18% this month" textFill="#b2981a">
                                        <font>
                                           <Font name="Arial" size="11.0" />
                                        </font>
@@ -472,11 +398,9 @@
                               </VBox>
                               
                               <!-- Orders Today Card -->
-                              <VBox alignment="CENTER" spacing="15.0" 
-                                   styleClass="info-card">
+                              <VBox alignment="CENTER" spacing="15.0" styleClass="info-card">
                                  <padding>
-                                    <Insets bottom="30.0" left="40.0" 
-                                           right="40.0" top="30.0" />
+                                    <Insets bottom="30.0" left="40.0" right="40.0" top="30.0" />
                                  </padding>
                                  <children>
                                     <Label text="📦" textFill="WHITE">
@@ -484,17 +408,17 @@
                                           <Font name="Arial" size="36.0" />
                                        </font>
                                     </Label>
-                                    <Label text="Orders Today" textFill="WHITE">
+                                    <Label text="Orders Today" textFill="#d04acc">
                                        <font>
                                           <Font name="Arial Bold" size="15.0" />
                                        </font>
                                     </Label>
-                                    <Label text="23" textFill="WHITE">
+                                    <Label text="23" textFill="#7894c3">
                                        <font>
                                           <Font name="Arial Black" size="26.0" />
                                        </font>
                                     </Label>
-                                    <Label text="+12% vs yesterday" textFill="#fee140">
+                                    <Label text="+12% vs yesterday" textFill="#b2981a">
                                        <font>
                                           <Font name="Arial" size="11.0" />
                                        </font>
@@ -503,11 +427,9 @@
                               </VBox>
                               
                               <!-- Active Customers Card -->
-                              <VBox alignment="CENTER" spacing="15.0" 
-                                   styleClass="info-card">
+                              <VBox alignment="CENTER" spacing="15.0" styleClass="info-card">
                                  <padding>
-                                    <Insets bottom="30.0" left="40.0" 
-                                           right="40.0" top="30.0" />
+                                    <Insets bottom="30.0" left="40.0" right="40.0" top="30.0" />
                                  </padding>
                                  <children>
                                     <Label text="👥" textFill="WHITE">
@@ -515,17 +437,17 @@
                                           <Font name="Arial" size="36.0" />
                                        </font>
                                     </Label>
-                                    <Label text="Active Customers" textFill="WHITE">
+                                    <Label text="Active Customers" textFill="#d04acc">
                                        <font>
                                           <Font name="Arial Bold" size="15.0" />
                                        </font>
                                     </Label>
-                                    <Label text="156" textFill="WHITE">
+                                    <Label text="156" textFill="#7894c3">
                                        <font>
                                           <Font name="Arial Black" size="26.0" />
                                        </font>
                                     </Label>
-                                    <Label text="+25 new this week" textFill="#fee140">
+                                    <Label text="+25 new this week" textFill="#b2981a">
                                        <font>
                                           <Font name="Arial" size="11.0" />
                                        </font>
@@ -538,14 +460,12 @@
                         <!-- Info Label -->
                         <VBox alignment="CENTER" spacing="8.0">
                            <children>
-                              <Label text="📈 Advanced Charts Coming Soon!" 
-                                    textFill="#7f8c8d">
+                              <Label text="📈 Advanced Charts Coming Soon!" textFill="#7f8c8d">
                                  <font>
                                     <Font name="Arial Italic" size="14.0" />
                                  </font>
                               </Label>
-                              <Label text="Sales trends • Product performance • Revenue forecasting" 
-                                    textFill="#95a5a6">
+                              <Label text="Sales trends • Product performance • Revenue forecasting" textFill="#95a5a6">
                                  <font>
                                     <Font name="Arial" size="11.0" />
                                  </font>

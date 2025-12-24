@@ -213,7 +213,7 @@
     -fx-padding: 10 20 10 20;
     -fx-effect: dropshadow(gaussian, rgba(238, 90, 111, 0.5), 10, 0, 0, 3);
     -fx-font-weight: bold;
-}
+} 
 
 .logout-btn:hover {
     -fx-background-color: linear-gradient(135deg, #c44569 0%, #ee5a6f 50%, #ff6b6b 100%);
@@ -262,6 +262,8 @@
     -fx-effect: dropshadow(gaussian, rgba(79, 172, 254, 0.4), 8, 0, 0, 3);
     -fx-font-weight: bold;
 }
+
+
 
 .menu-btn-primary:hover {
     -fx-background-color: linear-gradient(135deg, #00f2fe 0%, #4facfe 50%, #f093fb 100%);
@@ -554,18 +556,28 @@
     -fx-background-radius: 12;
 }
 
-/* Product Card Styling */
+/* Product Card Styling - Enhanced */
 .product-card {
-    -fx-background-color: white;
-    -fx-background-radius: 15;
-    -fx-border-color: linear-gradient(to bottom, #667eea, #f093fb);
+    -fx-background-color: linear-gradient(to bottom, white 0%, #fafafa 100%);
+    -fx-background-radius: 18;
+    -fx-border-color: linear-gradient(135deg, #667eea 0%, #f093fb 50%, #4facfe 100%);
     -fx-border-width: 3;
-    -fx-border-radius: 15;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 12, 0, 0, 5);
+    -fx-border-radius: 18;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 15, 0, 0, 8);
 }
 
 .product-card:hover {
-    -fx-scale-x: 1.05;
-    -fx-scale-y: 1.05;
-    -fx-effect: dropshadow(gaussian, rgba(102, 126, 234, 0.4), 18, 0, 0, 8);
+    -fx-background-color: linear-gradient(to bottom, white 0%, #f0f8ff 100%);
+    -fx-scale-x: 1.08;
+    -fx-scale-y: 1.08;
+    -fx-border-width: 4;
+    -fx-effect: dropshadow(gaussian, rgba(102, 126, 234, 0.6), 25, 0, 0, 12);
+    -fx-cursor: hand;
+}
+
+/* Colorful Separator */
+.colorful-separator {
+    -fx-background-color: linear-gradient(to right, #667eea, #764ba2, #f093fb, #4facfe);
+    -fx-pref-height: 3;
+    -fx-border-width: 0;
 }

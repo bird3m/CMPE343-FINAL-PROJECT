@@ -14,17 +14,11 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" 
-            prefHeight="540.0" prefWidth="960.0" 
-            styleClass="main-root"
-            stylesheets="@../css/style.css"
-            xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" 
-            fx:controller="controllers.CustomerMainController">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="540.0" prefWidth="960.0" styleClass="main-root" stylesheets="@../css/style.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.CustomerMainController">
    
    <!-- TOP: Welcome bar -->
    <top>
-      <HBox alignment="CENTER_LEFT" prefHeight="60.0" spacing="20.0" 
-            styleClass="top-bar" BorderPane.alignment="CENTER">
+      <HBox alignment="CENTER_LEFT" prefHeight="60.0" spacing="20.0" styleClass="top-bar" BorderPane.alignment="CENTER">
          <padding>
             <Insets left="20.0" right="20.0" />
          </padding>
@@ -35,8 +29,7 @@
                </font>
             </Label>
             <Region HBox.hgrow="ALWAYS" />
-            <Button fx:id="logoutButton" mnemonicParsing="false" onAction="#handleLogout" 
-                   styleClass="logout-btn" text="Logout">
+            <Button fx:id="logoutButton" mnemonicParsing="false" onAction="#handleLogout" styleClass="logout-btn" text="Logout">
                <font>
                   <Font name="Arial Bold" size="13.0" />
                </font>
@@ -47,8 +40,7 @@
    
    <!-- LEFT: Menu -->
    <left>
-      <VBox prefHeight="480.0" prefWidth="200.0" spacing="10.0" 
-            styleClass="left-menu" BorderPane.alignment="CENTER">
+      <VBox prefHeight="480.0" prefWidth="200.0" spacing="10.0" styleClass="left-menu" BorderPane.alignment="CENTER">
          <padding>
             <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
          </padding>
@@ -69,8 +61,7 @@
                </font>
             </TextField>
             
-            <Button fx:id="searchButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" 
-                   onAction="#handleSearch" styleClass="menu-btn-primary" text="Search">
+            <Button fx:id="searchButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleSearch" styleClass="menu-btn-primary" text="Search">
                <font>
                   <Font name="Arial Bold" size="12.0" />
                </font>
@@ -92,29 +83,25 @@
             </Label>
             
             <!-- Menu Buttons -->
-            <Button fx:id="viewCartButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" 
-                   onAction="#handleViewCart" styleClass="menu-btn" text="🛒 Shopping Cart">
+            <Button fx:id="viewCartButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleViewCart" styleClass="menu-btn" text="🛒 Shopping Cart">
                <font>
                   <Font name="Arial Bold" size="12.0" />
                </font>
             </Button>
             
-            <Button fx:id="viewOrdersButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" 
-                   onAction="#handleViewOrders" styleClass="menu-btn" text="📋 My Orders">
+            <Button fx:id="viewOrdersButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleViewOrders" styleClass="menu-btn" text="📋 My Orders">
                <font>
                   <Font name="Arial Bold" size="12.0" />
                </font>
             </Button>
             
-            <Button fx:id="profileButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" 
-                   onAction="#handleProfile" styleClass="menu-btn" text="👤 My Profile">
+            <Button fx:id="profileButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleProfile" styleClass="menu-btn" text="👤 My Profile">
                <font>
                   <Font name="Arial Bold" size="12.0" />
                </font>
             </Button>
             
-            <Button fx:id="messagesButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" 
-                   onAction="#handleMessages" styleClass="menu-btn" text="💬 Messages">
+            <Button fx:id="messagesButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleMessages" styleClass="menu-btn" text="💬 Messages">
                <font>
                   <Font name="Arial Bold" size="12.0" />
                </font>
@@ -128,7 +115,7 @@
                   <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                </padding>
                <children>
-                  <Label text="🎉 Free Delivery" textFill="WHITE">
+                  <Label text="🎉 Free Delivery" textFill="#33834f">
                      <font>
                         <Font name="Arial Bold" size="12.0" />
                      </font>
@@ -156,14 +143,12 @@
                      </padding>
                      <children>
                         <!-- VEGETABLES TitledPane -->
-                        <TitledPane fx:id="vegetablePane" animated="false" expanded="true" 
-                                   styleClass="titled-pane-veg" text="🥬 VEGETABLES">
+                        <TitledPane fx:id="vegetablePane" animated="false" expanded="true" styleClass="titled-pane-veg" text="🥬 VEGETABLES">
                            <font>
                               <Font name="Arial Bold" size="15.0" />
                            </font>
                            <content>
-                              <ListView fx:id="vegetableList" prefHeight="200.0" 
-                                       styleClass="product-list">
+                              <ListView fx:id="vegetableList" prefHeight="200.0" styleClass="product-list">
                                  <padding>
                                     <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                                  </padding>
@@ -172,14 +157,12 @@
                         </TitledPane>
                         
                         <!-- FRUITS TitledPane -->
-                        <TitledPane fx:id="fruitPane" animated="false" expanded="true" 
-                                   styleClass="titled-pane-fruit" text="🍎 FRUITS">
+                        <TitledPane fx:id="fruitPane" animated="false" expanded="true" styleClass="titled-pane-fruit" text="🍎 FRUITS">
                            <font>
                               <Font name="Arial Bold" size="15.0" />
                            </font>
                            <content>
-                              <ListView fx:id="fruitList" prefHeight="200.0" 
-                                       styleClass="product-list">
+                              <ListView fx:id="fruitList" prefHeight="200.0" styleClass="product-list">
                                  <padding>
                                     <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                                  </padding>
@@ -196,8 +179,7 @@
    
    <!-- BOTTOM: Add to Cart -->
    <bottom>
-      <HBox alignment="CENTER" prefHeight="70.0" spacing="15.0" 
-            styleClass="bottom-bar" BorderPane.alignment="CENTER">
+      <HBox alignment="CENTER" prefHeight="70.0" spacing="15.0" styleClass="bottom-bar" BorderPane.alignment="CENTER">
          <padding>
             <Insets bottom="15.0" left="20.0" right="20.0" top="15.0" />
          </padding>
@@ -208,16 +190,13 @@
                </font>
             </Label>
             
-            <TextField fx:id="quantityField" prefHeight="35.0" prefWidth="100.0" 
-                      promptText="0.5" styleClass="quantity-input">
+            <TextField fx:id="quantityField" prefHeight="35.0" prefWidth="100.0" promptText="0.5" styleClass="quantity-input">
                <font>
                   <Font name="Arial" size="13.0" />
                </font>
             </TextField>
             
-            <Button fx:id="addToCartButton" mnemonicParsing="false" onAction="#handleAddToCart" 
-                   prefHeight="40.0" prefWidth="180.0" styleClass="add-cart-btn" 
-                   text="🛒 Add to Cart">
+            <Button fx:id="addToCartButton" mnemonicParsing="false" onAction="#handleAddToCart" prefHeight="40.0" prefWidth="180.0" styleClass="add-cart-btn" text="🛒 Add to Cart">
                <font>
                   <Font name="Arial Black" size="14.0" />
                </font>
