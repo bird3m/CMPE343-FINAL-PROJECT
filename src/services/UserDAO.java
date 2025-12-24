@@ -1,6 +1,7 @@
 package services;
 
 import models.User;
+import services.AuthenticationService;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -10,26 +11,40 @@ import java.util.List;
 
 public class UserDAO {
 
-    //LOGIN
-    public User login(String username, String passwordHash) {
-        String sql = "SELECT * FROM userinfo WHERE username = ? AND password_hash = ?";
+   
+
+public User login(String username, String password) {
+    // 1. Şifreyi Hashle
+    String hashedPassword = AuthenticationService.hashPassword(password);
+    
+ 
+    System.out.println("================ DEBUG ================");
+    System.out.println("Girilen Kullanıcı: " + username);
+    System.out.println("Girilen Şifre (Düz): " + password);
+    System.out.println("Java'nın Ürettiği Hash: " + hashedPassword);
+    System.out.println("=======================================");
+    
+
+    String sql = "SELECT * FROM userinfo WHERE username = ? AND password_hash = ?";
+    
+    try (Connection conn = DatabaseAdapter.getConnection();
+         PreparedStatement pstmt = conn.prepareStatement(sql)) {
+         
+        pstmt.setString(1, username);
+        pstmt.setString(2, hashedPassword); // <--- BURANIN HASH'Lİ OLDUĞUNA EMİN MİSİN?
         
-        try (Connection conn = DatabaseAdapter.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            
-            pstmt.setString(1, username);
-            pstmt.setString(2, passwordHash); 
-            
-            try (ResultSet rs = pstmt.executeQuery()) {
-                if (rs.next()) {
-                    return mapResultSetToUser(rs);
-                }
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
+        ResultSet rs = pstmt.executeQuery();
+        
+        if (rs.next()) {
+            System.out.println("✅ Veritabanında eşleşme bulundu!");
+            // ... User oluşturma kodların ...
+        } else {
+            System.out.println("❌ Veritabanı 'Böyle biri yok' dedi.");
         }
-        return null;
-    }
+        // ...
+    } catch (Exception e) { e.printStackTrace(); }
+    return null;
+}
 
     // 2. KULLANICI ADI KONTROLÜ (Register öncesi şart!)
     public boolean isUsernameTaken(String username) {

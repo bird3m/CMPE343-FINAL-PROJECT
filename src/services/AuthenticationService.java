@@ -22,7 +22,7 @@ public class AuthenticationService {
     }
 
     // Şifreleme Metodu (SHA-256) - Register ekranında bunu kullanacağız
-    public String hashPassword(String originalPassword) {
+    public static String hashPassword(String originalPassword) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             byte[] encodedhash = digest.digest(originalPassword.getBytes(StandardCharsets.UTF_8));
@@ -42,4 +42,6 @@ public class AuthenticationService {
             return originalPassword; // Hata olursa şifrelemeden döndür
         }
     }
+
+    
 }
