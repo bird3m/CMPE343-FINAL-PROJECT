@@ -1,172 +1,58 @@
 package services;
 
-import models.User;
-import services.AuthenticationService;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
+import models.User;
 
 public class UserDAO {
 
-   
+    public User login(String username, String password) {
+        // 1. Şifreyi Hashle (Static metoddan çağırıyoruz)
+        String hashedPassword = AuthenticationService.hashPassword(password);
 
-public User login(String username, String password) {
-    // 1. Şifreyi Hashle
-    String hashedPassword = AuthenticationService.hashPassword(password);
-    
- 
-    System.out.println("================ DEBUG ================");
-    System.out.println("Girilen Kullanıcı: " + username);
-    System.out.println("Girilen Şifre (Düz): " + password);
-    System.out.println("Java'nın Ürettiği Hash: " + hashedPassword);
-    System.out.println("=======================================");
-    
-
-    String sql = "SELECT * FROM userinfo WHERE username = ? AND password_hash = ?";
-    
-    try (Connection conn = DatabaseAdapter.getConnection();
-         PreparedStatement pstmt = conn.prepareStatement(sql)) {
-         
-        pstmt.setString(1, username);
-        pstmt.setString(2, hashedPassword); // <--- BURANIN HASH'Lİ OLDUĞUNA EMİN MİSİN?
+        System.out.println("================ DEBUG ================");
+        System.out.println("Aranan Kullanıcı: " + username);
+        System.out.println("Aranan Hash: " + hashedPassword);
         
-        ResultSet rs = pstmt.executeQuery();
+        // SQL Sorgusu: Hem kullanıcı adı hem şifre hash'i tutmalı
+        String sql = "SELECT * FROM userinfo WHERE username = ? AND password_hash = ?";
         
-        if (rs.next()) {
-            System.out.println("✅ Veritabanında eşleşme bulundu!");
-            // ... User oluşturma kodların ...
-        } else {
-            System.out.println("❌ Veritabanı 'Böyle biri yok' dedi.");
-        }
-        // ...
-    } catch (Exception e) { e.printStackTrace(); }
-    return null;
-}
-
-    // 2. KULLANICI ADI KONTROLÜ (Register öncesi şart!)
-    public boolean isUsernameTaken(String username) {
-        String sql = "SELECT count(*) FROM userinfo WHERE username = ?";
         try (Connection conn = DatabaseAdapter.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            
+             
             pstmt.setString(1, username);
-            try (ResultSet rs = pstmt.executeQuery()) {
-                if (rs.next()) {
-                    // Eğer sayi > 0 ise kullanıcı adı alınmış demektir
-                    return rs.getInt(1) > 0;
-                }
+            pstmt.setString(2, hashedPassword);
+            
+            ResultSet rs = pstmt.executeQuery();
+            
+            if (rs.next()) {
+                System.out.println("✅ Veritabanında EŞLEŞME BULUNDU! Nesne oluşturuluyor...");
+                
+                // --- İŞTE EKSİK OLAN KISIM BURASI OLABİLİR ---
+                // Veritabanındaki sütunları tek tek çekip User nesnesine koyuyoruz.
+                int id = rs.getInt("id");
+                String dbUser = rs.getString("username");
+                String role = rs.getString("role");
+                String fullName = rs.getString("full_name"); // Sütun adı 'full_name' mi kontrol et
+                String address = rs.getString("address");
+                String phone = rs.getString("phone");
+
+                // User nesnesini oluştur (Constructor sırası User.java ile aynı olmalı!)
+                User user = new User(id, dbUser, role, fullName, address, phone);
+                
+                System.out.println("📦 User nesresi paketlendi ve gönderiliyor: " + role);
+                return user; // <--- KİLİT NOKTA: BURADA user DÖNMELİ!
+                
+            } else {
+                System.out.println("❌ Eşleşme YOK. Kullanıcı adı veya şifre yanlış.");
+                return null;
             }
-        } catch (SQLException e) {
+
+        } catch (Exception e) {
+            System.err.println("💥 Veritabanı Hatası: " + e.getMessage());
             e.printStackTrace();
+            return null;
         }
-        return false; 
-    }
-
-    // 3. YENİ KULLANICI EKLE (Register / Hire Carrier)
-    public boolean addUser(User user) {
-        String sql = "INSERT INTO userinfo (username, password_hash, role, full_name, address, phone) VALUES (?, ?, ?, ?, ?, ?)";
-        
-        try (Connection conn = DatabaseAdapter.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            
-            pstmt.setString(1, user.getUsername());
-            pstmt.setString(2, user.getPassword()); // Hashlenmiş gelmeli
-            pstmt.setString(3, user.getRole());
-            pstmt.setString(4, user.getFullName());
-            pstmt.setString(5, user.getAddress());
-            pstmt.setString(6, user.getPhone());
-            
-            return pstmt.executeUpdate() > 0;
-        } catch (SQLException e) {
-            System.err.println("Kullanıcı ekleme hatası: " + e.getMessage());
-            return false;
-        }
-    }
-
-    // 4. SADECE PROFİL BİLGİLERİNİ GÜNCELLE (Şifre Hariç)
-    // "Edit Profile" ekranında şifre değişmeyecekse bunu kullanın
-    public boolean updateProfile(User user) {
-        String sql = "UPDATE userinfo SET full_name = ?, address = ?, phone = ? WHERE id = ?";
-        
-        try (Connection conn = DatabaseAdapter.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            
-            pstmt.setString(1, user.getFullName());
-            pstmt.setString(2, user.getAddress());
-            pstmt.setString(3, user.getPhone());
-            pstmt.setInt(4, user.getId());
-            
-            return pstmt.executeUpdate() > 0;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-    // 5. SADECE ŞİFRE GÜNCELLE (Change Password)
-    // Kullanıcı profilinde "Şifremi Değiştir" derse bunu kullanın
-    public boolean updatePassword(int userId, String newPasswordHash) {
-        String sql = "UPDATE userinfo SET password_hash = ? WHERE id = ?";
-        
-        try (Connection conn = DatabaseAdapter.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            
-            pstmt.setString(1, newPasswordHash);
-            pstmt.setInt(2, userId);
-            
-            return pstmt.executeUpdate() > 0;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-    // 6. KULLANICI SİL (Fire Carrier)
-    public boolean deleteUser(int userId) {
-        String sql = "DELETE FROM userinfo WHERE id = ?";
-        try (Connection conn = DatabaseAdapter.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setInt(1, userId);
-            return pstmt.executeUpdate() > 0;
-        } catch (SQLException e) {
-            System.err.println("Silme hatası: " + e.getMessage());
-            return false;
-        }
-    }
-
-    // 7. ROLE GÖRE LİSTELE (Owner -> Carrier Listesi)
-    public List<User> getUsersByRole(String role) {
-        List<User> list = new ArrayList<>();
-        String sql = "SELECT * FROM userinfo WHERE role = ?";
-        
-        try (Connection conn = DatabaseAdapter.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            
-            pstmt.setString(1, role);
-            try (ResultSet rs = pstmt.executeQuery()) {
-                while (rs.next()) {
-                    list.add(mapResultSetToUser(rs));
-                }
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return list;
-    }
-
-    // Yardımcı: ResultSet -> User
-    private User mapResultSetToUser(ResultSet rs) throws SQLException {
-        return new User(
-            rs.getInt("id"),
-            rs.getString("username"),
-            rs.getString("password_hash"),
-            rs.getString("role"),
-            rs.getString("full_name"),
-            rs.getString("address"),
-            rs.getString("phone")
-        );
     }
 }

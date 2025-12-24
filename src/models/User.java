@@ -20,6 +20,15 @@ public class User {
         this.phone = phone;
     }
 
+    public User(int id, String username, String role, String fullName, String address, String phone) {
+    this.id = id;
+    this.username = username;
+    this.role = role;
+    this.fullName = fullName;
+    this.address = address;
+    this.phone = phone;
+}
+
     // 2. REGISTRATION CONSTRUCTOR (Yeni kayıt)
     public User(String username, String password, String role, String fullName, String address, String phone) {
         this.username = username;

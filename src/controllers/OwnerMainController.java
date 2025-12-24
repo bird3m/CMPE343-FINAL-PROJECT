@@ -11,16 +11,23 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
 import models.Product;
+import services.ProductService;
 
 /**
  * Owner Main Controller
- * Manages products, orders, carriers, and reports
+ * 
+ * Features:
+ * - Product management (add, edit, delete)
+ * - View all orders
+ * - Carrier management
+ * - Business reports and analytics
  * 
  * @author Group04
+ * @version 1.0
  */
 public class OwnerMainController {
     
-    // Product Table
+    // Product Table Components
     @FXML private TableView<Product> productTable;
     @FXML private TableColumn<Product, Integer> productIdColumn;
     @FXML private TableColumn<Product, String> productNameColumn;
@@ -29,7 +36,7 @@ public class OwnerMainController {
     @FXML private TableColumn<Product, Double> productStockColumn;
     @FXML private TableColumn<Product, Double> productThresholdColumn;
     
-    // Order Table
+    // Order Table Components
     @FXML private TableView<OrderItem> orderTable;
     @FXML private TableColumn<OrderItem, Integer> orderIdColumn;
     @FXML private TableColumn<OrderItem, String> orderCustomerColumn;
@@ -37,7 +44,7 @@ public class OwnerMainController {
     @FXML private TableColumn<OrderItem, Double> orderTotalColumn;
     @FXML private TableColumn<OrderItem, String> orderStatusColumn;
     
-    // Carrier Table
+    // Carrier Table Components
     @FXML private TableView<CarrierItem> carrierTable;
     @FXML private TableColumn<CarrierItem, Integer> carrierIdColumn;
     @FXML private TableColumn<CarrierItem, String> carrierNameColumn;
@@ -45,17 +52,19 @@ public class OwnerMainController {
     @FXML private TableColumn<CarrierItem, Double> carrierRatingColumn;
     @FXML private TableColumn<CarrierItem, Integer> carrierDeliveriesColumn;
     
+    // Buttons
     @FXML private Button addProductButton;
     @FXML private Button editProductButton;
     @FXML private Button deleteProductButton;
     @FXML private Button logoutButton;
     
+    // Data Lists
     private ObservableList<Product> products;
     private ObservableList<OrderItem> orders;
     private ObservableList<CarrierItem> carriers;
     
     /**
-     * Initialize - Setup tables
+     * Initialize - Called automatically after FXML is loaded
      */
     @FXML
     private void initialize() {
@@ -76,6 +85,31 @@ public class OwnerMainController {
         productPriceColumn.setCellValueFactory(new PropertyValueFactory<>("price"));
         productStockColumn.setCellValueFactory(new PropertyValueFactory<>("stock"));
         productThresholdColumn.setCellValueFactory(new PropertyValueFactory<>("threshold"));
+        
+        // Format numeric columns
+        productPriceColumn.setCellFactory(tc -> new TableCell<Product, Double>() {
+            @Override
+            protected void updateItem(Double value, boolean empty) {
+                super.updateItem(value, empty);
+                setText(empty || value == null ? null : String.format("%.2f ₺", value));
+            }
+        });
+        
+        productStockColumn.setCellFactory(tc -> new TableCell<Product, Double>() {
+            @Override
+            protected void updateItem(Double value, boolean empty) {
+                super.updateItem(value, empty);
+                setText(empty || value == null ? null : String.format("%.2f kg", value));
+            }
+        });
+        
+        productThresholdColumn.setCellFactory(tc -> new TableCell<Product, Double>() {
+            @Override
+            protected void updateItem(Double value, boolean empty) {
+                super.updateItem(value, empty);
+                setText(empty || value == null ? null : String.format("%.2f kg", value));
+            }
+        });
     }
     
     /**
@@ -87,6 +121,15 @@ public class OwnerMainController {
         orderDateColumn.setCellValueFactory(new PropertyValueFactory<>("orderDate"));
         orderTotalColumn.setCellValueFactory(new PropertyValueFactory<>("total"));
         orderStatusColumn.setCellValueFactory(new PropertyValueFactory<>("status"));
+        
+        // Format total column
+        orderTotalColumn.setCellFactory(tc -> new TableCell<OrderItem, Double>() {
+            @Override
+            protected void updateItem(Double value, boolean empty) {
+                super.updateItem(value, empty);
+                setText(empty || value == null ? null : String.format("%.2f ₺", value));
+            }
+        });
     }
     
     /**
@@ -98,46 +141,62 @@ public class OwnerMainController {
         carrierPhoneColumn.setCellValueFactory(new PropertyValueFactory<>("phone"));
         carrierRatingColumn.setCellValueFactory(new PropertyValueFactory<>("rating"));
         carrierDeliveriesColumn.setCellValueFactory(new PropertyValueFactory<>("deliveryCount"));
+        
+        // Format rating column
+        carrierRatingColumn.setCellFactory(tc -> new TableCell<CarrierItem, Double>() {
+            @Override
+            protected void updateItem(Double value, boolean empty) {
+                super.updateItem(value, empty);
+                setText(empty || value == null ? null : String.format("⭐ %.1f", value));
+            }
+        });
     }
     
     /**
-     * Load sample data (Replace with database calls)
+     * Load sample data
+     * TODO: Replace with real database queries
      */
     private void loadSampleData() {
-        // Sample Products
-        products = FXCollections.observableArrayList();
-        products.add(new Product(1, "Tomato", "vegetable", 20.50, 50, 5, "/images/vegetables/tomato.jpg"));
-        products.add(new Product(2, "Apple", "fruit", 24.50, 70, 8, "/images/fruits/apple.jpg"));
-        products.add(new Product(3, "Potato", "vegetable", 15.80, 100, 10, "/images/vegetables/potato.jpg"));
+        // Load Products
+        products = FXCollections.observableArrayList(ProductService.getAllProducts());
         productTable.setItems(products);
         
-        // Sample Orders
+        // Load Sample Orders
         orders = FXCollections.observableArrayList();
-        orders.add(new OrderItem(1001, "Ali Yılmaz", "23.12.2025", 125.50, "Delivered"));
-        orders.add(new OrderItem(1002, "Ayşe Demir", "23.12.2025", 89.90, "In Transit"));
-        orders.add(new OrderItem(1003, "Mehmet Can", "22.12.2025", 210.00, "Pending"));
+        orders.add(new OrderItem(1001, "Ali Yılmaz", "23.12.2025 10:30", 125.50, "Delivered"));
+        orders.add(new OrderItem(1002, "Ayşe Demir", "23.12.2025 11:45", 89.90, "In Transit"));
+        orders.add(new OrderItem(1003, "Mehmet Can", "23.12.2025 09:15", 210.00, "Pending"));
+        orders.add(new OrderItem(1004, "Zeynep Kaya", "22.12.2025 14:20", 156.80, "Delivered"));
+        orders.add(new OrderItem(1005, "Can Özdemir", "22.12.2025 16:00", 95.00, "Delivered"));
         orderTable.setItems(orders);
         
-        // Sample Carriers
+        // Load Sample Carriers
         carriers = FXCollections.observableArrayList();
         carriers.add(new CarrierItem(1, "Ahmet Yıldız", "+90 532 111 2233", 4.8, 156));
         carriers.add(new CarrierItem(2, "Fatma Kara", "+90 533 444 5566", 4.6, 98));
+        carriers.add(new CarrierItem(3, "Hasan Şen", "+90 534 777 8899", 4.9, 203));
         carrierTable.setItems(carriers);
     }
     
     /**
-     * Add product handler
+     * Handle Add Product Button
      */
     @FXML
     private void handleAddProduct(ActionEvent event) {
         showAlert(Alert.AlertType.INFORMATION, "Add Product", 
-                 "Product addition dialog coming soon!\n\n" +
-                 "This will open a form to enter:\n" +
-                 "- Product name\n- Type (vegetable/fruit)\n- Price\n- Stock\n- Threshold\n- Image");
+                 "➕ Add New Product\n\n" +
+                 "This feature will open a dialog to:\n" +
+                 "• Enter product name\n" +
+                 "• Select type (vegetable/fruit)\n" +
+                 "• Set price per kg\n" +
+                 "• Set initial stock\n" +
+                 "• Set threshold value\n" +
+                 "• Upload product image\n\n" +
+                 "Coming soon!");
     }
     
     /**
-     * Edit product handler
+     * Handle Edit Product Button
      */
     @FXML
     private void handleEditProduct(ActionEvent event) {
@@ -150,12 +209,17 @@ public class OwnerMainController {
         }
         
         showAlert(Alert.AlertType.INFORMATION, "Edit Product", 
-                 "Editing: " + selected.getName() + "\n\n" +
-                 "Product edit dialog coming soon!");
+                 "✏️ Edit Product: " + selected.getName() + "\n\n" +
+                 "Current Details:\n" +
+                 "• Type: " + selected.getType() + "\n" +
+                 "• Price: " + String.format("%.2f₺/kg", selected.getPrice()) + "\n" +
+                 "• Stock: " + String.format("%.2f kg", selected.getStock()) + "\n" +
+                 "• Threshold: " + String.format("%.2f kg", selected.getThreshold()) + "\n\n" +
+                 "Edit dialog coming soon!");
     }
     
     /**
-     * Delete product handler
+     * Handle Delete Product Button
      */
     @FXML
     private void handleDeleteProduct(ActionEvent event) {
@@ -167,34 +231,102 @@ public class OwnerMainController {
             return;
         }
         
+        // Confirm deletion
         Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
         confirm.setTitle("Delete Product");
         confirm.setHeaderText("Are you sure?");
-        confirm.setContentText("Delete product: " + selected.getName() + "?");
+        confirm.setContentText("Delete product: " + selected.getName() + "?\n\n" +
+                              "This will set is_active=0 in database.\n" +
+                              "Past orders will remain intact.");
         
         if (confirm.showAndWait().get() == ButtonType.OK) {
+            // Remove from table
             products.remove(selected);
+            
             showAlert(Alert.AlertType.INFORMATION, "Deleted", 
-                     "Product deleted successfully!");
+                     "✅ Product deleted successfully!\n\n" +
+                     "Product: " + selected.getName() + "\n" +
+                     "It has been removed from active products.");
+            
+            // TODO: Update database (set is_active = 0)
         }
     }
     
     /**
-     * Logout handler
+     * Handle Employ Carrier
+     */
+    @FXML
+    private void handleEmployCarrier(ActionEvent event) {
+        showAlert(Alert.AlertType.INFORMATION, "Employ Carrier", 
+                 "➕ Employ New Carrier\n\n" +
+                 "This feature will allow:\n" +
+                 "• Register new carrier\n" +
+                 "• Enter carrier details\n" +
+                 "• Set initial credentials\n" +
+                 "• Assign delivery areas\n\n" +
+                 "Coming soon!");
+    }
+    
+    /**
+     * Handle Fire Carrier
+     */
+    @FXML
+    private void handleFireCarrier(ActionEvent event) {
+        CarrierItem selected = carrierTable.getSelectionModel().getSelectedItem();
+        
+        if (selected == null) {
+            showAlert(Alert.AlertType.WARNING, "No Selection", 
+                     "Please select a carrier!");
+            return;
+        }
+        
+        // Confirm firing
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+        confirm.setTitle("Fire Carrier");
+        confirm.setHeaderText("Are you sure?");
+        confirm.setContentText("Fire carrier: " + selected.getCarrierName() + "?\n\n" +
+                              "This will deactivate their account.");
+        
+        if (confirm.showAndWait().get() == ButtonType.OK) {
+            carriers.remove(selected);
+            showAlert(Alert.AlertType.INFORMATION, "Carrier Fired", 
+                     "Carrier has been removed from active carriers.");
+        }
+    }
+    
+    /**
+     * Handle Logout Button
      */
     @FXML
     private void handleLogout(ActionEvent event) {
-        try {
-            Parent root = FXMLLoader.load(
-                getClass().getResource("/fxml/Login.fxml")
-            );
-            
-            Stage currentStage = (Stage) logoutButton.getScene().getWindow();
-            currentStage.setScene(new Scene(root, 960, 540));
-            currentStage.setTitle("GreenGrocer - Login");
-            
-        } catch (Exception e) {
-            e.printStackTrace();
+        // Confirm logout
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+        confirm.setTitle("Logout");
+        confirm.setHeaderText("Are you sure?");
+        confirm.setContentText("Do you want to logout?");
+        
+        if (confirm.showAndWait().get() == ButtonType.OK) {
+            try {
+                // Load login screen
+                Parent root = FXMLLoader.load(
+                    getClass().getResource("/fxml/Login.fxml")
+                );
+                
+                Scene scene = new Scene(root, 960, 540);
+                scene.getStylesheets().add(
+                    getClass().getResource("/css/style.css").toExternalForm()
+                );
+                
+                Stage currentStage = (Stage) logoutButton.getScene().getWindow();
+                currentStage.setScene(scene);
+                currentStage.setTitle("Group04 GreenGrocer - Login");
+                currentStage.centerOnScreen();
+                
+            } catch (Exception e) {
+                e.printStackTrace();
+                showAlert(Alert.AlertType.ERROR, "Error", 
+                         "Could not logout!\n\n" + e.getMessage());
+            }
         }
     }
     
@@ -209,10 +341,10 @@ public class OwnerMainController {
         alert.showAndWait();
     }
     
-    // ============= INNER CLASSES FOR TABLE DATA =============
+    // ==================== INNER CLASSES ====================
     
     /**
-     * Order Item for table
+     * Order Item for table display
      */
     public static class OrderItem {
         private int orderId;
@@ -230,6 +362,7 @@ public class OwnerMainController {
             this.status = status;
         }
         
+        // Getters
         public int getOrderId() { return orderId; }
         public String getCustomerName() { return customerName; }
         public String getOrderDate() { return orderDate; }
@@ -238,7 +371,7 @@ public class OwnerMainController {
     }
     
     /**
-     * Carrier Item for table
+     * Carrier Item for table display
      */
     public static class CarrierItem {
         private int carrierId;
@@ -256,6 +389,7 @@ public class OwnerMainController {
             this.deliveryCount = deliveryCount;
         }
         
+        // Getters
         public int getCarrierId() { return carrierId; }
         public String getCarrierName() { return carrierName; }
         public String getPhone() { return phone; }
