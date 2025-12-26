@@ -4,9 +4,9 @@ import javafx.animation.*;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.control.*; 
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
@@ -403,15 +403,23 @@ public class LoginController {
                     return;
             }
             
+
+            // Pass user to controller if customer
             // Load FXML
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlFile));
             Parent root = loader.load();
             
-            // Pass user to controller if customer
+        
             if (user.getRole().equals("customer")) {
                 CustomerMainController controller = loader.getController();
                 controller.setUser(user);
             }
+            //KURYE KONTROLÜ 
+            else if (user.getRole().equals("carrier")) {
+                CarrierMainController controller = loader.getController();
+                controller.setUser(user); // Kurye bilgisini içeri atıyoruz
+            }
+            // ---------------------------------------------
             
             // Create new stage
             Stage stage = new Stage();

@@ -1,44 +1,35 @@
 package models;
 
-import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 public class Order {
     private int id;
     private int customerId;
-    private int carrierId; // Henüz atanmadıysa 0 veya null olabilir
-    private double totalPrice;
-    private String status; // PENDING, ON_THE_WAY, DELIVERED, CANCELLED
-    private Timestamp orderDate;
-    private String deliveryAddress;
+    private String customerName; // Join ile gelen isim
+    private int carrierId;
+    private String status;
+    private LocalDateTime orderTime;
+    private double totalCost; // Arkadaşın bunu totalPrice yapmış olabilir, doğrusu bu.
 
-    public Order(int id, int customerId, int carrierId, double totalPrice, String status, Timestamp orderDate, String deliveryAddress) {
+    public Order(int id, int customerId, String customerName, int carrierId, String status, LocalDateTime orderTime, double totalCost) {
         this.id = id;
         this.customerId = customerId;
+        this.customerName = customerName;
         this.carrierId = carrierId;
-        this.totalPrice = totalPrice;
         this.status = status;
-        this.orderDate = orderDate;
-        this.deliveryAddress = deliveryAddress;
+        this.orderTime = orderTime;
+        this.totalCost = totalCost;
     }
 
-    // Yeni sipariş oluştururken ID ve Date otomatik atanır
-    public Order(int customerId, double totalPrice, String deliveryAddress) {
-        this.customerId = customerId;
-        this.totalPrice = totalPrice;
-        this.deliveryAddress = deliveryAddress;
-        this.status = "PENDING";
-    }
-
-    // Getters
+    // Getterlar (Hata veren yerler buraları arıyor)
     public int getId() { return id; }
     public int getCustomerId() { return customerId; }
+    public String getCustomerName() { return customerName; }
     public int getCarrierId() { return carrierId; }
-    public double getTotalPrice() { return totalPrice; }
     public String getStatus() { return status; }
-    public Timestamp getOrderDate() { return orderDate; }
-    public String getDeliveryAddress() { return deliveryAddress; }
+    public LocalDateTime getOrderTime() { return orderTime; }
+    public double getTotalCost() { return totalCost; }
     
-    // Setters
-    public void setCarrierId(int carrierId) { this.carrierId = carrierId; }
-    public void setStatus(String status) { this.status = status; }
+    // Setterlar (Gerekirse)
+    public void setCustomerName(String name) { this.customerName = name; }
 }

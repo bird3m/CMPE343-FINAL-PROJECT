@@ -95,4 +95,10 @@ public class User {
     public String toString() {
         return username + " (" + role + ")";
     }
+
+    // CarrierMainController bu metodu arıyor!
+    public String getDisplayName() {
+        if (username == null) return "Unknown.";
+        return username.substring(0, 1).toUpperCase() + username.substring(1);
+    }
 }

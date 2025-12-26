@@ -7,13 +7,14 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+// --- İŞTE KRİTİK NOKTA BURASI ---
+import javafx.scene.control.*; // ListView, Label, Button, TextField hepsi buradan gelmeli!
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import models.Product;
 import models.User;
 import services.ProductService;
-
+import services.CartService; // Sepet servisini de ekledik
 import java.util.List;
 
 /**
@@ -235,7 +236,10 @@ public class CustomerMainController {
             vegetableList.getSelectionModel().clearSelection();
             fruitList.getSelectionModel().clearSelection();
             
-            // TODO: Actually add to cart (implement CartService)
+            services.CartService.addToCart(selectedProduct, quantity);
+            // Success - show confirmation 
+            showAlert(Alert.AlertType.INFORMATION, "Added to Cart", 
+                      "✅ Successfully added to cart!\n" + selectedProduct.getName());
             
         } catch (NumberFormatException e) {
             showAlert(Alert.AlertType.ERROR, "Invalid Input", 
@@ -266,6 +270,10 @@ public class CustomerMainController {
             );
             Parent root = loader.load();
             
+            //Kullanıcıyı sepete aktarıyoruz 
+            ShoppingCartController cartController = loader.getController();
+            cartController.setUser(currentUser); 
+            
             // Create new stage for cart
             Stage cartStage = new Stage();
             Scene scene = new Scene(root, 960, 540);
@@ -281,7 +289,7 @@ public class CustomerMainController {
         } catch (Exception e) {
             e.printStackTrace();
             showAlert(Alert.AlertType.ERROR, "Error", 
-                     "Could not open shopping cart!\n\n" + e.getMessage());
+                      "Could not open shopping cart!\n\n" + e.getMessage());
         }
     }
     
