@@ -22,7 +22,7 @@
                <children>
                   <Label text="🚚 Carrier Dashboard" textFill="WHITE">
                      <font>
-                        <Font name="Arial Black" size="24.0" />
+                        <Font name="Segoe UI Emoji" size="24.0" />
                      </font>
                   </Label>
                   <Label text="Group04 GreenGrocer System" textFill="#fee140">
@@ -39,7 +39,7 @@
                <children>
                   <Label text="👤" textFill="WHITE">
                      <font>
-                        <Font size="18.0" />
+                        <Font name="Segoe UI Emoji" size="18.0" />
                      </font>
                   </Label>
                   <Label fx:id="welcomeLabel" text="Welcome, Carrier" textFill="WHITE">
@@ -74,7 +74,7 @@
                            <children>
                               <Label text="📦" textFill="#6c5ce7">
                                  <font>
-                                    <Font size="24.0" />
+                                    <Font name="Segoe UI Emoji" size="24.0" />
                                  </font>
                               </Label>
                               <VBox>
@@ -94,7 +94,7 @@
                               <HBox HBox.hgrow="ALWAYS" />
                               <Button mnemonicParsing="false" onAction="#handleRefresh" style="-fx-background-color: white; -fx-text-fill: #6c5ce7; -fx-background-radius: 10; -fx-cursor: hand;" text="🔄 Refresh">
                                  <font>
-                                    <Font name="Arial Bold" size="11.0" />
+                                    <Font name="Segoe UI Emoji" size="11.0" />
                                  </font>
                               </Button>
                            </children>
@@ -111,7 +111,7 @@
                         
                         <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleAcceptOrder" prefHeight="45.0" style="-fx-background-color: #6c5ce7; -fx-text-fill: white; -fx-background-radius: 10; -fx-cursor: hand; -fx-effect: dropshadow(three-pass-box, rgba(108, 92, 231, 0.4), 10, 0, 0, 5);" text="✅ ACCEPT ORDER">
                            <font>
-                              <Font name="Arial Black" size="14.0" />
+                              <Font name="Segoe UI Emoji" size="14.0" />
                            </font>
                         </Button>
                      </children>
@@ -128,9 +128,9 @@
                      <children>
                         <HBox alignment="CENTER_LEFT" spacing="10.0">
                            <children>
-                              <Label text="🏍️">
+                              <Label text="🏍️" textFill="#d35400">
                                  <font>
-                                    <Font size="24.0" />
+                                    <Font name="Segoe UI Emoji" size="24.0" />
                                  </font>
                               </Label>
                               <VBox>
@@ -161,7 +161,7 @@
                         
                         <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleCompleteOrder" prefHeight="45.0" style="-fx-background-color: #e17055; -fx-text-fill: white; -fx-background-radius: 10; -fx-cursor: hand; -fx-effect: dropshadow(three-pass-box, rgba(225, 112, 85, 0.4), 10, 0, 0, 5);" text="🏁 COMPLETE DELIVERY">
                            <font>
-                              <Font name="Arial Black" size="14.0" />
+                              <Font name="Segoe UI Emoji" size="14.0" />
                            </font>
                         </Button>
                      </children>
