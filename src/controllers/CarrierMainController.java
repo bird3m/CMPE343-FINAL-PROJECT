@@ -1,163 +1,133 @@
 package controllers;
 
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
 import models.Order;
 import models.User;
 import services.OrderDAO;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 public class CarrierMainController {
-    
-    @FXML private Label carrierNameLabel;
-    @FXML private Label statsLabel;
-    @FXML private ListView<String> availableOrdersList; // Havuzdaki siparişler
-    @FXML private ListView<String> currentOrdersList;   // Benim üzerimdekiler
-    @FXML private ListView<String> completedOrdersList; // Geçmişim
-    @FXML private Button logoutButton;
-    
-    // Veri listeleri (Ekranda görünen String halleri)
-    private ObservableList<String> availableItems;
-    private ObservableList<String> currentItems;
-    private ObservableList<String> completedItems;
-    
-    // Arka plandaki gerçek Order nesneleri (ID'leri bulmak için)
-    private List<Order> dbAvailableOrders;
-    private List<Order> dbCurrentOrders;
-    private List<Order> dbCompletedOrders;
 
-    private User loggedInCarrier; // Giriş yapan kurye
+    // --- FXML BİLEŞENLERİ (Yeni Mor FXML ile %100 Uyumlu) ---
+    @FXML private Label welcomeLabel;
+
+    // TABLO 1: Available Orders
+    @FXML private TableView<Order> availableOrdersTable;
+    @FXML private TableColumn<Order, Integer> colAvailId;
+    @FXML private TableColumn<Order, String> colAvailCustomer;
+    @FXML private TableColumn<Order, Double> colAvailTotal;
+    @FXML private TableColumn<Order, String> colAvailDate;
+
+    // TABLO 2: My Deliveries
+    @FXML private TableView<Order> currentOrdersTable;
+    @FXML private TableColumn<Order, Integer> colCurrId;
+    @FXML private TableColumn<Order, String> colCurrCustomer;
+    @FXML private TableColumn<Order, Double> colCurrTotal;
+    @FXML private TableColumn<Order, String> colCurrStatus;
+
+    private User loggedInCarrier;
     private OrderDAO orderDAO;
 
     @FXML
-    private void initialize() {
+    public void initialize() {
         orderDAO = new OrderDAO();
-        
-        availableItems = FXCollections.observableArrayList();
-        currentItems = FXCollections.observableArrayList();
-        completedItems = FXCollections.observableArrayList();
-        
-        availableOrdersList.setItems(availableItems);
-        currentOrdersList.setItems(currentItems);
-        completedOrdersList.setItems(completedItems);
+        setupTableColumns();
     }
-    
-    // LoginController'dan bu metodu çağırıp kuryeyi içeri alıyoruz
+
     public void setUser(User user) {
         this.loggedInCarrier = user;
-        carrierNameLabel.setText("Kurye: " + user.getDisplayName());
-        refreshData();
-    }
-    
-    // Tüm listeleri veritabanından çekip yeniler
-    private void refreshData() {
-        if(loggedInCarrier == null) return;
-
-        // 1. HAVUZDAKİLER (Sahipsiz ve PENDING olanlar)
-        dbAvailableOrders = orderDAO.getPendingOrders(); // OrderDAO'ya bu metodu ekleyeceğiz
-        availableItems.clear();
-        for(Order o : dbAvailableOrders) {
-            availableItems.add(formatOrder(o));
-        }
-
-        // 2. BENİM ÜZERİMDEKİLER (ON_WAY ve carrier_id benim olanlar)
-        dbCurrentOrders = orderDAO.getOrdersByCarrierAndStatus(loggedInCarrier.getId(), "ON_WAY");
-        currentItems.clear();
-        for(Order o : dbCurrentOrders) {
-            currentItems.add(formatOrder(o));
-        }
-
-        // 3. TAMAMLADIKLARIM (DELIVERED ve carrier_id benim olanlar)
-        dbCompletedOrders = orderDAO.getOrdersByCarrierAndStatus(loggedInCarrier.getId(), "DELIVERED");
-        completedItems.clear();
-        for(Order o : dbCompletedOrders) {
-            completedItems.add(formatOrder(o));
-        }
-        
-        updateStats();
-    }
-    
-    // Listede güzel görünsün diye String formatlama
-    private String formatOrder(Order o) {
-        return String.format("Sipariş #%d | Tutar: %.2f ₺ | Adres: %s", 
-               o.getId(), o.getTotalCost(), o.getCustomerName()); // Adres de eklenebilir
-    }
-
-    private void updateStats() {
-        statsLabel.setText(String.format(
-            "📊 Toplam Teslimat: %d | Şu an Üzerimde: %d",
-            dbCompletedOrders.size(),
-            dbCurrentOrders.size()
-        ));
-    }
-    
-    @FXML
-    private void handleAcceptOrder(ActionEvent event) {
-        int selectedIndex = availableOrdersList.getSelectionModel().getSelectedIndex();
-        if (selectedIndex < 0) {
-            showAlert("Lütfen havuzdan bir sipariş seçin.");
-            return;
-        }
-
-        Order selectedOrder = dbAvailableOrders.get(selectedIndex);
-        
-        // Veritabanını güncelle: Status -> ON_WAY, Carrier -> Ben
-        boolean success = orderDAO.assignOrderToCarrier(selectedOrder.getId(), loggedInCarrier.getId());
-        
-        if(success) {
-            refreshData(); // Ekranı yenile
-            showAlert("Sipariş üzerine alındı! İyi yolculuklar 🛵");
-        } else {
-            showAlert("Hata: Sipariş alınamadı.");
-        }
-    }
-    
-    @FXML
-    private void handleCompleteOrder(ActionEvent event) {
-        int selectedIndex = currentOrdersList.getSelectionModel().getSelectedIndex();
-        if (selectedIndex < 0) {
-            showAlert("Lütfen teslim ettiğiniz siparişi seçin.");
-            return;
-        }
-        
-        Order selectedOrder = dbCurrentOrders.get(selectedIndex);
-        
-        // Veritabanını güncelle: Status -> DELIVERED
-        boolean success = orderDAO.updateOrderStatus(selectedOrder.getId(), "DELIVERED");
-        
-        if(success) {
+        if (user != null) {
+            welcomeLabel.setText("Welcome, " + user.getDisplayName());
             refreshData();
-            showAlert("Teslimat onaylandı! Eline sağlık 👏");
-        } else {
-            showAlert("Hata oluştu.");
         }
     }
-    
+
+    private void setupTableColumns() {
+        // --- Table 1 Setup ---
+        colAvailId.setCellValueFactory(new PropertyValueFactory<>("id"));
+        colAvailCustomer.setCellValueFactory(new PropertyValueFactory<>("customerName"));
+        colAvailTotal.setCellValueFactory(new PropertyValueFactory<>("totalCost"));
+        colAvailDate.setCellValueFactory(cellData -> {
+            if (cellData.getValue().getDeliveryTime() != null) {
+                return new SimpleStringProperty(cellData.getValue().getDeliveryTime().toString().replace("T", " "));
+            }
+            return new SimpleStringProperty("ASAP");
+        });
+
+        // --- Table 2 Setup ---
+        colCurrId.setCellValueFactory(new PropertyValueFactory<>("id"));
+        colCurrCustomer.setCellValueFactory(new PropertyValueFactory<>("customerName"));
+        colCurrTotal.setCellValueFactory(new PropertyValueFactory<>("totalCost"));
+        colCurrStatus.setCellValueFactory(new PropertyValueFactory<>("status"));
+    }
+
     @FXML
     private void handleRefresh(ActionEvent event) {
         refreshData();
     }
-    
+
+    private void refreshData() {
+        if (loggedInCarrier == null) return;
+
+        // 1. Available Orders
+        List<Order> pendingOrders = orderDAO.getPendingOrders();
+        availableOrdersTable.setItems(FXCollections.observableArrayList(pendingOrders));
+
+        // 2. My Deliveries (ASSIGNED)
+        List<Order> myOrders = orderDAO.getOrdersByCarrierAndStatus(loggedInCarrier.getId(), "ASSIGNED");
+        currentOrdersTable.setItems(FXCollections.observableArrayList(myOrders));
+    }
+
+    @FXML
+    private void handleAcceptOrder(ActionEvent event) {
+        Order selectedOrder = availableOrdersTable.getSelectionModel().getSelectedItem();
+        if (selectedOrder == null) {
+            showAlert("Please select an order first!");
+            return;
+        }
+        boolean success = orderDAO.assignOrderToCarrier(selectedOrder.getId(), loggedInCarrier.getId());
+        if (success) {
+            showAlert("Order Accepted! 🏍️");
+            refreshData();
+        }
+    }
+
+    @FXML
+    private void handleCompleteOrder(ActionEvent event) {
+        Order selectedOrder = currentOrdersTable.getSelectionModel().getSelectedItem();
+        if (selectedOrder == null) {
+            showAlert("Please select an order to complete!");
+            return;
+        }
+        boolean success = orderDAO.updateOrderStatus(selectedOrder.getId(), "DELIVERED");
+        if (success) {
+            showAlert("Delivery Completed! ✅");
+            refreshData();
+        }
+    }
+
     @FXML
     private void handleLogout(ActionEvent event) {
         try {
             Parent root = FXMLLoader.load(getClass().getResource("/fxml/Login.fxml"));
-            Stage stage = (Stage) logoutButton.getScene().getWindow();
+            Stage stage = (Stage) welcomeLabel.getScene().getWindow();
             stage.setScene(new Scene(root));
         } catch (Exception e) { e.printStackTrace(); }
     }
-    
-    private void showAlert(String content) {
+
+    private void showAlert(String message) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setContentText(content);
+        alert.setTitle("Info");
+        alert.setContentText(message);
         alert.showAndWait();
     }
 }

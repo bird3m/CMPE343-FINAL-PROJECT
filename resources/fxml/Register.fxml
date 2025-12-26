@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane fx:id="rootPane" maxHeight="-Infinity" maxWidth="-Infinity" 
+            minHeight="-Infinity" minWidth="-Infinity" 
+            prefHeight="540.0" prefWidth="960.0" 
+            styleClass="login-root" 
+            stylesheets="@../css/style.css" 
+            xmlns="http://javafx.com/javafx/25" 
+            xmlns:fx="http://javafx.com/fxml/1" 
+            fx:controller="controllers.RegisterController">
+   <children>
+      <!-- Registration Form Container - CENTERED -->
+      <VBox fx:id="registerBox" alignment="CENTER" spacing="18.0" 
+            styleClass="login-box" 
+            AnchorPane.bottomAnchor="50.0" 
+            AnchorPane.leftAnchor="180.0" 
+            AnchorPane.rightAnchor="180.0" 
+            AnchorPane.topAnchor="50.0">
+         <padding>
+            <Insets bottom="30.0" left="35.0" right="35.0" top="30.0" />
+         </padding>
+         <children>
+            <!-- Title with Group04 -->
+            <Label fx:id="titleLabel" text="🥬 Group04 GreenGrocer 🍎" 
+                   textAlignment="CENTER" wrapText="true">
+               <font>
+                  <Font name="Arial Black" size="28.0" />
+               </font>
+               <style>
+                  -fx-text-fill: linear-gradient(to right, #667eea, #764ba2);
+               </style>
+            </Label>
+            
+            <!-- Subtitle -->
+            <Label text="Join as Customer - Start Shopping Fresh!" 
+                   textFill="#7f8c8d" textAlignment="CENTER" wrapText="true">
+               <font>
+                  <Font name="Arial Bold" size="13.0" />
+               </font>
+            </Label>
+            
+            <Label text="📝 Customer Registration Form" textFill="#555555">
+               <font>
+                  <Font name="Arial Bold" size="14.0" />
+               </font>
+            </Label>
+            
+            <!-- Username Field -->
+            <VBox spacing="5.0">
+               <children>
+                  <Label text="👤 Username:" textFill="#555555">
+                     <font>
+                        <Font name="Arial Bold" size="12.0" />
+                     </font>
+                  </Label>
+                  <TextField fx:id="usernameField" prefHeight="42.0" 
+                            promptText="Choose a unique username" 
+                            styleClass="input-field">
+                     <font>
+                        <Font name="Arial" size="14.0" />
+                     </font>
+                  </TextField>
+               </children>
+            </VBox>
+            
+            <!-- Password Field -->
+            <VBox spacing="5.0">
+               <children>
+                  <Label text="🔒 Password:" textFill="#555555">
+                     <font>
+                        <Font name="Arial Bold" size="12.0" />
+                     </font>
+                  </Label>
+                  <PasswordField fx:id="passwordField" prefHeight="42.0" 
+                                promptText="At least 4 characters" 
+                                styleClass="input-field">
+                     <font>
+                        <Font name="Arial" size="14.0" />
+                     </font>
+                  </PasswordField>
+               </children>
+            </VBox>
+            
+            <!-- Confirm Password Field -->
+            <VBox spacing="5.0">
+               <children>
+                  <Label text="🔒 Confirm Password:" textFill="#555555">
+                     <font>
+                        <Font name="Arial Bold" size="12.0" />
+                     </font>
+                  </Label>
+                  <PasswordField fx:id="confirmPasswordField" prefHeight="42.0" 
+                                promptText="Re-enter your password" 
+                                styleClass="input-field">
+                     <font>
+                        <Font name="Arial" size="14.0" />
+                     </font>
+                  </PasswordField>
+               </children>
+            </VBox>
+            
+            <!-- Address Field -->
+            <VBox spacing="5.0">
+               <children>
+                  <Label text="🏠 Address:" textFill="#555555">
+                     <font>
+                        <Font name="Arial Bold" size="12.0" />
+                     </font>
+                  </Label>
+                  <TextArea fx:id="addressField" prefHeight="60.0" 
+                           promptText="Enter your delivery address" 
+                           styleClass="input-field" wrapText="true">
+                     <font>
+                        <Font name="Arial" size="14.0" />
+                     </font>
+                  </TextArea>
+               </children>
+            </VBox>
+            
+            <!-- Phone Field (Optional) -->
+            <VBox spacing="5.0">
+               <children>
+                  <Label text="📱 Phone (Optional):" textFill="#555555">
+                     <font>
+                        <Font name="Arial Bold" size="12.0" />
+                     </font>
+                  </Label>
+                  <TextField fx:id="phoneField" prefHeight="42.0" 
+                            promptText="+90 5XX XXX XXXX" 
+                            styleClass="input-field">
+                     <font>
+                        <Font name="Arial" size="14.0" />
+                     </font>
+                  </TextField>
+               </children>
+            </VBox>
+            
+            <!-- Error Label -->
+            <Label fx:id="errorLabel" text="❌ Error message here" 
+                   textFill="#e74c3c" visible="false" wrapText="true" 
+                   textAlignment="CENTER">
+               <font>
+                  <Font name="Arial Bold" size="12.0" />
+               </font>
+            </Label>
+            
+            <!-- Buttons -->
+            <HBox alignment="CENTER" spacing="15.0">
+               <VBox.margin>
+                  <Insets top="5.0" />
+               </VBox.margin>
+               <children>
+                  <Button fx:id="registerButton" mnemonicParsing="false" 
+                         onAction="#handleRegister" 
+                         prefHeight="45.0" prefWidth="160.0" 
+                         styleClass="checkout-btn" text="Register">
+                     <font>
+                        <Font name="Arial Bold" size="15.0" />
+                     </font>
+                  </Button>
+                  
+                  <Button fx:id="backButton" mnemonicParsing="false" 
+                         onAction="#handleBack" 
+                         prefHeight="45.0" prefWidth="160.0" 
+                         styleClass="continue-btn" text="← Back to Login">
+                     <font>
+                        <Font name="Arial Bold" size="15.0" />
+                     </font>
+                  </Button>
+               </children>
+            </HBox>
+            
+            <!-- Info Label -->
+            <Label text="✨ Join Group04 GreenGrocer for fresh produce delivery!" 
+                   textFill="#7f8c8d" textAlignment="CENTER" wrapText="true">
+               <font>
+                  <Font name="Arial Italic" size="10.0" />
+               </font>
+            </Label>
+         </children>
+      </VBox>
+   </children>
+</AnchorPane>

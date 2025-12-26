@@ -3,483 +3,146 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.ListView?>
-<?import javafx.scene.control.Separator?>
-<?import javafx.scene.control.Tab?>
-<?import javafx.scene.control.TabPane?>
-<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" 
-            minWidth="-Infinity" prefHeight="540.0" prefWidth="960.0" 
-            styleClass="main-root" stylesheets="@../css/style.css" 
-            xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" 
-            fx:controller="controllers.CarrierMainController">
-   
-   <!-- TOP: Ultra Colorful Carrier Dashboard Bar -->
-   <top>
-      <HBox alignment="CENTER_LEFT" prefHeight="75.0" spacing="20.0" 
-            styleClass="top-bar" BorderPane.alignment="CENTER">
+<AnchorPane prefHeight="540.0" prefWidth="960.0" styleClass="main-root" stylesheets="@../css/style.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.CarrierMainController">
+   <children>
+      <HBox alignment="CENTER_LEFT" prefHeight="80.0" spacing="20.0" style="-fx-background-color: linear-gradient(to right, #667eea, #764ba2);" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <padding>
             <Insets left="30.0" right="30.0" />
          </padding>
          <children>
-            <!-- Icon & Title Group -->
-            <HBox alignment="CENTER_LEFT" spacing="12.0">
+            <VBox alignment="CENTER_LEFT">
                <children>
-                  <Label text="🚚">
+                  <Label text="🚚 Carrier Dashboard" textFill="WHITE">
                      <font>
-                        <Font name="Arial" size="34.0" />
+                        <Font name="Arial Black" size="24.0" />
                      </font>
                   </Label>
-                  <VBox spacing="2.0">
-                     <children>
-                        <Label text="Carrier Dashboard" textFill="WHITE">
-                           <font>
-                              <Font name="Arial Black" size="22.0" />
-                           </font>
-                        </Label>
-                        <Label text="Group04 GreenGrocer Delivery System" 
-                              textFill="#fee140">
-                           <font>
-                              <Font name="Arial" size="11.0" />
-                           </font>
-                        </Label>
-                     </children>
-                  </VBox>
+                  <Label text="Group04 GreenGrocer System" textFill="#fee140">
+                     <font>
+                        <Font name="Arial Bold" size="12.0" />
+                     </font>
+                  </Label>
                </children>
-            </HBox>
-            
-            <!-- Separator Line -->
-            <VBox alignment="CENTER" prefHeight="45.0" prefWidth="3.0" 
-                  style="-fx-background-color: rgba(255,255,255,0.3); 
-                         -fx-background-radius: 2;">
             </VBox>
             
-            <!-- Carrier Name Badge -->
-            <HBox alignment="CENTER_LEFT" spacing="8.0" 
-                  style="-fx-background-color: rgba(255,255,255,0.2); 
-                         -fx-background-radius: 12; 
-                         -fx-padding: 8 15 8 15;">
+            <HBox HBox.hgrow="ALWAYS" />
+            
+            <HBox alignment="CENTER" spacing="10.0" style="-fx-background-color: rgba(255,255,255,0.2); -fx-background-radius: 20; -fx-padding: 8 15;">
                <children>
                   <Label text="👤" textFill="WHITE">
                      <font>
-                        <Font name="Arial" size="16.0" />
+                        <Font size="18.0" />
                      </font>
                   </Label>
-                  <Label fx:id="carrierNameLabel" text="Welcome, Carrier" 
-                        textFill="WHITE">
+                  <Label fx:id="welcomeLabel" text="Welcome, Carrier" textFill="WHITE">
                      <font>
-                        <Font name="Arial Bold" size="15.0" />
+                        <Font name="Arial Bold" size="14.0" />
                      </font>
                   </Label>
                </children>
             </HBox>
             
-            <Region HBox.hgrow="ALWAYS" />
-            
-            <!-- Stats Display - Enhanced -->
-            <HBox spacing="15.0">
-               <children>
-                  <!-- Deliveries Counter -->
-                  <VBox alignment="CENTER" spacing="4.0" 
-                        style="-fx-background-color: rgba(46, 204, 113, 0.25); 
-                               -fx-background-radius: 12; 
-                               -fx-padding: 10 18 10 18;">
-                     <children>
-                        <Label text="📊" textFill="WHITE">
-                           <font>
-                              <Font name="Arial" size="16.0" />
-                           </font>
-                        </Label>
-                        <Label fx:id="statsLabel" text="Deliveries: 0" 
-                              textFill="WHITE">
-                           <font>
-                              <Font name="Arial Black" size="13.0" />
-                           </font>
-                        </Label>
-                     </children>
-                  </VBox>
-                  
-                  <!-- Rating Display -->
-                  <VBox alignment="CENTER" spacing="4.0" 
-                        style="-fx-background-color: rgba(241, 196, 15, 0.25); 
-                               -fx-background-radius: 12; 
-                               -fx-padding: 10 18 10 18;">
-                     <children>
-                        <Label text="⭐" textFill="WHITE">
-                           <font>
-                              <Font name="Arial" size="16.0" />
-                           </font>
-                        </Label>
-                        <Label text="Rating: 4.8" textFill="#fee140">
-                           <font>
-                              <Font name="Arial Black" size="13.0" />
-                           </font>
-                        </Label>
-                     </children>
-                  </VBox>
-               </children>
-            </HBox>
-            
-            <!-- Logout Button -->
-            <Button fx:id="logoutButton" mnemonicParsing="false" 
-                   onAction="#handleLogout" styleClass="logout-btn" 
-                   text="Logout">
+            <Button mnemonicParsing="false" onAction="#handleLogout" style="-fx-background-color: #ff7675; -fx-text-fill: white; -fx-background-radius: 20; -fx-cursor: hand;" text="Logout">
                <font>
-                  <Font name="Arial Bold" size="14.0" />
+                  <Font name="Arial Bold" size="12.0" />
                </font>
+               <padding>
+                  <Insets bottom="8.0" left="20.0" right="20.0" top="8.0" />
+               </padding>
             </Button>
          </children>
       </HBox>
-   </top>
-   
-   <!-- CENTER: Colorful Tabs for Orders -->
-   <center>
-      <TabPane prefHeight="465.0" prefWidth="960.0" 
-              tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="CENTER" 
-              style="-fx-background-color: transparent;">
-         <tabs>
-            <!-- ========== TAB 1: AVAILABLE ORDERS ========== -->
-            <Tab text="📦 Available Orders">
-               <content>
-                  <VBox spacing="20.0" 
-                        style="-fx-background-color: linear-gradient(to bottom, 
-                               #a8edea 0%, #fed6e3 100%);">
+
+      <SplitPane dividerPositions="0.55" layoutX="20.0" layoutY="100.0" prefHeight="420.0" prefWidth="920.0" style="-fx-background-color: transparent;" AnchorPane.bottomAnchor="20.0" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="100.0">
+        <items>
+          <AnchorPane minHeight="0.0" minWidth="0.0">
+               <children>
+                  <VBox spacing="10.0" style="-fx-background-color: linear-gradient(to bottom, #a8edea 0%, #fed6e3 100%);" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                      <padding>
-                        <Insets bottom="25.0" left="25.0" right="25.0" top="25.0" />
+                        <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
                      </padding>
                      <children>
-                        <!-- Header Section with Icon -->
-                        <HBox alignment="CENTER_LEFT" spacing="18.0">
+                        <HBox alignment="CENTER_LEFT" spacing="10.0">
                            <children>
-                              <!-- Icon Badge -->
-                              <VBox alignment="CENTER" prefHeight="60.0" 
-                                   prefWidth="60.0" 
-                                   style="-fx-background-color: linear-gradient(135deg, 
-                                          #667eea, #764ba2); 
-                                          -fx-background-radius: 15;">
+                              <Label text="📦" textFill="#6c5ce7">
+                                 <font>
+                                    <Font size="24.0" />
+                                 </font>
+                              </Label>
+                              <VBox>
                                  <children>
-                                    <Label text="📋" textFill="WHITE">
+                                    <Label text="Available Orders Pool" textFill="#2d3436">
                                        <font>
-                                          <Font name="Arial" size="28.0" />
+                                          <Font name="Arial Black" size="16.0" />
+                                       </font>
+                                    </Label>
+                                    <Label text="Select and Accept to Start" textFill="#636e72">
+                                       <font>
+                                          <Font size="12.0" />
                                        </font>
                                     </Label>
                                  </children>
                               </VBox>
-                              
-                              <!-- Title & Description -->
-                              <VBox spacing="5.0" HBox.hgrow="ALWAYS">
-                                 <children>
-                                    <Label text="Available Deliveries" 
-                                          textFill="#2c3e50">
-                                       <font>
-                                          <Font name="Arial Black" size="20.0" />
-                                       </font>
-                                    </Label>
-                                    <Label text="Select orders to accept and start your delivery route" 
-                                          textFill="#7f8c8d">
-                                       <font>
-                                          <Font name="Arial" size="13.0" />
-                                       </font>
-                                    </Label>
-                                 </children>
-                              </VBox>
-                              
-                              <!-- Count Badge -->
-                              <VBox alignment="CENTER" spacing="3.0" 
-                                   style="-fx-background-color: linear-gradient(135deg, 
-                                          #f093fb, #4facfe); 
-                                          -fx-background-radius: 12; 
-                                          -fx-padding: 10 20 10 20;">
-                                 <children>
-                                    <Label text="Available" textFill="WHITE">
-                                       <font>
-                                          <Font name="Arial" size="10.0" />
-                                       </font>
-                                    </Label>
-                                    <Label text="4" textFill="WHITE">
-                                       <font>
-                                          <Font name="Arial Black" size="20.0" />
-                                       </font>
-                                    </Label>
-                                 </children>
-                              </VBox>
+                              <HBox HBox.hgrow="ALWAYS" />
+                              <Button mnemonicParsing="false" onAction="#handleRefresh" style="-fx-background-color: white; -fx-text-fill: #6c5ce7; -fx-background-radius: 10; -fx-cursor: hand;" text="🔄 Refresh">
+                                 <font>
+                                    <Font name="Arial Bold" size="11.0" />
+                                 </font>
+                              </Button>
                            </children>
                         </HBox>
                         
-                        <Separator styleClass="colorful-separator" />
+                        <TableView fx:id="availableOrdersTable" style="-fx-background-radius: 10; -fx-border-radius: 10; -fx-opacity: 0.9;" VBox.vgrow="ALWAYS">
+                          <columns>
+                            <TableColumn fx:id="colAvailId" prefWidth="40.0" text="ID" />
+                            <TableColumn fx:id="colAvailCustomer" prefWidth="150.0" text="Customer" />
+                              <TableColumn fx:id="colAvailTotal" prefWidth="70.0" text="Total ($)" />
+                              <TableColumn fx:id="colAvailDate" prefWidth="120.0" text="Delivery Time" />
+                          </columns>
+                        </TableView>
                         
-                        <!-- Orders List with Enhanced Style -->
-                        <ListView fx:id="availableOrdersList" prefHeight="280.0" 
-                                 styleClass="product-list" VBox.vgrow="ALWAYS" 
-                                 style="-fx-background-color: white; 
-                                        -fx-background-radius: 15; 
-                                        -fx-border-color: linear-gradient(to right, 
-                                               #667eea, #f093fb); 
-                                        -fx-border-width: 3; 
-                                        -fx-border-radius: 15;" />
-                        
-                        <!-- Action Buttons Row -->
-                        <HBox alignment="CENTER_LEFT" spacing="15.0">
-                           <children>
-                              <!-- Accept Button - PRIMARY -->
-                              <Button fx:id="acceptOrderButton" 
-                                     mnemonicParsing="false" 
-                                     onAction="#handleAcceptOrder" 
-                                     prefHeight="55.0" prefWidth="220.0" 
-                                     styleClass="menu-btn-primary" 
-                                     text="✅ Accept Order">
-                                 <font>
-                                    <Font name="Arial Black" size="15.0" />
-                                 </font>
-                              </Button>
-                              
-                              <!-- Refresh Button -->
-                              <Button fx:id="refreshButton" 
-                                     mnemonicParsing="false" 
-                                     onAction="#handleRefresh" 
-                                     prefHeight="55.0" prefWidth="180.0" 
-                                     styleClass="menu-btn" 
-                                     text="🔄 Refresh List">
-                                 <font>
-                                    <Font name="Arial Bold" size="14.0" />
-                                 </font>
-                              </Button>
-                              
-                              <Region HBox.hgrow="ALWAYS" />
-                              
-                              <!-- Help Badge -->
-                              <HBox alignment="CENTER" spacing="8.0" 
-                                   style="-fx-background-color: rgba(52, 152, 219, 0.2); 
-                                          -fx-background-radius: 10; 
-                                          -fx-padding: 10 15 10 15;">
-                                 <children>
-                                    <Label text="💡" textFill="#3498db">
-                                       <font>
-                                          <Font name="Arial" size="14.0" />
-                                       </font>
-                                    </Label>
-                                    <Label text="Accept multiple orders for better earnings" 
-                                          textFill="#3498db">
-                                       <font>
-                                          <Font name="Arial Bold" size="11.0" />
-                                       </font>
-                                    </Label>
-                                 </children>
-                              </HBox>
-                           </children>
-                        </HBox>
+                        <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleAcceptOrder" prefHeight="45.0" style="-fx-background-color: #6c5ce7; -fx-text-fill: white; -fx-background-radius: 10; -fx-cursor: hand; -fx-effect: dropshadow(three-pass-box, rgba(108, 92, 231, 0.4), 10, 0, 0, 5);" text="✅ ACCEPT ORDER">
+                           <font>
+                              <Font name="Arial Black" size="14.0" />
+                           </font>
+                        </Button>
                      </children>
                   </VBox>
-               </content>
-            </Tab>
-            
-            <!-- ========== TAB 2: CURRENT DELIVERIES ========== -->
-            <Tab text="🚛 Current Deliveries">
-               <content>
-                  <VBox spacing="20.0" 
-                        style="-fx-background-color: linear-gradient(to bottom, 
-                               #ffecd2 0%, #fcb69f 100%);">
+               </children>
+            </AnchorPane>
+          
+          <AnchorPane minHeight="0.0" minWidth="0.0">
+               <children>
+                  <VBox spacing="10.0" style="-fx-background-color: linear-gradient(to bottom, #ffecd2 0%, #fcb69f 100%);" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                      <padding>
-                        <Insets bottom="25.0" left="25.0" right="25.0" top="25.0" />
+                        <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
                      </padding>
                      <children>
-                        <!-- Header Section -->
-                        <HBox alignment="CENTER_LEFT" spacing="18.0">
+                        <HBox alignment="CENTER_LEFT" spacing="10.0">
                            <children>
-                              <!-- Icon Badge -->
-                              <VBox alignment="CENTER" prefHeight="60.0" 
-                                   prefWidth="60.0" 
-                                   style="-fx-background-color: linear-gradient(135deg, 
-                                          #f093fb, #4facfe); 
-                                          -fx-background-radius: 15;">
-                                 <children>
-                                    <Label text="🚚" textFill="WHITE">
-                                       <font>
-                                          <Font name="Arial" size="28.0" />
-                                       </font>
-                                    </Label>
-                                 </children>
-                              </VBox>
-                              
-                              <!-- Title & Description -->
-                              <VBox spacing="5.0" HBox.hgrow="ALWAYS">
-                                 <children>
-                                    <Label text="Your Current Deliveries" 
-                                          textFill="#2c3e50">
-                                       <font>
-                                          <Font name="Arial Black" size="20.0" />
-                                       </font>
-                                    </Label>
-                                    <Label text="Orders you're currently delivering to customers" 
-                                          textFill="#7f8c8d">
-                                       <font>
-                                          <Font name="Arial" size="13.0" />
-                                       </font>
-                                    </Label>
-                                 </children>
-                              </VBox>
-                              
-                              <!-- Progress Badge -->
-                              <VBox alignment="CENTER" spacing="3.0" 
-                                   style="-fx-background-color: linear-gradient(135deg, 
-                                          #fa709a, #fee140); 
-                                          -fx-background-radius: 12; 
-                                          -fx-padding: 10 20 10 20;">
-                                 <children>
-                                    <Label text="In Progress" textFill="WHITE">
-                                       <font>
-                                          <Font name="Arial" size="10.0" />
-                                       </font>
-                                    </Label>
-                                    <Label text="1" textFill="WHITE">
-                                       <font>
-                                          <Font name="Arial Black" size="20.0" />
-                                       </font>
-                                    </Label>
-                                 </children>
-                              </VBox>
-                           </children>
-                        </HBox>
-                        
-                        <Separator styleClass="colorful-separator" />
-                        
-                        <!-- Current Orders List -->
-                        <ListView fx:id="currentOrdersList" prefHeight="280.0" 
-                                 styleClass="product-list" VBox.vgrow="ALWAYS" 
-                                 style="-fx-background-color: white; 
-                                        -fx-background-radius: 15; 
-                                        -fx-border-color: linear-gradient(to right, 
-                                               #fa709a, #fee140); 
-                                        -fx-border-width: 3; 
-                                        -fx-border-radius: 15;" />
-                        
-                        <!-- Action Button Row -->
-                        <HBox alignment="CENTER_LEFT" spacing="15.0">
-                           <children>
-                              <!-- Complete Button - SUCCESS -->
-                              <Button fx:id="completeOrderButton" 
-                                     mnemonicParsing="false" 
-                                     onAction="#handleCompleteOrder" 
-                                     prefHeight="55.0" prefWidth="250.0" 
-                                     styleClass="checkout-btn" 
-                                     text="✅ Complete Delivery">
+                              <Label text="🏍️">
                                  <font>
-                                    <Font name="Arial Black" size="15.0" />
+                                    <Font size="24.0" />
                                  </font>
-                              </Button>
-                              
-                              <Region HBox.hgrow="ALWAYS" />
-                              
-                              <!-- Status Info -->
-                              <VBox alignment="CENTER_RIGHT" spacing="5.0">
+                              </Label>
+                              <VBox>
                                  <children>
-                                    <HBox alignment="CENTER_RIGHT" spacing="8.0">
-                                       <children>
-                                          <Label text="🎯" textFill="#27ae60">
-                                             <font>
-                                                <Font name="Arial" size="14.0" />
-                                             </font>
-                                          </Label>
-                                          <Label text="Active Deliveries: 1" 
-                                                textFill="#27ae60">
-                                             <font>
-                                                <Font name="Arial Black" size="13.0" />
-                                             </font>
-                                          </Label>
-                                       </children>
-                                    </HBox>
-                                    <Label text="💰 Complete on time for bonus rewards!" 
-                                          textFill="#7f8c8d">
+                                    <Label text="My Active Deliveries" textFill="#2d3436">
                                        <font>
-                                          <Font name="Arial Italic" size="11.0" />
+                                          <Font name="Arial Black" size="16.0" />
                                        </font>
                                     </Label>
-                                 </children>
-                              </VBox>
-                           </children>
-                        </HBox>
-                     </children>
-                  </VBox>
-               </content>
-            </Tab>
-            
-            <!-- ========== TAB 3: COMPLETED ORDERS ========== -->
-            <Tab text="✅ Delivery History">
-               <content>
-                  <VBox spacing="20.0" 
-                        style="-fx-background-color: linear-gradient(to bottom, 
-                               #e8f8f5 0%, #d5f4e6 100%);">
-                     <padding>
-                        <Insets bottom="25.0" left="25.0" right="25.0" top="25.0" />
-                     </padding>
-                     <children>
-                        <!-- Header Section -->
-                        <HBox alignment="CENTER_LEFT" spacing="18.0">
-                           <children>
-                              <!-- Icon Badge -->
-                              <VBox alignment="CENTER" prefHeight="60.0" 
-                                   prefWidth="60.0" 
-                                   style="-fx-background-color: linear-gradient(135deg, 
-                                          #11998e, #38ef7d); 
-                                          -fx-background-radius: 15;">
-                                 <children>
-                                    <Label text="📜" textFill="WHITE">
+                                    <Label text="Deliver these ASAP!" textFill="#d35400">
                                        <font>
-                                          <Font name="Arial" size="28.0" />
-                                       </font>
-                                    </Label>
-                                 </children>
-                              </VBox>
-                              
-                              <!-- Title & Description -->
-                              <VBox spacing="5.0" HBox.hgrow="ALWAYS">
-                                 <children>
-                                    <Label text="Completed Deliveries" 
-                                          textFill="#2c3e50">
-                                       <font>
-                                          <Font name="Arial Black" size="20.0" />
-                                       </font>
-                                    </Label>
-                                    <Label text="Your delivery history and performance records" 
-                                          textFill="#7f8c8d">
-                                       <font>
-                                          <Font name="Arial" size="13.0" />
-                                       </font>
-                                    </Label>
-                                 </children>
-                              </VBox>
-                              
-                              <!-- Earnings Card -->
-                              <VBox alignment="CENTER" spacing="5.0" 
-                                   styleClass="info-card">
-                                 <padding>
-                                    <Insets bottom="15.0" left="20.0" 
-                                           right="20.0" top="15.0" />
-                                 </padding>
-                                 <children>
-                                    <Label text="💰" textFill="WHITE">
-                                       <font>
-                                          <Font name="Arial" size="20.0" />
-                                       </font>
-                                    </Label>
-                                    <Label text="Today's Earnings" textFill="WHITE">
-                                       <font>
-                                          <Font name="Arial Bold" size="11.0" />
-                                       </font>
-                                    </Label>
-                                    <Label text="450₺" textFill="WHITE">
-                                       <font>
-                                          <Font name="Arial Black" size="18.0" />
-                                       </font>
-                                    </Label>
-                                    <Label text="3 deliveries" textFill="#fee140">
-                                       <font>
-                                          <Font name="Arial" size="9.0" />
+                                          <Font name="Arial Bold" size="12.0" />
                                        </font>
                                     </Label>
                                  </children>
@@ -487,23 +150,25 @@
                            </children>
                         </HBox>
                         
-                        <Separator styleClass="colorful-separator" />
+                        <TableView fx:id="currentOrdersTable" style="-fx-background-radius: 10; -fx-border-radius: 10; -fx-opacity: 0.9;" VBox.vgrow="ALWAYS">
+                           <columns>
+                              <TableColumn fx:id="colCurrId" prefWidth="40.0" text="ID" />
+                              <TableColumn fx:id="colCurrCustomer" prefWidth="150.0" text="Customer" />
+                              <TableColumn fx:id="colCurrTotal" prefWidth="70.0" text="Total ($)" />
+                              <TableColumn fx:id="colCurrStatus" prefWidth="90.0" text="Status" />
+                           </columns>
+                        </TableView>
                         
-                        <!-- Completed Orders List -->
-                        <ListView fx:id="completedOrdersList" prefHeight="318.0" 
-                                 styleClass="product-list" VBox.vgrow="ALWAYS" 
-                                 style="-fx-background-color: white; 
-                                        -fx-background-radius: 15; 
-                                        -fx-border-color: linear-gradient(to right, 
-                                               #11998e, #38ef7d); 
-                                        -fx-border-width: 3; 
-                                        -fx-border-radius: 15;" />
+                        <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleCompleteOrder" prefHeight="45.0" style="-fx-background-color: #e17055; -fx-text-fill: white; -fx-background-radius: 10; -fx-cursor: hand; -fx-effect: dropshadow(three-pass-box, rgba(225, 112, 85, 0.4), 10, 0, 0, 5);" text="🏁 COMPLETE DELIVERY">
+                           <font>
+                              <Font name="Arial Black" size="14.0" />
+                           </font>
+                        </Button>
                      </children>
                   </VBox>
-               </content>
-            </Tab>
-         </tabs>
-      </TabPane>
-   </center>
-   
-</BorderPane>
+               </children>
+            </AnchorPane>
+        </items>
+      </SplitPane>
+   </children>
+</AnchorPane>

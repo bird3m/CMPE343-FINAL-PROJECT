@@ -352,28 +352,38 @@ public class LoginController {
         errorAnimation.play();
     }
     
-    /**
-     * Handle Register Button
+
+     /**
+      * Handle Register Button - Opens Register Screen
      */
     @FXML
     private void handleRegister(ActionEvent event) {
-        // Button click animation
-        ScaleTransition click = new ScaleTransition(Duration.millis(100), registerButton);
-        click.setToX(0.95);
-        click.setToY(0.95);
-        click.setAutoReverse(true);
-        click.setCycleCount(2);
-        click.play();
-        
-        // Show info dialog
-        showAlert(Alert.AlertType.INFORMATION, "Register", 
-                 "Registration Feature\n\n" +
-                 "Registration will be available soon!\n\n" +
-                 "Test Users:\n" +
-                 "• Customer: cust / cust\n" +
-                 "• Carrier: carr / carr\n" +
-                 "• Owner: own / own");
+        try {
+            // Register FXML dosyasını yükle
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/Register.fxml"));
+            Parent root = loader.load();
+            
+            // Şu anki sahneyi al
+            Stage stage = (Stage) registerButton.getScene().getWindow();
+            
+            // Yeni sahneyi oluştur
+            Scene scene = new Scene(root, 960, 540);
+            scene.getStylesheets().add(
+                getClass().getResource("/css/style.css").toExternalForm()
+            );
+            
+            // Sahneye geçiş yap
+            stage.setScene(scene);
+            stage.setTitle("Group04 GreenGrocer - Register");
+            stage.centerOnScreen();
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Hata", 
+                      "Kayıt ekranı açılamadı!\n\n" + e.getMessage());
+        }
     }
+    
     
     /**
      * Open appropriate window based on user role

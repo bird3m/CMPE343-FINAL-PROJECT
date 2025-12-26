@@ -1,58 +1,127 @@
 package services;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import models.User;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
+/**
+ * Data Access Object (DAO) for User operations.
+ * Handles database interactions related to the 'userinfo' table.
+ * Used primarily by the Owner role to manage carriers and by the system to retrieve user details.
+ *
+ * @author Group04
+ * @version 2.0
+ */
 public class UserDAO {
 
-    public User login(String username, String password) {
-        // 1. Şifreyi Hashle (Static metoddan çağırıyoruz)
-        String hashedPassword = AuthenticationService.hashPassword(password);
-
-        System.out.println("================ DEBUG ================");
-        System.out.println("Aranan Kullanıcı: " + username);
-        System.out.println("Aranan Hash: " + hashedPassword);
-        
-        // SQL Sorgusu: Hem kullanıcı adı hem şifre hash'i tutmalı
-        String sql = "SELECT * FROM userinfo WHERE username = ? AND password_hash = ?";
+    /**
+     * Retrieves a list of users based on their specific role.
+     * Useful for filtering users, e.g., listing all carriers for the Owner dashboard.
+     *
+     * @param role The role to filter by (e.g., "carrier", "customer").
+     * @return A List of User objects matching the role.
+     */
+    public List<User> getUsersByRole(String role) {
+        List<User> users = new ArrayList<>();
+        String sql = "SELECT * FROM userinfo WHERE role = ?";
         
         try (Connection conn = DatabaseAdapter.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
-             
-            pstmt.setString(1, username);
-            pstmt.setString(2, hashedPassword);
             
-            ResultSet rs = pstmt.executeQuery();
+            pstmt.setString(1, role);
             
-            if (rs.next()) {
-                System.out.println("✅ Veritabanında EŞLEŞME BULUNDU! Nesne oluşturuluyor...");
-                
-                // --- İŞTE EKSİK OLAN KISIM BURASI OLABİLİR ---
-                // Veritabanındaki sütunları tek tek çekip User nesnesine koyuyoruz.
-                int id = rs.getInt("id");
-                String dbUser = rs.getString("username");
-                String role = rs.getString("role");
-                String fullName = rs.getString("full_name"); // Sütun adı 'full_name' mi kontrol et
-                String address = rs.getString("address");
-                String phone = rs.getString("phone");
-
-                // User nesnesini oluştur (Constructor sırası User.java ile aynı olmalı!)
-                User user = new User(id, dbUser, role, fullName, address, phone);
-                
-                System.out.println("📦 User nesresi paketlendi ve gönderiliyor: " + role);
-                return user; // <--- KİLİT NOKTA: BURADA user DÖNMELİ!
-                
-            } else {
-                System.out.println("❌ Eşleşme YOK. Kullanıcı adı veya şifre yanlış.");
-                return null;
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    users.add(mapRowToUser(rs));
+                }
             }
-
-        } catch (Exception e) {
-            System.err.println("💥 Veritabanı Hatası: " + e.getMessage());
+        } catch (SQLException e) {
+            System.err.println("Error retrieving users by role: " + e.getMessage());
             e.printStackTrace();
-            return null;
         }
+        return users;
+    }
+    
+    /**
+     * Convenience method to retrieve all users with the 'carrier' role.
+     * Used in the Owner interface to display the list of employees.
+     *
+     * @return A List of User objects representing all carriers.
+     */
+    public List<User> getAllCarriers() {
+        return getUsersByRole("carrier");
+    }
+
+    /**
+     * Retrieves a specific user by their unique ID.
+     * Can be used to find the owner of a specific order.
+     *
+     * @param id The unique ID of the user.
+     * @return The User object if found, null otherwise.
+     */
+    public User getUserById(int id) {
+        String sql = "SELECT * FROM userinfo WHERE id = ?";
+        try (Connection conn = DatabaseAdapter.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+             
+            pstmt.setInt(1, id);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return mapRowToUser(rs);
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error retrieving user by ID: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
+     * Deletes a user from the system based on their ID.
+     * This operation is typically performed by the Owner (e.g., firing a carrier).
+     *
+     * @param userId The ID of the user to be deleted.
+     * @return true if the deletion was successful, false otherwise.
+     */
+    public boolean deleteUser(int userId) {
+        String sql = "DELETE FROM userinfo WHERE id = ?";
+        try (Connection conn = DatabaseAdapter.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setInt(1, userId);
+            int affected = pstmt.executeUpdate();
+            return affected > 0;
+            
+        } catch (SQLException e) {
+            System.err.println("Error deleting user: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    /**
+     * Helper method to map a single row from the ResultSet to a User object.
+     * Ensures mapping consistency between database columns and the Java model.
+     * <p>
+     * Note: Maps 'password_hash' column to the User's password field.
+     * </p>
+     *
+     * @param rs The ResultSet positioned at the current row.
+     * @return A populated User object.
+     * @throws SQLException If a database access error occurs.
+     */
+    private User mapRowToUser(ResultSet rs) throws SQLException {
+        // IMPORTANT: 'password_hash' is the column name in the database.
+        // We map it to the 'password' field in the User model.
+        return new User(
+            rs.getInt("id"),
+            rs.getString("username"),
+            rs.getString("password_hash"), // Correct column name mapping
+            rs.getString("role"),
+            rs.getString("address"),
+            rs.getString("phone")
+        );
     }
 }

@@ -132,7 +132,7 @@ public class OwnerMainController {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
         
         for (Order o : dbOrders) {
-            String dateStr = (o.getOrderTime() != null) ? o.getOrderTime().format(formatter) : "N/A";
+            String dateStr = (o.getDeliveryTime() != null) ? o.getDeliveryTime().format(formatter) : "N/A";
             orders.add(new OrderItem(
                 o.getId(),
                 o.getCustomerName(),

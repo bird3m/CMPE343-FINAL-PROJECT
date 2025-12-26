@@ -9,15 +9,12 @@ import java.util.List;
 
 public class OrderDAO {
 
-    // 1. SİPARİŞ OLUŞTURMA (VERİTABANI ŞEMASIYLA %100 UYUMLU)
+    // 1. SİPARİŞ OLUŞTURMA
     public boolean createOrder(Order order, List<OrderItem> items) {
-        // 1. ADIM: Sipariş Ana Kaydı (orderinfo)
-        // requested_delivery_time zorunlu olduğu için 2 saat sonrasını ekliyoruz.
+        // requested_delivery_time zorunlu, şimdilik 2 saat sonrasını veriyoruz.
         String insertOrderSQL = "INSERT INTO orderinfo (customer_id, total_cost, status, requested_delivery_time) " + 
                                 "VALUES (?, ?, 'CREATED', DATE_ADD(NOW(), INTERVAL 2 HOUR))";
                                 
-        // 2. ADIM: Sipariş Detayları (orderiteminfo)
-        // DİKKAT: Sütun isimleri veritabanına göre düzeltildi: amount_kg, unit_price, line_total
         String insertItemSQL = "INSERT INTO orderiteminfo (order_id, product_id, amount_kg, unit_price, line_total) VALUES (?, ?, ?, ?, ?)";
         
         Connection conn = null;
@@ -47,22 +44,19 @@ public class OrderDAO {
             // --- B) DETAYLARI (ÜRÜNLERİ) KAYDET ---
             PreparedStatement pstmtItem = conn.prepareStatement(insertItemSQL);
             for (OrderItem item : items) {
-                // Java'daki veriyi DB sütunlarına eşleştiriyoruz:
-                pstmtItem.setInt(1, orderId);                       // order_id
-                pstmtItem.setInt(2, item.getProductId());           // product_id
-                pstmtItem.setDouble(3, item.getQuantity());         // amount_kg
-                pstmtItem.setDouble(4, item.getPricePerUnit());     // unit_price
+                pstmtItem.setInt(1, orderId);
+                pstmtItem.setInt(2, item.getProductId());
+                pstmtItem.setDouble(3, item.getQuantity());
+                pstmtItem.setDouble(4, item.getPricePerUnit());
                 
-                // line_total hesaplama (Miktar * Birim Fiyat)
                 double lineTotal = item.getQuantity() * item.getPricePerUnit();
-                pstmtItem.setDouble(5, lineTotal);                  // line_total
+                pstmtItem.setDouble(5, lineTotal);
                 
                 pstmtItem.addBatch(); 
             }
             pstmtItem.executeBatch(); 
 
-            conn.commit(); // Her şey yolunda, onayla!
-            System.out.println("✅ Sipariş ve detayları başarıyla kaydedildi! ID: " + orderId);
+            conn.commit(); // Onayla
             return true;
 
         } catch (SQLException e) {
@@ -70,17 +64,17 @@ public class OrderDAO {
             try { if (conn != null) conn.rollback(); } catch (SQLException ex) { ex.printStackTrace(); }
             return false;
         } finally {
-            try { if (conn != null) conn.setAutoCommit(true); conn.close(); } catch (SQLException e) {}
+            try { if (conn != null) { conn.setAutoCommit(true); conn.close(); } } catch (SQLException e) {}
         }
     }
 
-    // 2. OWNER İÇİN: TÜM SİPARİŞLERİ ÇEK
+    // 2. OWNER İÇİN: TÜM SİPARİŞLERİ ÇEK (İSİMLERLE BERABER)
     public List<Order> getAllOrders() {
         List<Order> orders = new ArrayList<>();
-        // Müşteri adını da alabilmek için userinfo ile birleştiriyoruz
+        // SİHİRLİ DOKUNUŞ: LEFT JOIN ile kullanıcı adını (u.username) alıyoruz!
         String sql = "SELECT o.*, u.username, u.address FROM orderinfo o " +
                      "LEFT JOIN userinfo u ON o.customer_id = u.id " +
-                     "ORDER BY o.order_time DESC";
+                     "ORDER BY o.requested_delivery_time DESC";
 
         try (Connection conn = DatabaseAdapter.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql);
@@ -93,12 +87,9 @@ public class OrderDAO {
         return orders;
     }
 
- 
-  // 3. CARRIER İÇİN: HAVUZDAKİ SİPARİŞLER
+    // 3. CARRIER İÇİN: BEKLEYEN SİPARİŞLER
     public List<Order> getPendingOrders() {
         List<Order> orders = new ArrayList<>();
-        // DİKKAT: Veritabanına 'CREATED' yazdık, o yüzden burada da 'CREATED' aramalıyız!
-        // Eğer burada 'PENDING' yazıyorsa düzelt.
         String sql = "SELECT o.*, u.username, u.address FROM orderinfo o " +
                      "LEFT JOIN userinfo u ON o.customer_id = u.id " +
                      "WHERE o.status = 'CREATED' AND (o.carrier_id IS NULL OR o.carrier_id = 0)";
@@ -113,7 +104,7 @@ public class OrderDAO {
         return orders;
     }
 
-    // 4. CARRIER İÇİN: KENDİ SİPARİŞLERİ (ASSIGNED veya DELIVERED)
+    // 4. CARRIER İÇİN: KENDİ SİPARİŞLERİ
     public List<Order> getOrdersByCarrierAndStatus(int carrierId, String status) {
         List<Order> orders = new ArrayList<>();
         String sql = "SELECT o.*, u.username, u.address FROM orderinfo o " +
@@ -133,7 +124,7 @@ public class OrderDAO {
         return orders;
     }
 
-    // 5. CARRIER İÇİN: SİPARİŞİ ÜZERİNE AL (CREATED -> ASSIGNED)
+    // 5. SİPARİŞ ATAMA (Carrier Assignment)
     public boolean assignOrderToCarrier(int orderId, int carrierId) {
         String sql = "UPDATE orderinfo SET carrier_id = ?, status = 'ASSIGNED' WHERE id = ?";
         try (Connection conn = DatabaseAdapter.getConnection();
@@ -145,7 +136,7 @@ public class OrderDAO {
         } catch (Exception e) { e.printStackTrace(); return false; }
     }
 
-    // 6. DURUM GÜNCELLEME (ASSIGNED -> DELIVERED)
+    // 6. DURUM GÜNCELLEME (Teslimat)
     public boolean updateOrderStatus(int orderId, String status) {
         String sql = "UPDATE orderinfo SET status = ? WHERE id = ?";
         try (Connection conn = DatabaseAdapter.getConnection();
@@ -157,27 +148,35 @@ public class OrderDAO {
         } catch (Exception e) { e.printStackTrace(); return false; }
     }
 
-    // --- YARDIMCI METOT (Veritabanı satırını Java Nesnesine Çevirir) ---
+    // --- YARDIMCI METOT (FIX BURADA) ---
     private Order mapRowToOrder(ResultSet rs) throws SQLException {
-        // Tarih dönüşümü
-        java.sql.Timestamp ts = rs.getTimestamp("order_time");
-        LocalDateTime orderTime = (ts != null) ? ts.toLocalDateTime() : null;
+        // Tarih kontrolü
+        java.sql.Timestamp ts = rs.getTimestamp("requested_delivery_time");
+        LocalDateTime deliveryTime = (ts != null) ? ts.toLocalDateTime() : null;
         
-        // İsim ve Adres (LEFT JOIN sayesinde geliyor)
-        String customerName = rs.getString("username");
-        String address = rs.getString("address"); // Adres user tablosundan geliyor
-        if (address == null) address = "Adres Bulunamadı";
+        // KULLANICI ADI ÇEKME (İşte burası düzeltiyor!)
+        String customerName = rs.getString("username"); // JOIN'den gelen isim
+        
+        // Eğer kullanıcı silinmişse veya join hatası varsa ID göster
+        if (customerName == null) {
+            customerName = "Silinmiş Kullanıcı (ID: " + rs.getInt("customer_id") + ")";
+        }
+        
+        // Adres bilgisi (User tablosundan geliyor)
+        String address = rs.getString("address");
+        if (address == null) address = "Adres Yok";
 
-        // Order nesnesi oluşturuyoruz
-        // DİKKAT: Order modelinle bu constructor sırasının tuttuğuna emin ol!
+        // Görünen İsim Formatı: "TestCustomer (Kadıköy/İstanbul)"
+        String displayName = customerName + " (" + address + ")";
+
         return new Order(
             rs.getInt("id"),
             rs.getInt("customer_id"),
-            customerName + " (" + address + ")", // İsmin yanına adresi ekledik ki listede görünsün
+            displayName, // <-- BURAYA DİKKAT: Artık isim gidiyor!
             rs.getInt("carrier_id"),
             rs.getString("status"),
-            orderTime,
-            rs.getDouble("total_cost") // DB'deki isim total_cost
+            deliveryTime,
+            rs.getDouble("total_cost")
         );
     }
 }
