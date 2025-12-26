@@ -179,4 +179,25 @@ public class OrderDAO {
             rs.getDouble("total_cost")
         );
     }
+
+    // 7. CUSTOMER İÇİN: KENDİ GEÇMİŞ SİPARİŞLERİ
+    public List<Order> getOrdersByCustomerId(int customerId) {
+        List<Order> orders = new ArrayList<>();
+        // Burada carrier bilgisini de çekelim ki "Kurye: Ahmet" diye görebilsin
+        String sql = "SELECT o.*, u.username, u.address FROM orderinfo o " +
+                     "LEFT JOIN userinfo u ON o.customer_id = u.id " + // Bu satır customer adını getirir (zaten biliyoruz ama format bozulmasın)
+                     "WHERE o.customer_id = ? " +
+                     "ORDER BY o.requested_delivery_time DESC";
+        
+        try (Connection conn = DatabaseAdapter.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+             
+            pstmt.setInt(1, customerId);
+            ResultSet rs = pstmt.executeQuery();
+            while(rs.next()) {
+                orders.add(mapRowToOrder(rs));
+            }
+        } catch (Exception e) { e.printStackTrace(); }
+        return orders;
+    }
 }

@@ -7,14 +7,24 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-// --- İŞTE KRİTİK NOKTA BURASI ---
-import javafx.scene.control.*; // ListView, Label, Button, TextField hepsi buradan gelmeli!
+import javafx.scene.control.Alert;       // Alert uyarısı için
+import javafx.scene.control.Button;      // Butonlar için
+import javafx.scene.control.ButtonType;  // Çıkış onayı için
+import javafx.scene.control.Label;       // Label (usernameLabel) için
+import javafx.scene.control.ListCell;    // ListCell (Hücre yapısı) için
+import javafx.scene.control.ListView;    // ListView (Ürün listeleri) için
+import javafx.scene.control.TextField;   // Arama ve Miktar kutuları için
+import javafx.scene.control.TitledPane;  // Akordiyon paneller için
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
+
+
 import models.Product;
 import models.User;
 import services.ProductService;
-import services.CartService; // Sepet servisini de ekledik
+import services.CartService;
+
+
 import java.util.List;
 
 /**
@@ -293,21 +303,31 @@ public class CustomerMainController {
         }
     }
     
-    /**
-     * Handle View Orders Button
+  /**
+     * Handle View Orders Button 
      */
     @FXML
     private void handleViewOrders(ActionEvent event) {
-        showAlert(Alert.AlertType.INFORMATION, "My Orders", 
-                 "📋 Order History\n\n" +
-                 "This feature will show:\n" +
-                 "• Past orders\n" +
-                 "• Current orders\n" +
-                 "• Delivery status\n" +
-                 "• Order tracking\n\n" +
-                 "Coming soon!");
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/MyOrders.fxml"));
+            Parent root = loader.load();
+
+            // Controller'a ulaşıp şu anki müşteriyi (currentUser) içeri aktarıyoruz
+            MyOrdersController controller = loader.getController();
+            controller.setCustomer(currentUser); 
+
+            // Yeni pencereyi oluşturup gösteriyoruz
+            Stage stage = new Stage();
+            stage.setTitle("My Orders History");
+            stage.setScene(new Scene(root));
+            stage.centerOnScreen();
+            stage.show();
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Error", "Could not open orders screen!\n" + e.getMessage());
+        }
     }
-    
     /**
      * Handle Profile Button
      */
