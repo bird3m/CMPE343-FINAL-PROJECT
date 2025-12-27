@@ -14,15 +14,6 @@ import models.User;
 public class RegistrationService {
     
     private UserDAO userDAO;
-    private AuthenticationService authService;
-    
-    /**
-     * Constructor
-     */
-    public RegistrationService() {
-        this.userDAO = new UserDAO();
-        this.authService = new AuthenticationService();
-    }
     
     /**
      * Register new customer
@@ -42,7 +33,7 @@ public class RegistrationService {
             }
             
             // Hash password for security
-            String hashedPassword = authService.hashPassword(password);
+             String hashedPassword = AuthenticationService.hashPassword(password);
             
             // Create new customer user
             User newCustomer = new User();
