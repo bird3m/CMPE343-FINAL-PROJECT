@@ -7,10 +7,20 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.*; 
+
+// --- EXPLICIT IMPORTS (KARISIKLIGI ONLEMEK ICIN) ---
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Label;
+import javafx.scene.control.TableCell;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+
 import java.io.File;
 import java.io.PrintWriter;
 import java.time.format.DateTimeFormatter;
@@ -18,13 +28,16 @@ import java.util.List;
 
 import models.Product;
 import models.Order;
+import models.User;
+import services.UserDAO;
+import services.CarrierRatingDAO;
 import services.ProductDAO;
 import services.OrderDAO;
 import services.ReportGenerator;
 
 /**
  * Controller for the Owner (Admin) Dashboard.
- * Manages Products, Orders, and Carriers.
+ * Fixed: Imports are now explicit to avoid "does not take parameters" error.
  */
 public class OwnerMainController {
     
@@ -65,7 +78,7 @@ public class OwnerMainController {
         setupProductTable();
         setupOrderTable();
         setupCarrierTable();
-        loadSampleData(); // Loads real data from DB
+        loadSampleData(); 
         if(reportPreviewArea != null) handleRefreshReport(null);
     }
     
@@ -77,7 +90,7 @@ public class OwnerMainController {
         productStockColumn.setCellValueFactory(new PropertyValueFactory<>("stock"));        
         productThresholdColumn.setCellValueFactory(new PropertyValueFactory<>("threshold")); 
         
-        // Custom cell formatting for Stock
+        // Custom cell formatting
         productStockColumn.setCellFactory(tc -> new TableCell<Product, Double>() {
             @Override protected void updateItem(Double value, boolean empty) {
                 super.updateItem(value, empty);
@@ -85,7 +98,6 @@ public class OwnerMainController {
             }
         });
         
-        // Custom cell formatting for Price
         productPriceColumn.setCellFactory(tc -> new TableCell<Product, Double>() {
             @Override protected void updateItem(Double value, boolean empty) {
                 super.updateItem(value, empty);
@@ -124,16 +136,13 @@ public class OwnerMainController {
         });
     }
     
-    /**
-     * Loads fresh data from the database into the tables.
-     */
     private void loadSampleData() {
-        // LOAD PRODUCTS
+        // PRODUCTS
         ProductDAO productDAO = new ProductDAO();
         products = FXCollections.observableArrayList(productDAO.getAllProducts());
         productTable.setItems(products);
         
-        // LOAD ORDERS
+        // ORDERS
         OrderDAO orderDAO = new OrderDAO();
         List<Order> dbOrders = orderDAO.getAllOrders();
         orders = FXCollections.observableArrayList();
@@ -151,70 +160,61 @@ public class OwnerMainController {
         }
         orderTable.setItems(orders);
         
-        // LOAD CARRIERS (Dummy Data for now)
+        // CARRIERS
+        UserDAO userDAO = new UserDAO();
+        CarrierRatingDAO ratingDAO = new CarrierRatingDAO();
+        List<User> dbCarriers = userDAO.getAllCarriers();
         carriers = FXCollections.observableArrayList();
-        carriers.add(new CarrierItem(1, "Fast Ahmed", "555-1234", 4.8, 120));
+        
+        for (User u : dbCarriers) {
+            double avgRating = ratingDAO.getAverageRating(u.getId());
+            int deliveryCount = ratingDAO.getDeliveryCount(u.getId());
+            
+            carriers.add(new CarrierItem(
+                u.getId(),
+                u.getFullName(), 
+                u.getPhone(), 
+                avgRating, 
+                deliveryCount
+            ));
+        }
         carrierTable.setItems(carriers);
     }
     
-    /**
-     * Handle "Add Product" button.
-     * Opens the ProductForm in Add Mode.
-     */
     @FXML
     private void handleAddProduct(ActionEvent event) {
         try {
-            // UPDATED: Now points to ProductForm.fxml
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/ProductForm.fxml"));
             Parent page = loader.load();
-            
             Stage dialogStage = new Stage();
             dialogStage.setTitle("Add New Product");
             dialogStage.setScene(new Scene(page));
-            
-            // Note: We don't need to pass 'dialogStage' if the controller handles closing itself.
-            // Just wait for it to close.
             dialogStage.showAndWait();
-            
-            // Refresh table after window closes
             loadSampleData(); 
             handleRefreshReport(null);
-            
         } catch (Exception e) { 
             e.printStackTrace(); 
             showAlert(Alert.AlertType.ERROR, "Error", "Could not open Add Product form.");
         }
     }
 
-    /**
-     * Handle "Edit Product" button.
-     * Opens the ProductForm in Edit Mode with selected product data.
-     */
     @FXML
     private void handleEditProduct(ActionEvent event) {
         Product selected = productTable.getSelectionModel().getSelectedItem();
-        
         if (selected == null) {
             showAlert(Alert.AlertType.WARNING, "No Selection", "Please select a product to edit.");
             return;
         }
-
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/ProductForm.fxml"));
             Parent page = loader.load();
-            
-            // Get the controller to pass data
             ProductFormController controller = loader.getController();
-            controller.setProduct(selected); // <--- PASS DATA HERE
-            
+            controller.setProduct(selected);
             Stage dialogStage = new Stage();
             dialogStage.setTitle("Edit Product");
             dialogStage.setScene(new Scene(page));
             dialogStage.showAndWait();
-            
-            // Refresh table after window closes
             loadSampleData(); 
-            
         } catch (Exception e) { 
             e.printStackTrace();
             showAlert(Alert.AlertType.ERROR, "Error", "Could not open Edit Product form.");
@@ -225,10 +225,8 @@ public class OwnerMainController {
     private void handleDeleteProduct(ActionEvent event) {
         Product selected = productTable.getSelectionModel().getSelectedItem();
         if (selected != null) {
-            // Confirmation Dialog
             Alert confirm = new Alert(Alert.AlertType.CONFIRMATION, "Delete " + selected.getName() + "?", ButtonType.YES, ButtonType.NO);
             confirm.showAndWait();
-
             if (confirm.getResult() == ButtonType.YES) {
                 ProductDAO dao = new ProductDAO();
                 if(dao.deleteProduct(selected.getId())) {
@@ -244,6 +242,44 @@ public class OwnerMainController {
     }
     
     @FXML
+    private void handleEmployCarrier(ActionEvent event) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/CarrierForm.fxml"));
+            Parent page = loader.load();
+            Stage dialogStage = new Stage();
+            dialogStage.setTitle("Employ New Carrier");
+            dialogStage.setScene(new Scene(page));
+            dialogStage.showAndWait();
+            loadSampleData();
+        } catch (Exception e) {
+            e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Error", "Could not open Carrier form.");
+        }
+    }
+
+    @FXML
+    private void handleFireCarrier(ActionEvent event) {
+        CarrierItem selected = carrierTable.getSelectionModel().getSelectedItem();
+        if (selected == null) {
+            showAlert(Alert.AlertType.WARNING, "No Selection", "Please select a carrier to fire.");
+            return;
+        }
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION, 
+            "Are you sure you want to fire " + selected.getCarrierName() + "?", 
+            ButtonType.YES, ButtonType.NO);
+        confirm.showAndWait();
+        if (confirm.getResult() == ButtonType.YES) {
+            UserDAO dao = new UserDAO();
+            if (dao.deleteUser(selected.getCarrierId())) {
+                carriers.remove(selected);
+                showAlert(Alert.AlertType.INFORMATION, "Success", "Carrier fired successfully.");
+            } else {
+                showAlert(Alert.AlertType.ERROR, "Error", "Could not fire carrier.");
+            }
+        }
+    }
+    
+    @FXML
     private void handleRefreshReport(ActionEvent event) {
         ReportGenerator generator = new ReportGenerator();
         String reportText = generator.generateGeneralReport(); 
@@ -254,13 +290,11 @@ public class OwnerMainController {
     private void handleSaveReport(ActionEvent event) {
         String reportContent = reportPreviewArea.getText();
         if (reportContent == null || reportContent.isEmpty()) return;
-        
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Save Report");
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Text Files", "*.txt"));
         fileChooser.setInitialFileName("Report_" + System.currentTimeMillis() + ".txt");
         File file = fileChooser.showSaveDialog(null);
-        
         if (file != null) {
             try (PrintWriter writer = new PrintWriter(file)) {
                 writer.println(reportContent);
@@ -276,9 +310,6 @@ public class OwnerMainController {
             stage.setScene(new Scene(root));
         } catch (Exception e) { e.printStackTrace(); }
     }
-    
-    @FXML private void handleEmployCarrier(ActionEvent e) {} 
-    @FXML private void handleFireCarrier(ActionEvent e) {}
 
     private void showAlert(Alert.AlertType type, String title, String content) {
         Alert alert = new Alert(type);
@@ -288,7 +319,7 @@ public class OwnerMainController {
         alert.showAndWait();
     }
     
-    // --- INNER CLASSES FOR TABLE VIEW ---
+    // --- INNER CLASSES ---
     public static class OrderItem {
         private int orderId; private String customerName, orderDate, status; private double total;
         public OrderItem(int id, String name, String date, double total, String status) {
