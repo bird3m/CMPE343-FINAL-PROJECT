@@ -1,0 +1,13 @@
+==========================================
+         GREEN GROCER - INVOICE           
+==========================================
+
+Order ID:    #16
+Customer:    cust (Papatya Caddesi No:12 Istanbul)
+Status:      ASSIGNED
+Total Cost:  35.64 TL
+Delivery:    2025-12-29 02:48:42
+
+------------------------------------------
+   Thank you for choosing Group04!        
+==========================================

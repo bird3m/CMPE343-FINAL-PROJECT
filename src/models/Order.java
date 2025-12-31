@@ -93,4 +93,8 @@ public class Order {
     public String toString() {
         return "Order #" + id + " - " + status; 
     }
+
+    public void setId(int id){
+        this.id = id;    
+    }
 }
