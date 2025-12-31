@@ -16,6 +16,8 @@ public class OrderDAO {
                                 "VALUES (?, ?, 'CREATED', DATE_ADD(NOW(), INTERVAL 2 HOUR))";
                                 
         String insertItemSQL = "INSERT INTO orderiteminfo (order_id, product_id, amount_kg, unit_price, line_total) VALUES (?, ?, ?, ?, ?)";
+        String updateStockSQL = "UPDATE productinfo SET stock_kg = stock_kg - ? WHERE id = ?";
+        
         
         Connection conn = null;
         try {
