@@ -7,7 +7,6 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-// DİKKAT: Doğru importlar bunlar!
 import javafx.scene.control.*; 
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.FileChooser;
@@ -18,14 +17,18 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import models.Product;
-import models.Order; // Yeni Order modelini kullanacak
+import models.Order;
 import services.ProductDAO;
 import services.OrderDAO;
 import services.ReportGenerator;
 
+/**
+ * Controller for the Owner (Admin) Dashboard.
+ * Manages Products, Orders, and Carriers.
+ */
 public class OwnerMainController {
     
-    // --- 1. ÜRÜN TABLOSU ---
+    // --- 1. PRODUCT TABLE ---
     @FXML private TableView<Product> productTable;
     @FXML private TableColumn<Product, Integer> productIdColumn;
     @FXML private TableColumn<Product, String> productNameColumn;
@@ -34,8 +37,7 @@ public class OwnerMainController {
     @FXML private TableColumn<Product, Double> productStockColumn;     
     @FXML private TableColumn<Product, Double> productThresholdColumn; 
     
-    // --- 2. SİPARİŞ TABLOSU ---
-    // Buradaki OrderItem; senin OrderDAO'dan gelen veriyi ekrana basmak için kullandığın iç sınıf
+    // --- 2. ORDER TABLE ---
     @FXML private TableView<OrderItem> orderTable;
     @FXML private TableColumn<OrderItem, Integer> orderIdColumn;
     @FXML private TableColumn<OrderItem, String> orderCustomerColumn;
@@ -43,7 +45,7 @@ public class OwnerMainController {
     @FXML private TableColumn<OrderItem, Double> orderTotalColumn;
     @FXML private TableColumn<OrderItem, String> orderStatusColumn;
     
-    // --- 3. KURYE TABLOSU ---
+    // --- 3. CARRIER TABLE ---
     @FXML private TableView<CarrierItem> carrierTable;
     @FXML private TableColumn<CarrierItem, Integer> carrierIdColumn;
     @FXML private TableColumn<CarrierItem, String> carrierNameColumn;
@@ -63,7 +65,7 @@ public class OwnerMainController {
         setupProductTable();
         setupOrderTable();
         setupCarrierTable();
-        loadSampleData();
+        loadSampleData(); // Loads real data from DB
         if(reportPreviewArea != null) handleRefreshReport(null);
     }
     
@@ -72,15 +74,18 @@ public class OwnerMainController {
         productNameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
         productTypeColumn.setCellValueFactory(new PropertyValueFactory<>("type"));
         productPriceColumn.setCellValueFactory(new PropertyValueFactory<>("price"));
-        productStockColumn.setCellValueFactory(new PropertyValueFactory<>("stock"));         
+        productStockColumn.setCellValueFactory(new PropertyValueFactory<>("stock"));        
         productThresholdColumn.setCellValueFactory(new PropertyValueFactory<>("threshold")); 
         
+        // Custom cell formatting for Stock
         productStockColumn.setCellFactory(tc -> new TableCell<Product, Double>() {
             @Override protected void updateItem(Double value, boolean empty) {
                 super.updateItem(value, empty);
                 setText(empty || value == null ? null : String.format("%.2f kg", value));
             }
         });
+        
+        // Custom cell formatting for Price
         productPriceColumn.setCellFactory(tc -> new TableCell<Product, Double>() {
             @Override protected void updateItem(Double value, boolean empty) {
                 super.updateItem(value, empty);
@@ -119,13 +124,16 @@ public class OwnerMainController {
         });
     }
     
+    /**
+     * Loads fresh data from the database into the tables.
+     */
     private void loadSampleData() {
-        // ÜRÜNLER
+        // LOAD PRODUCTS
         ProductDAO productDAO = new ProductDAO();
         products = FXCollections.observableArrayList(productDAO.getAllProducts());
         productTable.setItems(products);
         
-        // SİPARİŞLER (Gerçek Veri)
+        // LOAD ORDERS
         OrderDAO orderDAO = new OrderDAO();
         List<Order> dbOrders = orderDAO.getAllOrders();
         orders = FXCollections.observableArrayList();
@@ -137,51 +145,101 @@ public class OwnerMainController {
                 o.getId(),
                 o.getCustomerName(),
                 dateStr,
-                o.getTotalCost(), // Artık Order modelinde bu metod var!
+                o.getTotalCost(),
                 o.getStatus()
             ));
         }
         orderTable.setItems(orders);
         
-        // KURYELER (Dummy)
+        // LOAD CARRIERS (Dummy Data for now)
         carriers = FXCollections.observableArrayList();
-        carriers.add(new CarrierItem(1, "Hizli Ahmet", "555-1234", 4.8, 120));
+        carriers.add(new CarrierItem(1, "Fast Ahmed", "555-1234", 4.8, 120));
         carrierTable.setItems(carriers);
     }
     
+    /**
+     * Handle "Add Product" button.
+     * Opens the ProductForm in Add Mode.
+     */
     @FXML
     private void handleAddProduct(ActionEvent event) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/ProductDialog.fxml"));
+            // UPDATED: Now points to ProductForm.fxml
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/ProductForm.fxml"));
             Parent page = loader.load();
+            
             Stage dialogStage = new Stage();
-            dialogStage.setTitle("Yeni Ürün Ekle");
+            dialogStage.setTitle("Add New Product");
             dialogStage.setScene(new Scene(page));
-            ProductDialogController controller = loader.getController();
-            controller.setDialogStage(dialogStage);
+            
+            // Note: We don't need to pass 'dialogStage' if the controller handles closing itself.
+            // Just wait for it to close.
             dialogStage.showAndWait();
-            if (controller.isSaveClicked()) {
-                loadSampleData(); 
-                handleRefreshReport(null);
-            }
-        } catch (Exception e) { e.printStackTrace(); }
+            
+            // Refresh table after window closes
+            loadSampleData(); 
+            handleRefreshReport(null);
+            
+        } catch (Exception e) { 
+            e.printStackTrace(); 
+            showAlert(Alert.AlertType.ERROR, "Error", "Could not open Add Product form.");
+        }
     }
 
+    /**
+     * Handle "Edit Product" button.
+     * Opens the ProductForm in Edit Mode with selected product data.
+     */
     @FXML
     private void handleEditProduct(ActionEvent event) {
         Product selected = productTable.getSelectionModel().getSelectedItem();
-        if(selected != null) showAlert(Alert.AlertType.INFORMATION, "Bilgi", "Düzenlenecek: " + selected.getName());
+        
+        if (selected == null) {
+            showAlert(Alert.AlertType.WARNING, "No Selection", "Please select a product to edit.");
+            return;
+        }
+
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/ProductForm.fxml"));
+            Parent page = loader.load();
+            
+            // Get the controller to pass data
+            ProductFormController controller = loader.getController();
+            controller.setProduct(selected); // <--- PASS DATA HERE
+            
+            Stage dialogStage = new Stage();
+            dialogStage.setTitle("Edit Product");
+            dialogStage.setScene(new Scene(page));
+            dialogStage.showAndWait();
+            
+            // Refresh table after window closes
+            loadSampleData(); 
+            
+        } catch (Exception e) { 
+            e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Error", "Could not open Edit Product form.");
+        }
     }
 
     @FXML
     private void handleDeleteProduct(ActionEvent event) {
         Product selected = productTable.getSelectionModel().getSelectedItem();
         if (selected != null) {
-            ProductDAO dao = new ProductDAO();
-            if(dao.deleteProduct(selected.getId())) {
-                products.remove(selected);
-                showAlert(Alert.AlertType.INFORMATION, "Başarılı", "Ürün silindi.");
+            // Confirmation Dialog
+            Alert confirm = new Alert(Alert.AlertType.CONFIRMATION, "Delete " + selected.getName() + "?", ButtonType.YES, ButtonType.NO);
+            confirm.showAndWait();
+
+            if (confirm.getResult() == ButtonType.YES) {
+                ProductDAO dao = new ProductDAO();
+                if(dao.deleteProduct(selected.getId())) {
+                    products.remove(selected);
+                    showAlert(Alert.AlertType.INFORMATION, "Success", "Product deleted successfully.");
+                } else {
+                    showAlert(Alert.AlertType.ERROR, "Error", "Could not delete product.");
+                }
             }
+        } else {
+            showAlert(Alert.AlertType.WARNING, "No Selection", "Please select a product to delete.");
         }
     }
     
@@ -196,11 +254,13 @@ public class OwnerMainController {
     private void handleSaveReport(ActionEvent event) {
         String reportContent = reportPreviewArea.getText();
         if (reportContent == null || reportContent.isEmpty()) return;
+        
         FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Raporu Kaydet");
+        fileChooser.setTitle("Save Report");
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Text Files", "*.txt"));
-        fileChooser.setInitialFileName("Rapor_" + System.currentTimeMillis() + ".txt");
+        fileChooser.setInitialFileName("Report_" + System.currentTimeMillis() + ".txt");
         File file = fileChooser.showSaveDialog(null);
+        
         if (file != null) {
             try (PrintWriter writer = new PrintWriter(file)) {
                 writer.println(reportContent);
@@ -228,7 +288,7 @@ public class OwnerMainController {
         alert.showAndWait();
     }
     
-    // INNER CLASSES
+    // --- INNER CLASSES FOR TABLE VIEW ---
     public static class OrderItem {
         private int orderId; private String customerName, orderDate, status; private double total;
         public OrderItem(int id, String name, String date, double total, String status) {
