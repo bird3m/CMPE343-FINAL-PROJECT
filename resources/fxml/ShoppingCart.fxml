@@ -6,6 +6,8 @@
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ListView?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
@@ -18,7 +20,6 @@
             xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" 
             fx:controller="controllers.ShoppingCartController">
    
-   <!-- TOP: Ultra Colorful Shopping Cart Header -->
    <top>
       <HBox alignment="CENTER" prefHeight="75.0" spacing="15.0" 
             styleClass="top-bar" BorderPane.alignment="CENTER">
@@ -26,7 +27,6 @@
             <Insets left="30.0" right="30.0" />
          </padding>
          <children>
-            <!-- Cart Icon Badge -->
             <VBox alignment="CENTER" prefHeight="50.0" prefWidth="50.0" 
                   style="-fx-background-color: rgba(255,255,255,0.25); 
                          -fx-background-radius: 12;">
@@ -39,7 +39,6 @@
                </children>
             </VBox>
             
-            <!-- Title & Subtitle -->
             <VBox spacing="2.0">
                <children>
                   <Label text="Shopping Cart" textFill="WHITE">
@@ -48,7 +47,7 @@
                      </font>
                   </Label>
                   <Label text="Review your order before checkout" 
-                        textFill="#fee140">
+                         textFill="#fee140">
                      <font>
                         <Font name="Arial" size="12.0" />
                      </font>
@@ -58,7 +57,6 @@
             
             <Region HBox.hgrow="ALWAYS" />
             
-            <!-- Cart Stats Badge -->
             <HBox spacing="20.0">
                <children>
                   <VBox alignment="CENTER" spacing="3.0" 
@@ -71,25 +69,7 @@
                               <Font name="Arial" size="16.0" />
                            </font>
                         </Label>
-                        <Label text="Items: 4" textFill="WHITE">
-                           <font>
-                              <Font name="Arial Black" size="13.0" />
-                           </font>
-                        </Label>
-                     </children>
-                  </VBox>
-                  
-                  <VBox alignment="CENTER" spacing="3.0" 
-                        style="-fx-background-color: rgba(46, 204, 113, 0.3); 
-                               -fx-background-radius: 12; 
-                               -fx-padding: 10 18 10 18;">
-                     <children>
-                        <Label text="✨" textFill="WHITE">
-                           <font>
-                              <Font name="Arial" size="16.0" />
-                           </font>
-                        </Label>
-                        <Label text="Ready!" textFill="WHITE">
+                        <Label text="Review Items" textFill="WHITE">
                            <font>
                               <Font name="Arial Black" size="13.0" />
                            </font>
@@ -102,7 +82,6 @@
       </HBox>
    </top>
    
-   <!-- CENTER: Cart Table & Actions -->
    <center>
       <VBox prefHeight="400.0" prefWidth="690.0" spacing="20.0" 
             BorderPane.alignment="CENTER">
@@ -110,13 +89,10 @@
             <Insets bottom="20.0" left="25.0" right="25.0" top="20.0" />
          </padding>
          <children>
-            <!-- Header with Tips -->
             <HBox alignment="CENTER_LEFT" spacing="15.0">
                <children>
-                  <!-- Section Icon -->
                   <VBox alignment="CENTER" prefHeight="45.0" prefWidth="45.0" 
-                        style="-fx-background-color: linear-gradient(135deg, 
-                               #667eea, #764ba2); 
+                        style="-fx-background-color: linear-gradient(135deg, #667eea, #764ba2); 
                                -fx-background-radius: 12;">
                      <children>
                         <Label text="📋" textFill="WHITE">
@@ -127,7 +103,6 @@
                      </children>
                   </VBox>
                   
-                  <!-- Title -->
                   <VBox spacing="3.0">
                      <children>
                         <Label text="Cart Items" textFill="#2c3e50">
@@ -135,8 +110,7 @@
                               <Font name="Arial Black" size="19.0" />
                            </font>
                         </Label>
-                        <Label text="Review quantities and prices before checkout" 
-                              textFill="#7f8c8d">
+                        <Label text="Review quantities and prices before checkout" textFill="#7f8c8d">
                            <font>
                               <Font name="Arial" size="12.0" />
                            </font>
@@ -146,19 +120,12 @@
                   
                   <Region HBox.hgrow="ALWAYS" />
                   
-                  <!-- Tip Badge -->
                   <HBox alignment="CENTER" spacing="8.0" 
                         style="-fx-background-color: rgba(241, 196, 15, 0.15); 
-                               -fx-background-radius: 10; 
-                               -fx-padding: 8 15 8 15;">
+                               -fx-background-radius: 10; -fx-padding: 8 15 8 15;">
                      <children>
-                        <Label text="💡" textFill="#f39c12">
-                           <font>
-                              <Font name="Arial" size="14.0" />
-                           </font>
-                        </Label>
-                        <Label text="Add more for free delivery!" 
-                              textFill="#f39c12">
+                        <Label text="💡" textFill="#f39c12" />
+                        <Label text="Hover over code box for coupons!" textFill="#f39c12">
                            <font>
                               <Font name="Arial Bold" size="11.0" />
                            </font>
@@ -168,76 +135,58 @@
                </children>
             </HBox>
             
-            <!-- Colorful Cart Table -->
-            <TableView fx:id="cartTable" prefHeight="270.0" 
-                      styleClass="cart-table" VBox.vgrow="ALWAYS">
+            <TableView fx:id="cartTable" prefHeight="270.0" styleClass="cart-table" VBox.vgrow="ALWAYS">
                <columns>
-                  <TableColumn fx:id="productColumn" prefWidth="280.0" 
-                              text="🥬 Product Name" />
-                  <TableColumn fx:id="quantityColumn" prefWidth="140.0" 
-                              text="📦 Quantity" />
-                  <TableColumn fx:id="priceColumn" prefWidth="140.0" 
-                              text="💰 Unit Price" />
-                  <TableColumn fx:id="totalColumn" prefWidth="130.0" 
-                              text="💵 Total" />
+                  <TableColumn fx:id="productColumn" prefWidth="280.0" text="🥬 Product Name" />
+                  <TableColumn fx:id="quantityColumn" prefWidth="140.0" text="📦 Quantity" />
+                  <TableColumn fx:id="priceColumn" prefWidth="140.0" text="💰 Unit Price" />
+                  <TableColumn fx:id="totalColumn" prefWidth="130.0" text="💵 Total" />
                </columns>
             </TableView>
             
-            <!-- Action Buttons Row -->
             <HBox alignment="CENTER_LEFT" spacing="15.0">
                <children>
-                  <!-- Remove Button -->
-                  <Button fx:id="removeButton" mnemonicParsing="false" 
-                         onAction="#handleRemove" prefHeight="48.0" 
-                         prefWidth="190.0" styleClass="remove-btn" 
-                         text="🗑️ Remove Selected">
+                  <TextField fx:id="couponField" prefHeight="48.0" prefWidth="180.0" promptText="Enter Code" 
+                             style="-fx-background-radius: 8; -fx-border-color: #bdc3c7; -fx-border-radius: 8;" />
+                  <Button onAction="#handleApplyCoupon" prefHeight="48.0" prefWidth="100.0" 
+                          style="-fx-background-color: #2980b9; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8;" text="APPLY" />
+                  
+                  <Region HBox.hgrow="ALWAYS" />
+                  
+                  <Button fx:id="removeButton" onAction="#handleRemove" prefHeight="48.0" prefWidth="190.0" styleClass="remove-btn" text="🗑️ Remove Selected">
                      <font>
                         <Font name="Arial Bold" size="14.0" />
                      </font>
                   </Button>
-                  
-                  <Region HBox.hgrow="ALWAYS" />
-                  
-                  <!-- Security Badge -->
-                  <HBox alignment="CENTER" spacing="8.0" 
-                        style="-fx-background-color: rgba(46, 204, 113, 0.15); 
-                               -fx-background-radius: 10; 
-                               -fx-padding: 8 15 8 15;">
-                     <children>
-                        <Label text="🔒" textFill="#27ae60">
-                           <font>
-                              <Font name="Arial" size="14.0" />
-                           </font>
-                        </Label>
-                        <Label text="Secure Checkout Available" 
-                              textFill="#27ae60">
-                           <font>
-                              <Font name="Arial Black" size="11.0" />
-                           </font>
-                        </Label>
-                     </children>
-                  </HBox>
                </children>
             </HBox>
+
+            <!-- User-owned coupons list -->
+            <VBox spacing="6.0">
+               <children>
+                  <Label text="Your Coupons" textFill="#2c3e50">
+                     <font>
+                        <Font name="Arial Bold" size="13.0" />
+                     </font>
+                  </Label>
+                  <ListView fx:id="userCouponsList" prefHeight="90.0" />
+                  <Label fx:id="couponsStatusLabel" text="" textFill="#7f8c8d" />
+               </children>
+            </VBox>
          </children>
       </VBox>
    </center>
    
-   <!-- RIGHT: Ultra Colorful Order Summary Panel -->
    <right>
-      <VBox prefHeight="465.0" prefWidth="285.0" spacing="20.0" 
-            styleClass="totals-box" BorderPane.alignment="CENTER">
+      <VBox prefHeight="465.0" prefWidth="285.0" spacing="20.0" styleClass="totals-box" BorderPane.alignment="CENTER">
          <padding>
             <Insets bottom="25.0" left="25.0" right="25.0" top="25.0" />
          </padding>
          <children>
-            <!-- Title Section with Icon -->
             <VBox spacing="8.0" alignment="CENTER">
                <children>
                   <VBox alignment="CENTER" prefHeight="55.0" prefWidth="55.0" 
-                        style="-fx-background-color: linear-gradient(135deg, 
-                               #667eea, #764ba2); 
-                               -fx-background-radius: 15;">
+                        style="-fx-background-color: linear-gradient(135deg, #667eea, #764ba2); -fx-background-radius: 15;">
                      <children>
                         <Label text="📊">
                            <font>
@@ -251,89 +200,68 @@
                         <Font name="Arial Black" size="20.0" />
                      </font>
                   </Label>
-                  <Label text="Review your totals" textFill="#7f8c8d">
+                  <Label fx:id="loyaltyLabel" text="⭐ Loyalty Member: %10 OFF" textFill="#27ae60" visible="false">
+                     <font>
+                        <Font name="Arial Bold Italic" size="11.0" />
+                     </font>
+                  </Label>
+               </children>
+            </VBox>
+            
+            <Separator styleClass="colorful-separator" />
+            
+            <VBox spacing="15.0">
+               <children>
+                  <HBox alignment="CENTER_LEFT" spacing="10.0" style="-fx-background-color: rgba(46, 204, 113, 0.1); -fx-background-radius: 10; -fx-padding: 10;">
+                     <children>
+                        <Label text="💚" />
+                        <Label text="Subtotal:" HBox.hgrow="ALWAYS" />
+                        <Label fx:id="subtotalLabel" text="0.00 ₺" textFill="#27ae60">
+                           <font>
+                              <Font name="Arial Black" size="15.0" />
+                           </font>
+                        </Label>
+                     </children>
+                  </HBox>
+                  
+                  <HBox alignment="CENTER_LEFT" spacing="10.0" style="-fx-background-color: rgba(230, 126, 34, 0.1); -fx-background-radius: 10; -fx-padding: 10;">
+                     <children>
+                        <Label text="🧾" />
+                        <Label text="VAT (18%):" HBox.hgrow="ALWAYS" />
+                        <Label fx:id="vatLabel" text="0.00 ₺" textFill="#e67e22">
+                           <font>
+                              <Font name="Arial Black" size="15.0" />
+                           </font>
+                        </Label>
+                     </children>
+                  </HBox>
+
+                  <!-- Shipping line -->
+                  <HBox alignment="CENTER_LEFT" spacing="10.0" style="-fx-background-color: rgba(52, 73, 94, 0.03); -fx-background-radius: 10; -fx-padding: 10;">
+                     <children>
+                        <Label text="🚚" />
+                        <Label text="Shipping:" HBox.hgrow="ALWAYS" />
+                        <Label fx:id="shippingLabel" text="0.00 ₺" textFill="#34495e">
+                           <font>
+                              <Font name="Arial Black" size="15.0" />
+                           </font>
+                        </Label>
+                     </children>
+                  </HBox>
+
+                  <Label fx:id="shippingNoteLabel" text="" textFill="#27ae60">
                      <font>
                         <Font name="Arial" size="11.0" />
                      </font>
                   </Label>
-               </children>
-            </VBox>
-            
-            <Separator styleClass="colorful-separator" />
-            
-            <!-- Price Breakdown with Icons -->
-            <VBox spacing="18.0">
-               <children>
-                  <!-- Subtotal Row -->
-                  <HBox alignment="CENTER_LEFT" spacing="10.0" 
-                        style="-fx-background-color: rgba(46, 204, 113, 0.1); 
-                               -fx-background-radius: 10; 
-                               -fx-padding: 10;">
-                     <children>
-                        <Label text="💚" textFill="#27ae60">
-                           <font>
-                              <Font name="Arial" size="16.0" />
-                           </font>
-                        </Label>
-                        <Label text="Subtotal:" HBox.hgrow="ALWAYS">
-                           <font>
-                              <Font name="Arial Bold" size="15.0" />
-                           </font>
-                        </Label>
-                        <Label fx:id="subtotalLabel" text="0.00 ₺" 
-                              textFill="#27ae60">
-                           <font>
-                              <Font name="Arial Black" size="17.0" />
-                           </font>
-                        </Label>
-                     </children>
-                  </HBox>
                   
-                  <!-- VAT Row -->
-                  <HBox alignment="CENTER_LEFT" spacing="10.0" 
-                        style="-fx-background-color: rgba(230, 126, 34, 0.1); 
-                               -fx-background-radius: 10; 
-                               -fx-padding: 10;">
+                  <HBox alignment="CENTER_LEFT" spacing="10.0" style="-fx-background-color: rgba(231, 76, 60, 0.1); -fx-background-radius: 10; -fx-padding: 10;">
                      <children>
-                        <Label text="🧾" textFill="#e67e22">
+                        <Label text="🎁" />
+                        <Label text="Discount:" HBox.hgrow="ALWAYS" />
+                        <Label fx:id="discountLabel" text="0.00 ₺" textFill="#e74c3c">
                            <font>
-                              <Font name="Arial" size="16.0" />
-                           </font>
-                        </Label>
-                        <Label text="VAT (18%):" HBox.hgrow="ALWAYS">
-                           <font>
-                              <Font name="Arial Bold" size="15.0" />
-                           </font>
-                        </Label>
-                        <Label fx:id="vatLabel" text="0.00 ₺" 
-                              textFill="#e67e22">
-                           <font>
-                              <Font name="Arial Black" size="17.0" />
-                           </font>
-                        </Label>
-                     </children>
-                  </HBox>
-                  
-                  <!-- Discount Row -->
-                  <HBox alignment="CENTER_LEFT" spacing="10.0" 
-                        style="-fx-background-color: rgba(231, 76, 60, 0.1); 
-                               -fx-background-radius: 10; 
-                               -fx-padding: 10;">
-                     <children>
-                        <Label text="🎁" textFill="#e74c3c">
-                           <font>
-                              <Font name="Arial" size="16.0" />
-                           </font>
-                        </Label>
-                        <Label text="Discount:" HBox.hgrow="ALWAYS">
-                           <font>
-                              <Font name="Arial Bold" size="15.0" />
-                           </font>
-                        </Label>
-                        <Label fx:id="discountLabel" text="0.00 ₺" 
-                              textFill="#e74c3c">
-                           <font>
-                              <Font name="Arial Black" size="17.0" />
+                              <Font name="Arial Black" size="15.0" />
                            </font>
                         </Label>
                      </children>
@@ -343,93 +271,33 @@
             
             <Separator styleClass="colorful-separator" />
             
-            <!-- Final Total Row - EMPHASIZED -->
-            <HBox alignment="CENTER_LEFT" spacing="10.0" 
-                  style="-fx-background-color: linear-gradient(135deg, 
-                         #667eea, #764ba2); 
-                         -fx-background-radius: 12; 
-                         -fx-padding: 15;">
+            <HBox alignment="CENTER_LEFT" spacing="10.0" style="-fx-background-color: linear-gradient(135deg, #667eea, #764ba2); -fx-background-radius: 12; -fx-padding: 15;">
                <children>
-                  <Label text="💎" textFill="WHITE">
-                     <font>
-                        <Font name="Arial" size="20.0" />
-                     </font>
-                  </Label>
+                  <Label text="💎" textFill="WHITE" />
                   <Label text="TOTAL:" textFill="WHITE" HBox.hgrow="ALWAYS">
                      <font>
-                        <Font name="Arial Black" size="18.0" />
+                        <Font name="Arial Black" size="16.0" />
                      </font>
                   </Label>
                   <Label fx:id="totalLabel" text="0.00 ₺" textFill="#fee140">
                      <font>
-                        <Font name="Arial Black" size="22.0" />
+                        <Font name="Arial Black" size="20.0" />
                      </font>
                   </Label>
                </children>
             </HBox>
             
-            <Separator styleClass="colorful-separator" />
-            
-            <!-- Action Buttons -->
-            <VBox spacing="15.0" VBox.vgrow="ALWAYS">
-               <VBox.margin>
-                  <Insets top="5.0" />
-               </VBox.margin>
+            <VBox spacing="10.0" VBox.vgrow="ALWAYS">
                <children>
-                  <!-- Checkout Button - LARGE PRIMARY -->
-                  <Button fx:id="checkoutButton" 
-                         maxWidth="1.7976931348623157E308" 
-                         mnemonicParsing="false" onAction="#handleCheckout" 
-                         prefHeight="60.0" styleClass="checkout-btn" 
-                         text="✅ PROCEED TO CHECKOUT">
+                  <Button fx:id="checkoutButton" maxWidth="Infinity" onAction="#handleCheckout" prefHeight="55.0" styleClass="checkout-btn" text="✅ CHECKOUT">
                      <font>
                         <Font name="Arial Black" size="16.0" />
                      </font>
                   </Button>
-                  
-                  <!-- Continue Shopping Button -->
-                  <Button fx:id="continueShoppingButton" 
-                         maxWidth="1.7976931348623157E308" 
-                         mnemonicParsing="false" 
-                         onAction="#handleContinueShopping" 
-                         prefHeight="48.0" styleClass="continue-btn" 
-                         text="← Continue Shopping">
-                     <font>
-                        <Font name="Arial Bold" size="14.0" />
-                     </font>
-                  </Button>
-               </children>
-            </VBox>
-            
-            <!-- Trust Badge - Enhanced -->
-            <VBox alignment="CENTER" spacing="8.0" 
-                 style="-fx-background-color: linear-gradient(to bottom, 
-                        rgba(46, 204, 113, 0.15), rgba(46, 204, 113, 0.05)); 
-                        -fx-background-radius: 12; 
-                        -fx-border-color: #27ae60; 
-                        -fx-border-width: 2; 
-                        -fx-border-radius: 12; 
-                        -fx-padding: 12;">
-               <children>
-                  <Label text="🔒" textFill="#27ae60">
-                     <font>
-                        <Font name="Arial" size="18.0" />
-                     </font>
-                  </Label>
-                  <Label text="Secure Payment" textFill="#27ae60">
-                     <font>
-                        <Font name="Arial Black" size="12.0" />
-                     </font>
-                  </Label>
-                  <Label text="SSL Encrypted • 100% Safe" textFill="#7f8c8d">
-                     <font>
-                        <Font name="Arial" size="10.0" />
-                     </font>
-                  </Label>
+                  <Button fx:id="continueShoppingButton" maxWidth="Infinity" onAction="#handleContinueShopping" prefHeight="40.0" styleClass="continue-btn" text="← Back to Store" />
                </children>
             </VBox>
          </children>
       </VBox>
    </right>
-   
 </BorderPane>

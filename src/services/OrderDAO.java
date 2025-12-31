@@ -77,7 +77,6 @@ public class OrderDAO {
             }
             pstmtStock.executeBatch();
 
-            // --- D) GENERATE & SAVE PDF INVOICE (NEW FEATURE) ---
             try {
                 // Ensure items are linked to the order object for the generator
                 // (Assuming Order class has setItems or getItems().addAll logic)
@@ -304,4 +303,5 @@ public class OrderDAO {
             rs.getDouble("total_cost")
         );
     }
+
 }

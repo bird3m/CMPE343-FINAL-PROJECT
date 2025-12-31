@@ -211,6 +211,54 @@ LOCK TABLES `userinfo` WRITE;
 INSERT INTO `userinfo` VALUES (1,'cust','cust','customer','Customer User','Istanbul','555-000-0001'),(2,'carr','carr','carrier','Carrier User','Istanbul','555-000-0002'),(3,'own','own','owner','Owner User','Istanbul','555-000-0003');
 /*!40000 ALTER TABLE `userinfo` ENABLE KEYS */;
 UNLOCK TABLES;
+
+-- Table structure for table `user_coupons`
+DROP TABLE IF EXISTS `user_coupons`;
+CREATE TABLE `user_coupons` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `user_id` int NOT NULL,
+  `coupon_id` int NOT NULL,
+  `redeemed` tinyint(1) NOT NULL DEFAULT '0',
+  `assigned_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_uc_user` (`user_id`),
+  KEY `idx_uc_coupon` (`coupon_id`),
+  CONSTRAINT `fk_uc_user` FOREIGN KEY (`user_id`) REFERENCES `userinfo` (`id`),
+  CONSTRAINT `fk_uc_coupon` FOREIGN KEY (`coupon_id`) REFERENCES `couponinfo` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- SAMPLE COUPONS: WELCOME10 (welcome), SAVE20 (reward for large purchases), FREESHIP (free delivery code), LOYAL5 (loyalty small discount)
+INSERT INTO `couponinfo` (code, discount_rate, is_active) VALUES
+  ('WELCOME10', 10.0, 1),
+  ('SAVE20', 20.0, 1),
+  ('FREESHIP', 0.0, 1),
+  ('LOYAL5', 5.0, 1)
+ON DUPLICATE KEY UPDATE discount_rate = VALUES(discount_rate), is_active = VALUES(is_active);
+
+-- Assign WELCOME10 to all existing users (if not already assigned)
+INSERT INTO user_coupons (user_id, coupon_id, redeemed, assigned_at)
+SELECT u.id, c.id, 0, NOW()
+FROM userinfo u
+JOIN couponinfo c ON c.code = 'WELCOME10'
+WHERE NOT EXISTS (
+  SELECT 1 FROM user_coupons uc WHERE uc.user_id = u.id AND uc.coupon_id = c.id
+);
+
+-- Trigger: award SAVE20 coupon to customer when an order of 500 TL or more is created
+DELIMITER $$
+CREATE TRIGGER award_save20 AFTER INSERT ON orderinfo
+FOR EACH ROW
+BEGIN
+  DECLARE couponId INT;
+  SELECT id INTO couponId FROM couponinfo WHERE code = 'SAVE20' AND is_active = 1 LIMIT 1;
+  IF couponId IS NOT NULL AND NEW.total_cost >= 500 THEN
+    IF NOT EXISTS (SELECT 1 FROM user_coupons uc WHERE uc.user_id = NEW.customer_id AND uc.coupon_id = couponId AND uc.redeemed = 0) THEN
+      INSERT INTO user_coupons (user_id, coupon_id, redeemed, assigned_at) VALUES (NEW.customer_id, couponId, 0, NOW());
+    END IF;
+  END IF;
+END$$
+DELIMITER ;
+
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
