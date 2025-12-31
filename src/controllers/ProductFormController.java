@@ -12,6 +12,7 @@ import models.Product;
 import services.ProductDAO;
 import utils.InputValidation; // Validator'ımızı kullanıyoruz
 
+import java.io.ByteArrayInputStream; // <--- Bu Import Gerekli!
 import java.io.File;
 
 /**
@@ -63,8 +64,9 @@ public class ProductFormController {
         thresholdField.setText(String.valueOf(product.getThreshold()));
         
         // Varsa mevcut resmi göster (Image objesi Product modelinde olmalı)
-        if (product.getImage() != null) {
-             productImageView.setImage(product.getImage());
+        if (product.getImage() != null && product.getImage().length > 0) {
+             ByteArrayInputStream bis = new ByteArrayInputStream(product.getImage());
+             productImageView.setImage(new Image(bis));
         }
         
         saveButton.setText("Update Product");
@@ -131,8 +133,10 @@ public class ProductFormController {
                 success = productDAO.updateProduct(currentProduct, selectedImageFile);
             } else {
                 // INSERT (Yeni Ürün)
-                // ID veritabanında oluşacak, geçici olarak 0 veriyoruz
-                Product newProduct = new Product(0, name, price, stock, type, threshold, null);
+                // --- İŞTE DÜZELTİLEN SATIR BURASI! ---
+                // "null" yerine "(byte[]) null" diyerek hangi constructor'ı istediğimizi belirttik.
+                // Sıralama: ID, Name, Type, Price, Stock, Threshold, Image
+                Product newProduct = new Product(0, name, type, price, stock, threshold, (byte[]) null);
                 
                 success = productDAO.addProduct(newProduct, selectedImageFile);
             }
