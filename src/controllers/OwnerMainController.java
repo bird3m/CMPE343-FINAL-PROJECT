@@ -33,7 +33,7 @@ import services.UserDAO;
 import services.CarrierRatingDAO;
 import services.ProductDAO;
 import services.OrderDAO;
-import services.ReportGenerator;
+
 
 /**
  * Controller for the Owner (Admin) Dashboard.
@@ -79,7 +79,7 @@ public class OwnerMainController {
         setupOrderTable();
         setupCarrierTable();
         loadSampleData(); 
-        if(reportPreviewArea != null) handleRefreshReport(null);
+        //if(reportPreviewArea != null) handleRefreshReport(null);
     }
     
     private void setupProductTable() {
@@ -191,7 +191,7 @@ public class OwnerMainController {
             dialogStage.setScene(new Scene(page));
             dialogStage.showAndWait();
             loadSampleData(); 
-            handleRefreshReport(null);
+           // handleRefreshReport(null);
         } catch (Exception e) { 
             e.printStackTrace(); 
             showAlert(Alert.AlertType.ERROR, "Error", "Could not open Add Product form.");
@@ -279,12 +279,7 @@ public class OwnerMainController {
         }
     }
     
-    @FXML
-    private void handleRefreshReport(ActionEvent event) {
-        ReportGenerator generator = new ReportGenerator();
-        String reportText = generator.generateGeneralReport(); 
-        if(reportPreviewArea != null) reportPreviewArea.setText(reportText);
-    }
+ 
 
     @FXML
     private void handleSaveReport(ActionEvent event) {
