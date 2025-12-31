@@ -10,18 +10,14 @@ import java.io.FileNotFoundException;
 
 /**
  * Data Access Object for Products.
- * Handles database operations for product management including images.
+ * FIXED: Constructor arguments aligned with Product.java Model.
  * * @author Group04
  */
 public class ProductDAO {
 
-    /**
-     * Retrieves all active products from the database.
-     * Sorted by name alphabetically.
-     * * @return List of Product objects.
-     */
     public List<Product> getAllProducts() {
         List<Product> products = new ArrayList<>();
+        // Fetch only active products
         String sql = "SELECT * FROM productinfo WHERE is_active = 1 ORDER BY name ASC";
 
         try (Connection conn = DatabaseAdapter.getConnection();
@@ -31,16 +27,14 @@ public class ProductDAO {
             while (rs.next()) {
                 String typeStr = rs.getString("type");
                 
-                // --- DÜZELTME BURADA ---
-                // Model Sıralaması: (ID, Name, TYPE, Price, Stock, Threshold, Image)
                 products.add(new Product(
                     rs.getInt("id"),
                     rs.getString("name"),
-                    typeStr,                    // 3. Sıra: Type (String)
-                    rs.getDouble("price"),      // 4. Sıra: Price (double)
-                    rs.getDouble("stock_kg"),   // 5. Sıra: Stock (double)
-                    rs.getDouble("threshold_kg"), // 6. Sıra: Threshold (double)
-                    rs.getBytes("image_blob")   // 7. Sıra: Image (byte[])
+                    typeStr,                    
+                    rs.getDouble("price"),     
+                    rs.getDouble("stock_kg"),
+                    rs.getDouble("threshold_kg"),
+                    rs.getBytes("image_blob")
                 ));
             }
         } catch (SQLException e) {
@@ -49,9 +43,6 @@ public class ProductDAO {
         return products;
     }
 
-    /**
-     * Updates the stock of a specific product.
-     */
     public boolean updateStock(int productId, double newStock) {
         String sql = "UPDATE productinfo SET stock_kg = ? WHERE id = ?";
         try (Connection conn = DatabaseAdapter.getConnection();
@@ -82,7 +73,6 @@ public class ProductDAO {
             pstmt.setDouble(4, product.getStock());
             pstmt.setDouble(5, product.getThreshold());
             
-            // --- IMAGE HANDLING ---
             if (imageFile != null && imageFile.exists()) {
                 FileInputStream fis = new FileInputStream(imageFile);
                 pstmt.setBinaryStream(6, fis, (int) imageFile.length());
@@ -135,7 +125,6 @@ public class ProductDAO {
         String sql = "UPDATE productinfo SET is_active = 0 WHERE id = ?";
         try (Connection conn = DatabaseAdapter.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            
             pstmt.setInt(1, productId);
             return pstmt.executeUpdate() > 0;
         } catch (SQLException e) {

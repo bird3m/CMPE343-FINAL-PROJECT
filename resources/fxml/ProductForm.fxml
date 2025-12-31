@@ -42,7 +42,12 @@
         <HBox spacing="10.0" alignment="CENTER_LEFT">
             <Button text="Choose Image..." onAction="#handleChooseImage" 
                     style="-fx-background-color: #3498db; -fx-text-fill: white;"/>
-            <Label text="(Optional)" textFill="#bdc3c7" font="$x3" />
+            
+            <Label text="(Optional)" textFill="#bdc3c7">
+                <font>
+                    <Font size="10.0" />
+                </font>
+            </Label>
         </HBox>
         
         <ImageView fx:id="productImageView" fitHeight="100.0" fitWidth="100.0" 
