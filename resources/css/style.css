@@ -581,3 +581,21 @@
     -fx-pref-height: 3;
     -fx-border-width: 0;
 }
+
+/* Edit Product Button - Bigger Icon */
+.edit-product-btn {
+    -fx-font-size: 18px;
+}
+
+/* ALL BUTTONS - BIGGER ICONS */
+.button {
+    -fx-font-size: 16px;
+}
+
+.menu-btn, .menu-btn-primary {
+    -fx-font-size: 16px;
+}
+
+.login-btn, .register-btn {
+    -fx-font-size: 16px;
+}

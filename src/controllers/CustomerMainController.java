@@ -87,32 +87,67 @@ public class CustomerMainController {
     /**
      * Setup ListView cell factories
      */
+    /**
+     * Setup ListView cell factories with images
+    */
     private void setupListViews() {
-        // Custom cell factory to show product info
-        vegetableList.setCellFactory(lv -> new ListCell<Product>() {
-            @Override
-            protected void updateItem(Product item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty || item == null) {
-                    setText(null);
-                } else {
-                    setText(item.toString());
-                }
-            }
-        });
+    // Custom cell factory to show product info WITH IMAGE
+    vegetableList.setCellFactory(lv -> new ListCell<Product>() {
+        private javafx.scene.image.ImageView imageView = new javafx.scene.image.ImageView();
+        {
+            imageView.setFitHeight(50);
+            imageView.setFitWidth(50);
+            imageView.setPreserveRatio(true);
+        }
         
-        fruitList.setCellFactory(lv -> new ListCell<Product>() {
-            @Override
-            protected void updateItem(Product item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty || item == null) {
-                    setText(null);
+        @Override
+        protected void updateItem(Product item, boolean empty) {
+            super.updateItem(item, empty);
+            if (empty || item == null) {
+                setText(null);
+                setGraphic(null);
+            } else {
+                setText(item.toString());
+                if (item.getImage() != null && item.getImage().length > 0) {
+                    imageView.setImage(new javafx.scene.image.Image(
+                        new java.io.ByteArrayInputStream(item.getImage())
+                    ));
+                    setGraphic(imageView);
                 } else {
-                    setText(item.toString());
+                    setGraphic(null);
                 }
             }
-        });
-    }
+        }
+    });
+    
+    fruitList.setCellFactory(lv -> new ListCell<Product>() {
+        private javafx.scene.image.ImageView imageView = new javafx.scene.image.ImageView();
+        {
+            imageView.setFitHeight(50);
+            imageView.setFitWidth(50);
+            imageView.setPreserveRatio(true);
+        }
+        
+        @Override
+        protected void updateItem(Product item, boolean empty) {
+            super.updateItem(item, empty);
+            if (empty || item == null) {
+                setText(null);
+                setGraphic(null);
+            } else {
+                setText(item.toString());
+                if (item.getImage() != null && item.getImage().length > 0) {
+                    imageView.setImage(new javafx.scene.image.Image(
+                        new java.io.ByteArrayInputStream(item.getImage())
+                    ));
+                    setGraphic(imageView);
+                } else {
+                    setGraphic(null);
+                }
+            }
+        }
+    });
+}
     
     /**
      * Load products from DATABASE and sort by name

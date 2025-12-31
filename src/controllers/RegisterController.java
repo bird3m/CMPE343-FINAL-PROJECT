@@ -135,16 +135,16 @@ public class RegisterController {
      */
     @FXML
     private void handleBack(ActionEvent event) {
-        try {
-            Parent root = FXMLLoader.load(getClass().getResource("/fxml/Register.fxml"));
-            Stage stage = (Stage) usernameField.getScene().getWindow();
-            stage.setScene(new Scene(root));
-            stage.centerOnScreen();
-        } catch (Exception e) {
-            e.printStackTrace();
-            showError("Failed to load login screen");
-        }
+    try {
+        Parent root = FXMLLoader.load(getClass().getResource("/fxml/Login.fxml"));
+        Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
+        stage.setScene(new javafx.scene.Scene(root));
+        stage.show();
+    } catch (Exception e) {
+        e.printStackTrace();
+        showAlert(Alert.AlertType.ERROR, "Error", "Could not return to login screen.");
     }
+}
 
     /**
      * Display error message
@@ -181,4 +181,13 @@ public class RegisterController {
         // Return to login screen
         handleBack(null);
     }
+
+    private void showAlert(Alert.AlertType type, String title, String message) {
+    Alert alert = new Alert(type);
+    alert.setTitle(title);
+    alert.setHeaderText(null);
+    alert.setContentText(message);
+    alert.showAndWait();
+}
+
 }

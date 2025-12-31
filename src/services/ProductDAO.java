@@ -34,7 +34,7 @@ public class ProductDAO {
                     rs.getDouble("price"),     
                     rs.getDouble("stock_kg"),
                     rs.getDouble("threshold_kg"),
-                    rs.getBytes("image_blob")
+                    rs.getBytes("image")
                 ));
             }
         } catch (SQLException e) {
@@ -62,7 +62,7 @@ public class ProductDAO {
     // ==========================================
 
     public boolean addProduct(Product product, File imageFile) {
-        String sql = "INSERT INTO productinfo (name, type, price, stock_kg, threshold_kg, image_blob, is_active) VALUES (?, ?, ?, ?, ?, ?, 1)";
+        String sql = "INSERT INTO productinfo (name, type, price, stock_kg, threshold_kg, image, is_active) VALUES (?, ?, ?, ?, ?, ?, 1)";
         
         try (Connection conn = DatabaseAdapter.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -91,7 +91,7 @@ public class ProductDAO {
     public boolean updateProduct(Product product, File imageFile) {
         String sql;
         if (imageFile != null) {
-            sql = "UPDATE productinfo SET name=?, type=?, price=?, stock_kg=?, threshold_kg=?, image_blob=? WHERE id=?";
+            sql = "UPDATE productinfo SET name=?, type=?, price=?, stock_kg=?, threshold_kg=?, image=? WHERE id=?";
         } else {
             sql = "UPDATE productinfo SET name=?, type=?, price=?, stock_kg=?, threshold_kg=? WHERE id=?";
         }

@@ -1,9 +1,11 @@
 # Compiled files
+target/
 *.class
 
-# JavaFX / build
-out/
-build/
+# Maven
+.mvn/
+mvnw
+mvnw.cmd
 
 # IDE
 .vscode/
@@ -12,25 +14,19 @@ build/
 
 # OS
 .DS_Store
+Thumbs.db
 
-# Logs
+# Python
+__pycache__/
+*.pyc
+venv/
+*.egg-info/
+
+# Temporary files
 *.log
+*.tmp
+load_images.py
+load_images_missing.py
 
-# Generated / vendor code
-generated/
-legacy/
-main/
-user-api/
-user-impl/
-core-api/
-core-impl/
-protocol-impl/
-
-# Libraries
-lib/*.jar
-
-# MySQL Connector (DO NOT COMMIT)
-main/mysql-connector-j-*/
-
-src/test/
-
+# Backup folders
+*_BACKUP_OUTSIDE/
