@@ -124,4 +124,87 @@ public class UserDAO {
             rs.getString("phone")
         );
     }
+    
+    /**
+ * Check if username already exists in database
+ * 
+ * @param username Username to check
+ * @return true if exists, false otherwise
+ */
+public boolean usernameExists(String username) {
+    String sql = "SELECT COUNT(*) FROM userinfo WHERE username = ?";
+    
+    try (Connection conn = DatabaseAdapter.getConnection();
+         PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        
+        pstmt.setString(1, username);
+        ResultSet rs = pstmt.executeQuery();
+        
+        if (rs.next()) {
+            return rs.getInt(1) > 0;
+        }
+    } catch (SQLException e) {
+        System.err.println("Error checking username: " + e.getMessage());
+        e.printStackTrace();
+    }
+    return false;
+}
+
+/**
+ * Create new user in database
+ * 
+ * @param user User object to create
+ * @return true if successful, false otherwise
+ */
+public boolean createUser(User user) {
+    String sql = "INSERT INTO userinfo (username, password_hash, role, address, phone, full_name) " +
+                 "VALUES (?, ?, ?, ?, ?, ?)";
+    
+    try (Connection conn = DatabaseAdapter.getConnection();
+         PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        
+        pstmt.setString(1, user.getUsername());
+        pstmt.setString(2, user.getPassword()); // Already hashed
+        pstmt.setString(3, user.getRole());
+        pstmt.setString(4, user.getAddress());
+        pstmt.setString(5, user.getPhone());
+        pstmt.setString(6, user.getFullName());
+        
+        return pstmt.executeUpdate() > 0;
+        
+    } catch (SQLException e) {
+        System.err.println("Error creating user: " + e.getMessage());
+        e.printStackTrace();
+        return false;
+    }
+}
+
+/**
+ * Update existing user information
+ * 
+ * @param user User object with updated data
+ * @return true if successful, false otherwise
+ */
+public boolean updateUser(User user) {
+    String sql = "UPDATE userinfo SET address = ?, phone = ?, full_name = ? WHERE id = ?";
+    
+    try (Connection conn = DatabaseAdapter.getConnection();
+         PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        
+        pstmt.setString(1, user.getAddress());
+        pstmt.setString(2, user.getPhone());
+        pstmt.setString(3, user.getFullName());
+        pstmt.setInt(4, user.getId());
+        
+        return pstmt.executeUpdate() > 0;
+        
+    } catch (SQLException e) {
+        System.err.println("Error updating user: " + e.getMessage());
+        e.printStackTrace();
+        return false;
+    }
+}
+
+
+    
 }
