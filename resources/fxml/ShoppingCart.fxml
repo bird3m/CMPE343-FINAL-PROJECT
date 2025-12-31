@@ -235,6 +235,25 @@
                         </Label>
                      </children>
                   </HBox>
+
+                  <!-- Shipping line -->
+                  <HBox alignment="CENTER_LEFT" spacing="10.0" style="-fx-background-color: rgba(52, 73, 94, 0.03); -fx-background-radius: 10; -fx-padding: 10;">
+                     <children>
+                        <Label text="🚚" />
+                        <Label text="Shipping:" HBox.hgrow="ALWAYS" />
+                        <Label fx:id="shippingLabel" text="0.00 ₺" textFill="#34495e">
+                           <font>
+                              <Font name="Arial Black" size="15.0" />
+                           </font>
+                        </Label>
+                     </children>
+                  </HBox>
+
+                  <Label fx:id="shippingNoteLabel" text="" textFill="#27ae60">
+                     <font>
+                        <Font name="Arial" size="11.0" />
+                     </font>
+                  </Label>
                   
                   <HBox alignment="CENTER_LEFT" spacing="10.0" style="-fx-background-color: rgba(231, 76, 60, 0.1); -fx-background-radius: 10; -fx-padding: 10;">
                      <children>

@@ -183,4 +183,20 @@ public class CouponDAO {
             e.printStackTrace();
         }
     }
+
+    /**
+     * Returns true if coupon exists and is active
+     */
+    public boolean couponExists(String code) {
+        String sql = "SELECT id FROM couponinfo WHERE code = ? AND is_active = 1 LIMIT 1";
+        try (Connection conn = DatabaseAdapter.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, code);
+            ResultSet rs = ps.executeQuery();
+            return rs.next();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 }

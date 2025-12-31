@@ -48,9 +48,13 @@ public class ShoppingCartController {
 
     @FXML private TextField couponField; // Coupon input field
     @FXML private javafx.scene.control.ListView<String> userCouponsList; // User-owned coupons list
+    @FXML private Label shippingLabel; // Shipping cost label
+    @FXML private Label shippingNoteLabel; // Small note under shipping (e.g., "Free delivery")
 
     private User currentUser; 
     private double currentCouponRate = 0.0; // Track the applied discount percentage
+    private double baseShipping = 20.0; // default shipping fee
+    private boolean currentFreeShipping = false; // whether FREESHIP is applied
 
     @FXML
     private void initialize() {
@@ -106,6 +110,10 @@ public class ShoppingCartController {
         double vatRate = 0.18; // 18% VAT
         double vat = subtotal * vatRate;
         
+        // Shipping (free if FREESHIP coupon applied OR subtotal >= 150 TL)
+        boolean thresholdMet = subtotal >= 150.0;
+        double shipping = (currentFreeShipping || thresholdMet) ? 0.0 : baseShipping;
+        
         // 1. Automatic Discount (5% off if subtotal > 200 TL)
         double promoDiscount = (subtotal > 200) ? (subtotal * 0.05) : 0.0;
         
@@ -113,7 +121,25 @@ public class ShoppingCartController {
         double couponDiscount = subtotal * (currentCouponRate / 100.0);
         
         double totalDiscount = promoDiscount + couponDiscount;
-        double finalTotal = subtotal + vat - totalDiscount;
+        double finalTotal = subtotal + vat + shipping - totalDiscount;
+
+        // Debug logs
+        System.out.println("refreshCart: subtotal=" + subtotal + " vat=" + vat + " thresholdMet=" + thresholdMet + " currentFreeShipping=" + currentFreeShipping + " shipping=" + shipping + " totalDiscount=" + totalDiscount + " finalTotal=" + finalTotal);
+
+        // Update UI Labels
+        subtotalLabel.setText(String.format("%.2f ₺", subtotal));
+        vatLabel.setText(String.format("%.2f ₺", vat));
+        shippingLabel.setText(String.format("%.2f ₺", shipping));
+        // Shipping note (coupon vs threshold)
+        if (currentFreeShipping) {
+            shippingNoteLabel.setText("Free shipping (coupon applied)");
+        } else if (thresholdMet) {
+            shippingNoteLabel.setText("Free delivery applied — orders ≥ 150 ₺");
+        } else {
+            shippingNoteLabel.setText("");
+        }
+        discountLabel.setText(String.format("-%.2f ₺", totalDiscount));
+        totalLabel.setText(String.format("%.2f ₺", finalTotal));
 
         // Update UI Labels
         subtotalLabel.setText(String.format("%.2f ₺", subtotal));
@@ -173,6 +199,10 @@ public class ShoppingCartController {
 
     private void displayAvailableCoupons() {
         CouponDAO couponDAO = new CouponDAO();
+        // Ensure our special coupons exist (in case DB wasn't seeded)
+        couponDAO.ensureCouponExists("FREESHIP", 0.0);
+        couponDAO.ensureCouponExists("LOYAL5", 5.0);
+
         List<String> available = couponDAO.getAllActiveCoupons();
         System.out.println("displayAvailableCoupons: found " + (available==null?0:available.size()) + " active coupons");
         if (available != null && !available.isEmpty()) {
@@ -243,8 +273,22 @@ public class ShoppingCartController {
                 ex.printStackTrace();
             }
 
+            // Award LOYAL5 if the user has reached 5 orders
+            boolean loyalAwarded = false;
+            try {
+                //OrderDAO orderDAO = new OrderDAO();
+                int orderCount = orderDAO.getOrdersByCustomerId(currentUser.getId()).size();
+                if (orderCount >= 5) {
+                    loyalAwarded = couponDAO.assignCouponToUserByCode(currentUser.getId(), "LOYAL5", 5.0);
+                }
+            } catch (Exception ex) {
+                System.out.println("Failed to award LOYAL5: " + ex.getMessage());
+                ex.printStackTrace();
+            }
+
             String message = "Order placed successfully! 🎉\nEnjoy your fresh groceries!";
             if (awarded) message += "\nYou earned a coupon: SAVE20 (%20 OFF). Check 'Your Coupons' in the cart.";
+            if (loyalAwarded) message += "\nYou earned a loyalty coupon: LOYAL5 (%5 OFF).";
 
             showAlert(message);
             ((Stage) checkoutButton.getScene().getWindow()).close(); 
@@ -262,16 +306,35 @@ public class ShoppingCartController {
         }
 
         CouponDAO couponDAO = new CouponDAO();
-        double rate = couponDAO.getDiscountRate(inputCode);
+        // First, verify coupon exists and active
+        boolean exists = couponDAO.couponExists(inputCode);
+        if (!exists) {
+            showAlert("Invalid or expired coupon code! ❌");
+            return;
+        }
 
+        // Handle FREESHIP specially
+        if (inputCode.equalsIgnoreCase("FREESHIP")) {
+            currentFreeShipping = true;
+            currentCouponRate = 0.0;
+            refreshCart();
+            showAlert("Free shipping applied! 🚚");
+            return;
+        }
+
+        double rate = couponDAO.getDiscountRate(inputCode);
+        // Some coupons may have 0% (like FREESHIP), but we already handled FREESHIP above
         if (rate > 0) {
             currentCouponRate = rate;
+            currentFreeShipping = false;
             refreshCart(); // Refresh the labels with new discount
             showAlert("Coupon applied successfully: %" + rate + " discount!");
         } else {
+            // Coupon exists but offers no percent discount (inform the user)
             currentCouponRate = 0.0;
+            currentFreeShipping = false;
             refreshCart();
-            showAlert("Invalid or expired coupon code! ❌");
+            showAlert("Coupon applied (no percent discount).");
         }
     }
     
