@@ -91,6 +91,24 @@
                   </PasswordField>
                </children>
             </VBox>
+
+            <!-- Full Name Field -->
+            <VBox spacing="5.0">
+               <children>
+                  <Label text="👤 Full Name:" textFill="#555555">
+                     <font>
+                        <Font name="Arial Bold" size="12.0" />
+                     </font>
+                  </Label>
+                  <TextField fx:id="fullNameField" prefHeight="42.0" 
+                           promptText="Enter your full name (e.g., Ahmet Yılmaz)" 
+                           styleClass="input-field">
+                     <font>
+                        <Font name="Arial" size="14.0" />
+                     </font>
+                  </TextField>
+               </children>
+            </VBox>
             
             <!-- Confirm Password Field -->
             <VBox spacing="5.0">
@@ -131,7 +149,7 @@
             <!-- Phone Field (Optional) -->
             <VBox spacing="5.0">
                <children>
-                  <Label text="📱 Phone (Optional):" textFill="#555555">
+                  <Label text="📱 Phone:" textFill="#555555">
                      <font>
                         <Font name="Arial Bold" size="12.0" />
                      </font>
@@ -147,7 +165,7 @@
             </VBox>
             
             <!-- Error Label -->
-            <Label fx:id="errorLabel" text="❌ Error message here" 
+            <Label fx:id="errorLabel" text=" Error message here" 
                    textFill="#e74c3c" visible="false" wrapText="true" 
                    textAlignment="CENTER">
                <font>

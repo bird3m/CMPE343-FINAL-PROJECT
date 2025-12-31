@@ -1,5 +1,4 @@
 package controllers;
-import utils.InputValidation;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -14,6 +13,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import services.RegistrationService;
+import utils.InputValidation;
 
 /**
  * RegisterController - Customer Registration Handler
@@ -30,6 +30,7 @@ public class RegisterController {
     @FXML private TextField usernameField;
     @FXML private PasswordField passwordField;
     @FXML private PasswordField confirmPasswordField;
+    @FXML private TextField fullNameField; 
     @FXML private TextArea addressField;
     @FXML private TextField phoneField;
     @FXML private Label errorLabel;
@@ -48,10 +49,11 @@ public class RegisterController {
         }
     }
 
- /**
-     * Handle registration button click.
-     * Validates input using InputValidation class and registers new customer.
-     * * @param event Button click event
+    /**
+     * Handle registration button click
+     * Validates input and registers new customer
+     * 
+     * @param event Button click event
      */
     @FXML
     private void handleRegister(ActionEvent event) {
@@ -59,10 +61,9 @@ public class RegisterController {
         String username = usernameField.getText().trim();
         String password = passwordField.getText().trim();
         String confirmPass = confirmPasswordField.getText().trim();
+        String fullName = fullNameField.getText().trim();
         String address = addressField.getText().trim();
         String phone = phoneField.getText().trim();
-
-        // --- CENTRALIZED VALIDATION START ---
 
         // 1. Validate Username
         String userError = InputValidation.validateUsername(username);
@@ -78,29 +79,46 @@ public class RegisterController {
             return;
         }
 
-        // 3. Confirm Password Match (Controller specific logic)
+        // 3. Confirm Password Match
         if (!password.equals(confirmPass)) {
             showError("Passwords do not match!");
             return;
         }
 
-        // 4. Validate Address
+        // 4. Validate Full Name 
+        if (fullName.isEmpty()) {
+            showError("Full name cannot be empty!");
+            return;
+        }
+        
+        if (fullName.length() < 3) {
+            showError("Full name must be at least 3 characters!");
+            return;
+        }
+        
+        if (!fullName.matches("^[a-zA-ZğüşıöçĞÜŞİÖÇ\\s]+$")) {
+            showError("Full name can only contain letters and spaces!");
+            return;
+        }
+
+        // 5. Validate Address
         String addrError = InputValidation.validateAddress(address);
         if (addrError != null) {
             showError(addrError);
             return;
         }
 
-        // 5. Validate Phone
+        // 6. Validate Phone
         String phError = InputValidation.validatePhone(phone);
         if (phError != null) {
             showError(phError);
             return;
         }
 
-
-        // Attempt registration
-        boolean success = registrationService.registerCustomer(username, password, address, phone);
+        // Attempt registration with FULL NAME
+        boolean success = registrationService.registerCustomer(
+            username, password, address, phone, fullName
+        );
 
         if (success) {
             showSuccessAndExit();
@@ -118,7 +136,7 @@ public class RegisterController {
     @FXML
     private void handleBack(ActionEvent event) {
         try {
-            Parent root = FXMLLoader.load(getClass().getResource("/fxml/Login.fxml"));
+            Parent root = FXMLLoader.load(getClass().getResource("/fxml/Register.fxml"));
             Stage stage = (Stage) usernameField.getScene().getWindow();
             stage.setScene(new Scene(root));
             stage.centerOnScreen();
@@ -136,7 +154,7 @@ public class RegisterController {
      */
     private void showError(String message) {
         if (errorLabel != null) {
-            errorLabel.setText("- " + message);
+            errorLabel.setText("* " + message);
             errorLabel.setTextFill(Color.web("#e74c3c"));
             errorLabel.setVisible(true);
         } else {

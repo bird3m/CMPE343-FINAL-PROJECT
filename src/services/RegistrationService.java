@@ -1,40 +1,47 @@
 package services;
 
-import models.User;
-import utils.InputValidation; // <--- YENİ: Validator sınıfımızı çağırdık
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 
 /**
- * Registration Service.
- * Handles new customer registration with validation using InputValidation utility.
- * * @author Group04
- * @version 2.0 (InputValidation Integrated)
+ * Registration Service
+ * 
+ * Handles new customer registration with validation.
+ * 
+ * @author Group04
+ * @version 1.0
  */
 public class RegistrationService {
     
-    //use SQL for register
-    private UserDAO userDAO; 
+    private UserDAO userDAO;
 
     public RegistrationService() {
-        this.userDAO = new UserDAO(); //prevent null pointer errors
+        this.userDAO = new UserDAO();
     }
     
     /**
-     * Register new customer.
-     * Uses raw SQL to ensure 'full_name' is inserted correctly.
+     * Register new customer
+     * 
+     * @param username Unique username (3-20 chars)
+     * @param password Password (min 4 chars)
+     * @param address Delivery address
+     * @param phone Phone number (optional)
+     * @param fullName Customer's full name
+     * @return true if registration successful, false otherwise
      */
-    public boolean registerCustomer(String username, String password, String address, String phone) {
-       
+    public boolean registerCustomer(String username, String password, 
+                                    String address, String phone, String fullName) {
+        // Check if username already exists
         if (userDAO.usernameExists(username)) {
             return false;
         }
 
-        
+        // Hash password for security
         String hashedPassword = AuthenticationService.hashPassword(password);
         
-        String sql = "INSERT INTO userinfo (username, password_hash, role, address, phone, full_name) VALUES (?, ?, 'customer', ?, ?, ?)";
+        // SQL with full_name parameter
+        String sql = "INSERT INTO userinfo (username, password_hash, role, address, phone, full_name) " +
+                     "VALUES (?, ?, 'customer', ?, ?, ?)";
 
         try (Connection conn = DatabaseAdapter.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -43,38 +50,15 @@ public class RegistrationService {
             pstmt.setString(2, hashedPassword);
             pstmt.setString(3, address);
             pstmt.setString(4, phone);
-            // KRİTİK NOKTA: full_name boş olamaz, username'i yazıyoruz.
-            pstmt.setString(5, username); 
+            pstmt.setString(5, fullName); 
             
             int affectedRows = pstmt.executeUpdate();
             return affectedRows > 0;
             
         } catch (Exception e) {
             e.printStackTrace();
-            System.err.println("🚨 SQL ERROR " + e.getMessage());
+            System.err.println("Registration SQL ERROR: " + e.getMessage());
             return false;
         }
-    }
-    
-
-    /**
-     * Validate username format using centralized InputValidation.
-     */
-    public String validateUsername(String username) {
-        return InputValidation.validateUsername(username);
-    }
-    
-    /**
-     * Validate password strength using centralized InputValidation.
-     */
-    public String validatePassword(String password) {
-        return InputValidation.validatePassword(password);
-    }
-    
-    /**
-     * Validate phone number format using centralized InputValidation.
-     */
-    public String validatePhone(String phone) {
-        return InputValidation.validatePhone(phone);
     }
 }

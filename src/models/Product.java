@@ -16,7 +16,7 @@ public class Product {
     private double stock; // in kg
     private double threshold;
     private String imagePath;
-    private byte[] image; // BLOB için byte array
+    private byte[] image; // byte array
     
     // Constructor 1 - imagePath ile (Test için)
     public Product(int id, String name, String type, double price, 

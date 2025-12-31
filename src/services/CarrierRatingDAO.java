@@ -5,27 +5,33 @@ import java.sql.*;
 
 /**
  * Data Access Object for Carrier Ratings and Statistics.
- * FIXED: Table names matched with greengrocer_group4.sql
+ * 
+ * - Table name corrected to 'carrierrating'
+ * - Column name corrected to 'rating' (not 'score')
+ * - No more hardcoded IDs - uses CarrierRating model fields
+ * 
+ * @author Group04
+ * @version 1.0
  */
 public class CarrierRatingDAO {
 
     /**
      * Adds a new rating for a carrier.
+     * 
+     * No more hardcoded values!
+     * 
+     * @param rating CarrierRating object with all required fields
+     * @return true if rating added successfully, false otherwise
      */
     public boolean addRating(CarrierRating rating) {
-        // DÜZELTME 1: Tablo adı 'carrier_ratings' değil 'carrierrating'
         String sql = "INSERT INTO carrierrating (carrier_id, customer_id, order_id, rating, comment) VALUES (?, ?, ?, ?, ?)";
         
         try (Connection conn = DatabaseAdapter.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             
             pstmt.setInt(1, rating.getCarrierId());
-            // Customer ve Order ID'leri rating nesnesinden veya parametreden gelmeli.
-            // Şimdilik hata vermemesi için 1 ve 1 veriyoruz (veya mantığına göre düzeltmelisin)
-            // SQL'de Foreign Key olduğu için rastgele 0 veremeyiz, gerçek bir ID olmalı!
-            // Not: Bu metodu çağırırken rating nesnesinin içine gerçek customerId ve orderId koymalısın.
-            pstmt.setInt(2, 1); // Geçici olarak 1 (Mevcut bir ID olmalı)
-            pstmt.setInt(3, 1); // Geçici olarak 1 (Mevcut bir ID olmalı)
+            pstmt.setInt(2, rating.getCustomerId());  
+            pstmt.setInt(3, rating.getOrderId());     
             pstmt.setInt(4, rating.getScore());
             pstmt.setString(5, rating.getComment());
             
@@ -38,9 +44,11 @@ public class CarrierRatingDAO {
 
     /**
      * Calculates the average rating for a specific carrier.
+     * 
+     * @param carrierId The carrier's ID
+     * @return Average rating (0.0 to 5.0), or 0.0 if no ratings exist
      */
     public double getAverageRating(int carrierId) {
-        // DÜZELTME 2: Tablo adı 'carrierrating', kolon adı 'rating' (score değil)
         String sql = "SELECT AVG(rating) as avg_score FROM carrierrating WHERE carrier_id = ?";
         
         try (Connection conn = DatabaseAdapter.getConnection();
@@ -61,11 +69,13 @@ public class CarrierRatingDAO {
     }
 
     /**
-     * Counts total COMPLETED deliveries for a carrier.
+     * Counts total DELIVERED orders for a carrier.
+     * Only counts orders with status='DELIVERED'.
+     * 
+     * @param carrierId The carrier's ID
+     * @return Number of completed deliveries
      */
     public int getDeliveryCount(int carrierId) {
-        // DÜZELTME 3: Tablo adı 'orders' değil 'orderinfo'
-        // DÜZELTME 4: Statü 'delivered' değil 'DELIVERED' (Büyük harf)
         String sql = "SELECT COUNT(*) as total FROM orderinfo WHERE carrier_id = ? AND status = 'DELIVERED'";
         
         try (Connection conn = DatabaseAdapter.getConnection();

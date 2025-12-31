@@ -89,4 +89,33 @@ public class InputValidation {
         }
         return null;
     }
+
+    /**
+     * Validate full name
+     * 
+     * @param fullName Full name to validate
+     * @return Error message or null if valid
+     */
+    public static String validateFullName(String fullName) {
+        if (fullName == null || fullName.trim().isEmpty()) {
+            return "Full name cannot be empty";
+        }
+        
+        fullName = fullName.trim();
+        
+        if (fullName.length() < 3) {
+            return "Full name must be at least 3 characters";
+        }
+        
+        if (fullName.length() > 50) {
+            return "Full name must be at most 50 characters";
+        }
+        
+        // Allow letters (including Turkish characters) and spaces
+        if (!fullName.matches("^[a-zA-ZğüşıöçĞÜŞİÖÇ\\s]+$")) {
+            return "Full name can only contain letters and spaces";
+        }
+        
+        return null; // Valid
+    }
 }

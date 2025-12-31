@@ -6,10 +6,13 @@ import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-
-// Make sure PDFInvoiceGenerator is accessible. 
-// If it's in the default package, moving it to 'services' or 'utils' package is recommended.
-// import utils.PDFInvoiceGenerator; 
+import utils.PDFInvoiceGenerator;
+/**
+ * Data Access Object (DAO) for Order operations.
+ * NEW: Handles order creation, retrieval, assignment, and status updates.
+ * @author Group04
+ * @version 1.0
+ */
 
 public class OrderDAO {
 
@@ -108,22 +111,71 @@ public class OrderDAO {
         }
     }
 
-    // 2. CANCEL ORDER (NEW METHOD)
+    /**
+     * Cancel an order and restore product stock.
+     * Only orders with status 'CREATED' can be cancelled.
+     * 
+     * @param orderId The ID of the order to cancel
+     * @return true if cancellation successful, false otherwise
+     */
     public boolean cancelOrder(int orderId) {
-        // Only orders with 'CREATED' status can be cancelled.
-        String sql = "UPDATE orderinfo SET status = 'CANCELLED' WHERE id = ? AND status = 'CREATED'";
+        String updateOrder = "UPDATE orderinfo SET status = 'CANCELLED' WHERE id = ? AND status = 'CREATED'";
+        String getItems = "SELECT product_id, amount_kg FROM orderiteminfo WHERE order_id = ?";
+        String updateStock = "UPDATE productinfo SET stock_kg = stock_kg + ? WHERE id = ?";
         
-        try (Connection conn = DatabaseAdapter.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        Connection conn = null;
+        try {
+            conn = DatabaseAdapter.getConnection();
+            if (conn == null) return false;
             
-            pstmt.setInt(1, orderId);
-            int affected = pstmt.executeUpdate();
-            // If affected > 0, it means the order existed AND was in CREATED state.
+            conn.setAutoCommit(false); // Start transaction
+            
+            // 1. Check if order exists and can be cancelled
+            PreparedStatement pstmtCheck = conn.prepareStatement(
+                "SELECT COUNT(*) FROM orderinfo WHERE id = ? AND status = 'CREATED'"
+            );
+            pstmtCheck.setInt(1, orderId);
+            ResultSet rsCheck = pstmtCheck.executeQuery();
+            
+            if (!rsCheck.next() || rsCheck.getInt(1) == 0) {
+                conn.rollback();
+                System.err.println("Cannot cancel Order #" + orderId + " - Not in CREATED status or doesn't exist");
+                return false;
+            }
+            
+            // 2. Get order items to restore stock
+            PreparedStatement pstmtItems = conn.prepareStatement(getItems);
+            pstmtItems.setInt(1, orderId);
+            ResultSet rsItems = pstmtItems.executeQuery();
+            
+            // 3. Restore stock for each product
+            PreparedStatement pstmtStock = conn.prepareStatement(updateStock);
+            while (rsItems.next()) {
+                double amountKg = rsItems.getDouble("amount_kg");
+                int productId = rsItems.getInt("product_id");
+                
+                pstmtStock.setDouble(1, amountKg);
+                pstmtStock.setInt(2, productId);
+                pstmtStock.addBatch();
+            }
+            pstmtStock.executeBatch();
+            
+            // 4. Update order status to CANCELLED
+            PreparedStatement pstmtOrder = conn.prepareStatement(updateOrder);
+            pstmtOrder.setInt(1, orderId);
+            int affected = pstmtOrder.executeUpdate();
+            
+            conn.commit(); // Commit transaction
+            
+            System.out.println("Order #" + orderId + " cancelled successfully, stock restored");
             return affected > 0;
             
         } catch (SQLException e) {
             e.printStackTrace();
+            try { if (conn != null) conn.rollback(); } catch (SQLException ex) { ex.printStackTrace(); }
             return false;
+        } finally {
+            try { if (conn != null) { conn.setAutoCommit(true); conn.close(); } } catch (SQLException e) {}
         }
     }
 
