@@ -1,11 +1,10 @@
 package models;
 
 /**
- * User Model - Professional Version
+ * User Model - Professional Version.
  * Represents a user in the GreenGrocer system.
  * This model corresponds to the 'userinfo' table in the database.
- *
- * <p>Roles:</p>
+ * * <p>Roles:</p>
  * <ul>
  * <li><b>owner:</b> System administrator, manages everything.</li>
  * <li><b>carrier:</b> Delivery person, handles orders.</li>
@@ -13,24 +12,39 @@ package models;
  * </ul>
  *
  * @author Group04
- * @version 2.0
+ * @version 2.2 (Integrated Fix)
  */
 public class User {
 
     private int id;
     private String username;
-    private String password; // Added for authentication compatibility
+    private String password; 
     private String role;
     private String address;
     private String phone;
+    
+    /**
+     * Full Name of the user.
+     * Added to support profile features from the latest update.
+     */
+    private String fullName; 
+
+    // ==================== CONSTRUCTORS ====================
+
+    /**
+     * No-Argument Constructor.
+     * CRITICAL: Required for 'RegistrationService' and some DAO operations.
+     */
+    public User() {
+    }
 
     /**
      * Full Constructor.
-     * Matches the database structure and includes the password for authentication.
+     * Matches the database structure including phone number.
      *
      * @param id       User ID (auto-generated in database)
      * @param username Unique username
-     * @param password User's password (hashed or plain text)
+     * @param password User's password
      * @param role     User role (owner, carrier, customer)
      * @param address  User's delivery address
      * @param phone    User's contact number
@@ -46,53 +60,36 @@ public class User {
 
     // ==================== GETTERS ====================
 
-    /**
-     * Gets the unique ID of the user.
-     * @return the user ID.
-     */
     public int getId() {
         return id;
     }
 
-    /**
-     * Gets the username.
-     * @return the username.
-     */
     public String getUsername() {
         return username;
     }
 
-    /**
-     * Gets the password.
-     * Important for authentication service and registration flow.
-     * @return the password string.
-     */
     public String getPassword() {
         return password;
     }
 
-    /**
-     * Gets the user's role.
-     * @return the role (customer, carrier, or owner).
-     */
     public String getRole() {
         return role;
     }
 
-    /**
-     * Gets the user's physical address.
-     * @return the address string.
-     */
     public String getAddress() {
         return address;
     }
 
-    /**
-     * Gets the user's phone number.
-     * @return the phone number string.
-     */
     public String getPhone() {
         return phone;
+    }
+
+    /**
+     * Gets the full name of the user.
+     * @return the full name string.
+     */
+    public String getFullName() { 
+        return fullName; 
     }
 
     // ==================== SETTERS ====================
@@ -119,6 +116,14 @@ public class User {
 
     public void setPhone(String phone) {
         this.phone = phone;
+    }
+    
+    /**
+     * Sets the full name of the user.
+     * @param fullName The full name to set.
+     */
+    public void setFullName(String fullName) { 
+        this.fullName = fullName; 
     }
 
     // ==================== UTILITY METHODS ====================
@@ -148,12 +153,18 @@ public class User {
     }
 
     /**
-     * Gets a display-friendly version of the username.
-     * Capitalizes the first letter (e.g., "ahmet" -> "Ahmet").
+     * Gets a display-friendly version of the user's name.
+     * Priority: Full Name > Capitalized Username.
      *
-     * @return The capitalized username.
+     * @return The display name.
      */
     public String getDisplayName() {
+        // If Full Name is available, use it (Prokaryot Feature)
+        if (fullName != null && !fullName.isEmpty()) {
+            return fullName;
+        }
+        
+        // Fallback to your logic (Capitalized Username)
         if (username == null || username.isEmpty()) return "Unknown";
         return username.substring(0, 1).toUpperCase() + username.substring(1);
     }
@@ -171,30 +182,18 @@ public class User {
 
     // ==================== OBJECT OVERRIDES ====================
 
-    /**
-     * Returns a string representation of the User object.
-     * Useful for debugging and logging.
-     * Note: Password is excluded from the string for security.
-     *
-     * @return A string containing user details.
-     */
     @Override
     public String toString() {
         return "User{" +
                 "id=" + id +
                 ", username='" + username + '\'' +
                 ", role='" + role + '\'' +
+                ", fullName='" + fullName + '\'' +
                 ", address='" + (address != null ? address.substring(0, Math.min(20, address.length())) + "..." : "N/A") + '\'' +
                 ", phone='" + (phone != null ? phone : "N/A") + '\'' +
                 '}';
     }
 
-    /**
-     * Checks if two User objects are equal based on their ID.
-     *
-     * @param o The object to compare with.
-     * @return true if IDs match, false otherwise.
-     */
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -203,11 +202,6 @@ public class User {
         return id == user.id;
     }
 
-    /**
-     * Generates a hash code for the User object based on ID.
-     *
-     * @return The hash code.
-     */
     @Override
     public int hashCode() {
         return Integer.hashCode(id);

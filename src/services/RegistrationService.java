@@ -1,139 +1,80 @@
 package services;
 
 import models.User;
+import utils.InputValidation; // <--- YENİ: Validator sınıfımızı çağırdık
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 
 /**
- * Registration Service - CUSTOMER REGISTRATION ONLY
- * 
- * Handles new customer registration with validation.
- * Owner and Carrier accounts are created by system admin only.
- * 
- * @author Group04
- * @version 1.0
+ * Registration Service.
+ * Handles new customer registration with validation using InputValidation utility.
+ * * @author Group04
+ * @version 2.0 (InputValidation Integrated)
  */
 public class RegistrationService {
     
-    private UserDAO userDAO;
+    //use SQL for register
+    private UserDAO userDAO; 
+
+    public RegistrationService() {
+        this.userDAO = new UserDAO(); //prevent null pointer errors
+    }
     
     /**
-     * Register new customer
-     * 
-     * @param username Unique username (3-20 chars)
-     * @param password Password (min 4 chars)
-     * @param address Delivery address
-     * @param phone Phone number (optional)
-     * @return true if registration successful, false otherwise
+     * Register new customer.
+     * Uses raw SQL to ensure 'full_name' is inserted correctly.
      */
-    public boolean registerCustomer(String username, String password, 
-                                    String address, String phone) {
-        try {
-            // Check if username already exists
-            if (userDAO.usernameExists(username)) {
-                return false;
-            }
+    public boolean registerCustomer(String username, String password, String address, String phone) {
+       
+        if (userDAO.usernameExists(username)) {
+            return false;
+        }
+
+        
+        String hashedPassword = AuthenticationService.hashPassword(password);
+        
+        String sql = "INSERT INTO userinfo (username, password_hash, role, address, phone, full_name) VALUES (?, ?, 'customer', ?, ?, ?)";
+
+        try (Connection conn = DatabaseAdapter.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
             
-            // Hash password for security
-             String hashedPassword = AuthenticationService.hashPassword(password);
+            pstmt.setString(1, username);
+            pstmt.setString(2, hashedPassword);
+            pstmt.setString(3, address);
+            pstmt.setString(4, phone);
+            // KRİTİK NOKTA: full_name boş olamaz, username'i yazıyoruz.
+            pstmt.setString(5, username); 
             
-            // Create new customer user
-            User newCustomer = new User();
-            newCustomer.setUsername(username);
-            newCustomer.setPassword(hashedPassword);
-            newCustomer.setRole("customer");
-            newCustomer.setAddress(address);
-            newCustomer.setPhone(phone);
-            newCustomer.setFullName(username); // Default to username
-            
-            // Save to database
-            return userDAO.createUser(newCustomer);
+            int affectedRows = pstmt.executeUpdate();
+            return affectedRows > 0;
             
         } catch (Exception e) {
             e.printStackTrace();
+            System.err.println("🚨 SQL ERROR " + e.getMessage());
             return false;
         }
     }
     
+
     /**
-     * Validate username format
-     * 
-     * Rules:
-     * - 3 to 20 characters
-     * - Letters, numbers, underscore only
-     * - Must start with letter
-     * 
-     * @param username Username to validate
-     * @return Error message or null if valid
+     * Validate username format using centralized InputValidation.
      */
     public String validateUsername(String username) {
-        if (username == null || username.trim().isEmpty()) {
-            return "Username cannot be empty";
-        }
-        
-        username = username.trim();
-        
-        if (username.length() < 3) {
-            return "Username must be at least 3 characters";
-        }
-        
-        if (username.length() > 20) {
-            return "Username must be at most 20 characters";
-        }
-        
-        if (!username.matches("^[a-zA-Z][a-zA-Z0-9_]*$")) {
-            return "Username must start with letter and contain only letters, numbers, and underscore";
-        }
-        
-        return null; // Valid
+        return InputValidation.validateUsername(username);
     }
     
     /**
-     * Validate password strength
-     * 
-     * Rules:
-     * - At least 4 characters
-     * - (Additional rules can be added)
-     * 
-     * @param password Password to validate
-     * @return Error message or null if valid
+     * Validate password strength using centralized InputValidation.
      */
     public String validatePassword(String password) {
-        if (password == null || password.isEmpty()) {
-            return "Password cannot be empty";
-        }
-        
-        if (password.length() < 4) {
-            return "Password must be at least 4 characters";
-        }
-        
-        // Optional: Add more strict rules
-        // if (!password.matches(".*[A-Z].*")) {
-        //     return "Password must contain at least one uppercase letter";
-        // }
-        
-        return null; // Valid
+        return InputValidation.validatePassword(password);
     }
     
     /**
-     * Validate phone number format (optional field)
-     * 
-     * @param phone Phone number
-     * @return Error message or null if valid
+     * Validate phone number format using centralized InputValidation.
      */
     public String validatePhone(String phone) {
-        if (phone == null || phone.trim().isEmpty()) {
-            return null; // Phone is optional
-        }
-        
-        phone = phone.trim();
-        
-        // Remove common separators for validation
-        String cleaned = phone.replaceAll("[\\s\\-\\(\\)]", "");
-        
-        // Check if it's all digits (with optional + at start)
-        if (!cleaned.matches("^\\+?[0-9]{10,15}$")) {
-            return "Phone number must be 10-15 digits (e.g., +90 532 123 4567)";
-        }
-        
-        return null; // Valid
+        return InputValidation.validatePhone(phone);
     }
 }

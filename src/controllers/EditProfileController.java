@@ -3,12 +3,19 @@ package controllers;
 import javafx.animation.*;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Label;      
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+
 import models.User;
 import services.UserDAO;
+import utils.InputValidation; 
 
 /**
  * Edit Profile Controller
@@ -90,8 +97,9 @@ public class EditProfileController {
         entrance.play();
     }
     
-    /**
-     * Handle Save Button
+  /**
+     * Handle Save Button.
+     * Validates input using InputValidation class before updating the database.
      */
     @FXML
     private void handleSave(ActionEvent event) {
@@ -101,23 +109,31 @@ public class EditProfileController {
         String newAddress = addressField.getText().trim();
         String newPhone = phoneField.getText().trim();
         
-        // Validation
-        if (newAddress.isEmpty()) {
-            showErrorMessage("Address cannot be empty!");
+        // --- CENTRALIZED VALIDATION START ---
+        
+        // 1. Validate Address
+        String addressError = InputValidation.validateAddress(newAddress);
+        if (addressError != null) {
+            showErrorMessage(addressError);
+            return;
+        }
+
+        // 2. Validate Phone
+        String phoneError = InputValidation.validatePhone(newPhone);
+        if (phoneError != null) {
+            showErrorMessage(phoneError);
             return;
         }
         
-        // Update user object
+        // Update user object locally
         currentUser.setAddress(newAddress);
         currentUser.setPhone(newPhone);
         
-        // Save to database
+        // Update in database
         boolean success = userDAO.updateUser(currentUser);
         
         if (success) {
             System.out.println("Profile updated successfully!");
-            
-            // Show success message
             showSuccessMessage("Profile updated successfully!");
             
             // Close window after delay
