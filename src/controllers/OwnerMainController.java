@@ -68,10 +68,16 @@ public class OwnerMainController {
     
     @FXML private TextArea reportPreviewArea;
     @FXML private Button logoutButton;
+    @FXML private Button messagesButton;
     
+    private User currentUser;
     private ObservableList<Product> products;
     private ObservableList<OrderItem> orders;
     private ObservableList<CarrierItem> carriers;
+    
+    public void setUser(User user) {
+        this.currentUser = user;
+    }
     
     @FXML
     private void initialize() {
@@ -304,6 +310,28 @@ public class OwnerMainController {
             Stage stage = (Stage) logoutButton.getScene().getWindow();
             stage.setScene(new Scene(root));
         } catch (Exception e) { e.printStackTrace(); }
+    }
+
+    @FXML
+    private void handleOpenMessages(ActionEvent event) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/OwnerChat.fxml"));
+            Parent root = loader.load();
+
+            OwnerChatController controller = loader.getController();
+            controller.setUser(currentUser);
+
+            Stage chatStage = new Stage();
+            Scene scene = new Scene(root, 900, 600);
+            scene.getStylesheets().add(getClass().getResource("/css/style.css").toExternalForm());
+            chatStage.setScene(scene);
+            chatStage.setTitle("Owner Messages");
+            chatStage.centerOnScreen();
+            chatStage.show();
+        } catch (Exception e) {
+            e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Error", "Could not open owner chat!\n" + e.getMessage());
+        }
     }
 
     private void showAlert(Alert.AlertType type, String title, String content) {

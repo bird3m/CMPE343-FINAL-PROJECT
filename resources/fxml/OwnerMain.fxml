@@ -71,6 +71,13 @@
                </children>
             </HBox>
             
+            <!-- Messages Button -->
+            <Button fx:id="messagesButton" mnemonicParsing="false" onAction="#handleOpenMessages" prefHeight="36.0" prefWidth="120.0" styleClass="menu-btn-primary" text="💬 Messages">
+               <font>
+                  <Font name="Arial" size="13.0" />
+               </font>
+            </Button>
+
             <!-- Logout Button -->
             <Button fx:id="logoutButton" mnemonicParsing="false" onAction="#handleLogout" styleClass="logout-btn" text="Logout">
                <font>

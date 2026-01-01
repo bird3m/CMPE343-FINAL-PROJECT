@@ -31,7 +31,7 @@
         <TextField fx:id="phoneField" promptText="e.g. 5551234567" />
 
         <Label text="Password:" textFill="#7f8c8d"/>
-        <PasswordField fx:id="passwordField" promptText="Min 4 chars" />
+        <PasswordField fx:id="passwordField" promptText="Min 2 chars" />
 
     </VBox>
 

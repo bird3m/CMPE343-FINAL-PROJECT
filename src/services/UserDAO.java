@@ -145,4 +145,20 @@ public class UserDAO {
             return false;
         }
     }
+
+    /**
+     * Update user's full name by username (helper for sample data fixes)
+     */
+    public boolean updateFullNameByUsername(String username, String fullName) {
+        String sql = "UPDATE userinfo SET full_name = ? WHERE username = ?";
+        try (Connection conn = DatabaseAdapter.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, fullName);
+            pstmt.setString(2, username);
+            return pstmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 }

@@ -208,7 +208,7 @@ CREATE TABLE `userinfo` (
 
 LOCK TABLES `userinfo` WRITE;
 /*!40000 ALTER TABLE `userinfo` DISABLE KEYS */;
-INSERT INTO `userinfo` VALUES (1,'cust','cust','customer','Customer User','Istanbul','555-000-0001'),(2,'carr','carr','carrier','Carrier User','Istanbul','555-000-0002'),(3,'own','own','owner','Owner User','Istanbul','555-000-0003');
+INSERT INTO `userinfo` VALUES (1,'cust','cust','customer','Ahmet Müşteri','Istanbul','555-000-0001'),(2,'carr','carr','carrier','Carrier User','Istanbul','555-000-0002'),(3,'own','own','owner','Birdem Üstündağ','Istanbul','555-000-0003');
 /*!40000 ALTER TABLE `userinfo` ENABLE KEYS */;
 UNLOCK TABLES;
 

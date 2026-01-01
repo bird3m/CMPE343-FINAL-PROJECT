@@ -23,7 +23,7 @@ public class RegistrationService {
      * Register new customer
      * 
      * @param username Unique username (3-20 chars)
-     * @param password Password (min 4 chars)
+     * @param password Password (min 2 chars)
      * @param address Delivery address
      * @param phone Phone number (optional)
      * @param fullName Customer's full name

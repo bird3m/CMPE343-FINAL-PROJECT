@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<BorderPane xmlns:fx="http://javafx.com/fxml" fx:controller="controllers.ChatController" styleClass="chat-root">
+    <top>
+        <HBox spacing="10" alignment="CENTER_LEFT" style="-fx-padding: 10; -fx-background-color: #f5f7fa;">
+            <Label fx:id="chatWithLabel" text="Owner" style="-fx-font-size: 16px; -fx-font-weight: bold;" />
+        </HBox>
+    </top>
+
+    <center>
+        <ListView fx:id="messagesList" focusTraversable="false" style="-fx-padding: 10;" />
+    </center>
+
+    <bottom>
+        <HBox spacing="8" alignment="CENTER_LEFT" style="-fx-padding: 10; -fx-background-color: #ffffff;">
+            <TextField fx:id="messageField" HBox.hgrow="ALWAYS" promptText="Type a message..." onAction="#handleSend" />
+            <Button fx:id="sendButton" text="Send" onAction="#handleSend" />
+        </HBox>
+    </bottom>
+</BorderPane>

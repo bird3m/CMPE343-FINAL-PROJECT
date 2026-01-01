@@ -427,18 +427,28 @@ public class CustomerMainController {
     }
     
     /**
-     * Handle Messages Button
+     * Handle Messages Button - open chat window
      */
     @FXML
     private void handleMessages(ActionEvent event) {
-        showAlert(Alert.AlertType.INFORMATION, "Messages", 
-                 "💬 Messaging System\n\n" +
-                 "This feature will allow:\n" +
-                 "• Message owner\n" +
-                 "• Ask questions\n" +
-                 "• Report issues\n" +
-                 "• Get support\n\n" +
-                 "Coming soon!");
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/Chat.fxml"));
+            Parent root = loader.load();
+
+            ChatController controller = loader.getController();
+            controller.setUser(currentUser);
+
+            Stage chatStage = new Stage();
+            Scene scene = new Scene(root, 400, 600);
+            scene.getStylesheets().add(getClass().getResource("/css/style.css").toExternalForm());
+            chatStage.setScene(scene);
+            chatStage.setTitle("Messages - Owner");
+            chatStage.centerOnScreen();
+            chatStage.show();
+        } catch (Exception e) {
+            e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Error", "Could not open chat!\n" + e.getMessage());
+        }
     }
     
     /**

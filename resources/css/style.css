@@ -599,3 +599,44 @@
 .login-btn, .register-btn {
     -fx-font-size: 16px;
 }
+
+/* ==================== CHAT STYLES ==================== */
+.chat-root {
+    -fx-background-color: linear-gradient(180deg, #f7f9fc 0%, #ffffff 100%);
+}
+
+.chat-root .list-view {
+    -fx-background-color: transparent;
+}
+
+.chat-root .list-cell {
+    -fx-padding: 8 12 8 12;
+    -fx-background-color: transparent;
+}
+
+.chat-msg-customer {
+    -fx-background-color: #dff7e2;
+    -fx-background-radius: 12;
+    -fx-padding: 8 12 8 12;
+    -fx-alignment: center-left;
+}
+
+.chat-msg-owner {
+    -fx-background-color: #f1f0f7;
+    -fx-background-radius: 12;
+    -fx-padding: 8 12 8 12;
+    -fx-alignment: center-right;
+}
+
+.chat-input {
+    -fx-background-color: white;
+    -fx-border-color: #ecf0f1;
+    -fx-border-radius: 10;
+    -fx-padding: 10;
+}
+
+.chat-send-btn {
+    -fx-background-color: linear-gradient(135deg,#667eea,#764ba2);
+    -fx-text-fill: white;
+    -fx-background-radius: 8;
+}

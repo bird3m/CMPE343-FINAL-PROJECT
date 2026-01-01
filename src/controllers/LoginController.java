@@ -429,6 +429,11 @@ public class LoginController {
                 CarrierMainController controller = loader.getController();
                 controller.setUser(user); // Kurye bilgisini içeri atıyoruz
             }
+            // OWNER - pass user to controller
+            else if (user.getRole().equals("owner")) {
+                OwnerMainController controller = loader.getController();
+                controller.setUser(user);
+            }
             // ---------------------------------------------
             
             // Create new stage
