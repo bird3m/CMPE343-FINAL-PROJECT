@@ -31,7 +31,7 @@
             <!-- Icon & Title -->
             <Label text="👔">
                <font>
-                  <Font name="Arial" size="30.0" />
+                  <Font name="Segoe UI Emoji" size="30.0" />
                </font>
             </Label>
             <Label text="Owner Dashboard" textFill="WHITE">

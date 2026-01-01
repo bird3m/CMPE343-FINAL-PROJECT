@@ -124,14 +124,21 @@ public class EditProfileController {
             showErrorMessage(phoneError);
             return;
         }
-        
+
+        // 3. Validate Full Name
+        String newFullName = currentUser.getFullName();
+        if (newFullName == null || newFullName.trim().isEmpty()) {
+            newFullName = currentUser.getUsername(); // fallback to username if full name is missing
+        }
+        currentUser.setFullName(newFullName);
+
         // Update user object locally
         currentUser.setAddress(newAddress);
         currentUser.setPhone(newPhone);
-        
+
         // Update in database
         boolean success = userDAO.updateUser(currentUser);
-        
+
         if (success) {
             System.out.println("Profile updated successfully!");
             showSuccessMessage("Profile updated successfully!");

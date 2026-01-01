@@ -135,16 +135,32 @@ public class RegisterController {
      */
     @FXML
     private void handleBack(ActionEvent event) {
-    try {
-        Parent root = FXMLLoader.load(getClass().getResource("/fxml/Login.fxml"));
-        Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
-        stage.setScene(new javafx.scene.Scene(root));
-        stage.show();
-    } catch (Exception e) {
-        e.printStackTrace();
-        showAlert(Alert.AlertType.ERROR, "Error", "Could not return to login screen.");
+        try {
+            Parent root = FXMLLoader.load(getClass().getResource("/fxml/Login.fxml"));
+            Stage stage;
+            if (event != null) {
+                stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
+            } else {
+                // Called programmatically (e.g., after successful registration)
+                // Use a known control to get the current window
+                if (usernameField != null && usernameField.getScene() != null) {
+                    stage = (Stage) usernameField.getScene().getWindow();
+                } else {
+                    // Fallback: use any showing window
+                    stage = (Stage) javafx.stage.Window.getWindows().stream()
+                            .filter(javafx.stage.Window::isShowing)
+                            .findFirst()
+                            .orElseThrow(() -> new IllegalStateException("No showing window found"));
+                }
+            }
+
+            stage.setScene(new javafx.scene.Scene(root));
+            stage.show();
+        } catch (Exception e) {
+            e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Error", "Could not return to login screen.");
+        }
     }
-}
 
     /**
      * Display error message

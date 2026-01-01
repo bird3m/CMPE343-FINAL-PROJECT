@@ -82,6 +82,8 @@
 /* ==================== ROOT & GENERAL ==================== */
 .root {
     -fx-background-color: #f5f5f5;
+    /* Emoji-capable fallback fonts (Windows: Segoe UI Emoji) */
+    -fx-font-family: "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji", "Arial";
 }
 
 /* ==================== LOGIN SCREEN - VIBRANT ANIMATED GRADIENT ==================== */

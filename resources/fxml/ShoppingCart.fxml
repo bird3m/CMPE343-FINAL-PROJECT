@@ -33,7 +33,7 @@
                <children>
                   <Label text="🛒">
                      <font>
-                        <Font name="Arial" size="32.0" />
+                        <Font name="Segoe UI Emoji" size="32.0" />
                      </font>
                   </Label>
                </children>

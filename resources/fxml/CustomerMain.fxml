@@ -145,7 +145,7 @@
                         <!-- VEGETABLES TitledPane -->
                         <TitledPane fx:id="vegetablePane" animated="false" expanded="true" styleClass="titled-pane-veg" text="🥬 VEGETABLES">
                            <font>
-                              <Font name="Arial Bold" size="15.0" />
+                              <Font name="Segoe UI Emoji" size="15.0" />
                            </font>
                            <content>
                               <ListView fx:id="vegetableList" prefHeight="200.0" styleClass="product-list">
@@ -159,7 +159,7 @@
                         <!-- FRUITS TitledPane -->
                         <TitledPane fx:id="fruitPane" animated="false" expanded="true" styleClass="titled-pane-fruit" text="🍎 FRUITS">
                            <font>
-                              <Font name="Arial Bold" size="15.0" />
+                              <Font name="Segoe UI Emoji" size="15.0" />
                            </font>
                            <content>
                               <ListView fx:id="fruitList" prefHeight="200.0" styleClass="product-list">

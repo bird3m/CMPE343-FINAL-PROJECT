@@ -35,7 +35,7 @@
             <Label fx:id="titleLabel" text="🥬 Group04 GreenGrocer 🍎" 
                    textAlignment="CENTER" wrapText="true">
                <font>
-                  <Font name="Arial Black" size="28.0" />
+                  <Font name="Segoe UI Emoji" size="28.0" />
                </font>
                <style>
                   -fx-text-fill: linear-gradient(to right, #667eea, #764ba2);
