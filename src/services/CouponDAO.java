@@ -199,4 +199,24 @@ public class CouponDAO {
             return false;
         }
     }
+
+    /**
+     * Marks a user's assigned coupon as redeemed (if present and not already redeemed).
+     * Returns true if a row was updated.
+     */
+    public boolean redeemUserCoupon(int userId, String code) {
+        String sql = "UPDATE user_coupons uc JOIN couponinfo c ON uc.coupon_id = c.id " +
+                     "SET uc.redeemed = 1 WHERE uc.user_id = ? AND c.code = ? AND uc.redeemed = 0";
+        try (Connection conn = DatabaseAdapter.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            ps.setString(2, code);
+            int updated = ps.executeUpdate();
+            System.out.println("redeemUserCoupon: userId=" + userId + " code=" + code + " updated=" + updated);
+            return updated > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 }

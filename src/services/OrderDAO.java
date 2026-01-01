@@ -304,4 +304,75 @@ public class OrderDAO {
         );
     }
 
+    /**
+     * Returns revenue aggregated by product name (top N products by revenue).
+     * Key: product name, Value: total revenue (sum of line_total)
+     */
+    public java.util.LinkedHashMap<String, Double> getRevenueByProductTopN(int limit) {
+        java.util.LinkedHashMap<String, Double> map = new java.util.LinkedHashMap<>();
+        String sql = "SELECT p.name AS product_name, SUM(oi.line_total) AS revenue " +
+                     "FROM orderiteminfo oi " +
+                     "JOIN productinfo p ON oi.product_id = p.id " +
+                     "GROUP BY p.id, p.name " +
+                     "ORDER BY revenue DESC " +
+                     "LIMIT ?";
+        try (java.sql.Connection conn = DatabaseAdapter.getConnection();
+             java.sql.PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, limit);
+            try (java.sql.ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    map.put(rs.getString("product_name"), rs.getDouble("revenue"));
+                }
+            }
+        } catch (java.sql.SQLException e) { e.printStackTrace(); }
+        return map;
+    }
+
+    /**
+     * Returns daily revenue for the last `days` days (including today).
+     * Key: date string (yyyy-MM-dd), Value: total revenue for that day.
+     */
+    public java.util.LinkedHashMap<String, Double> getDailyRevenueLastNDays(int days) {
+        java.util.LinkedHashMap<String, Double> map = new java.util.LinkedHashMap<>();
+        String sql = "SELECT DATE(o.requested_delivery_time) AS d, SUM(o.total_cost) AS revenue " +
+                     "FROM orderinfo o " +
+                     "WHERE o.requested_delivery_time >= DATE_SUB(CURDATE(), INTERVAL ? DAY) " +
+                     "GROUP BY d ORDER BY d";
+        try (java.sql.Connection conn = DatabaseAdapter.getConnection();
+             java.sql.PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, days);
+            try (java.sql.ResultSet rs = pstmt.executeQuery()) {
+                java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd");
+                while (rs.next()) {
+                    java.sql.Date d = rs.getDate("d");
+                    String dateStr = (d != null) ? sdf.format(d) : "Unknown";
+                    map.put(dateStr, rs.getDouble("revenue"));
+                }
+            }
+        } catch (java.sql.SQLException e) { e.printStackTrace(); }
+        return map;
+    }
+
+    /**
+     * Returns top N products by total quantity sold (amount_kg) as LinkedHashMap(productName -> totalKg)
+     */
+    public java.util.LinkedHashMap<String, Double> getTopProductsByQuantityTopN(int limit) {
+        java.util.LinkedHashMap<String, Double> map = new java.util.LinkedHashMap<>();
+        String sql = "SELECT p.name AS product_name, SUM(oi.amount_kg) AS qty " +
+                     "FROM orderiteminfo oi " +
+                     "JOIN productinfo p ON oi.product_id = p.id " +
+                     "GROUP BY p.id, p.name " +
+                     "ORDER BY qty DESC LIMIT ?";
+        try (java.sql.Connection conn = DatabaseAdapter.getConnection();
+             java.sql.PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, limit);
+            try (java.sql.ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    map.put(rs.getString("product_name"), rs.getDouble("qty"));
+                }
+            }
+        } catch (java.sql.SQLException e) { e.printStackTrace(); }
+        return map;
+    }
+
 }

@@ -138,6 +138,19 @@ public class ShoppingCartController {
         } else {
             shippingNoteLabel.setText("");
         }
+
+        // Dynamic helper: show how much more to spend to get free delivery
+        try {
+            if (earnCouponsLabel != null) {
+                if (thresholdMet) {
+                    earnCouponsLabel.setText("You're eligible for Free Delivery — great! 🎉");
+                } else {
+                    double remaining = 150.0 - subtotal;
+                    earnCouponsLabel.setText(String.format("Spend %.2f ₺ more to earn Free Delivery (FREESHIP)", remaining));
+                }
+            }
+        } catch (Exception e) { e.printStackTrace(); }
+
         discountLabel.setText(String.format("-%.2f ₺", totalDiscount));
         totalLabel.setText(String.format("%.2f ₺", finalTotal));
 
@@ -152,6 +165,8 @@ public class ShoppingCartController {
     }
 
     @FXML private javafx.scene.control.Label couponsStatusLabel; // Status below the coupons list
+    @FXML private Label earnCouponsLabel; // Dynamic helper: how to earn coupons / free delivery
+    @FXML private Button applyCouponButton; // Apply the selected coupon from the list (single-click/Enter)
 
     private void displayUserCoupons() {
         if (currentUser == null || userCouponsList == null) return;
@@ -176,13 +191,33 @@ public class ShoppingCartController {
         // Update UI on FX thread
         javafx.application.Platform.runLater(() -> {
             if (!couponsToShow.isEmpty()) {
-                userCouponsList.setItems(FXCollections.observableArrayList(couponsToShow));
-                couponsStatusLabel.setText("You have " + couponsToShow.size() + " coupon(s). Double-click to apply.");
+                // Deduplicate by coupon code (in case DB has accidental duplicates)
+                java.util.LinkedHashMap<String,String> codeMap = new java.util.LinkedHashMap<>();
+                for (String s : couponsToShow) {
+                    String code = s.split("\\s+")[0];
+                    codeMap.putIfAbsent(code, s);
+                }
+                java.util.List<String> deduped = new java.util.ArrayList<>(codeMap.values());
+                userCouponsList.setItems(FXCollections.observableArrayList(deduped));
 
-                // Double-click to apply a coupon
+                // Show count and the exact codes in the status label
+                String joinedCodes = String.join(", ", codeMap.keySet());
+                couponsStatusLabel.setText("You have " + codeMap.size() + " coupon(s): " + joinedCodes + ". Double-click to apply.");
+                System.out.println("displayUserCoupons: rawCount=" + couponsToShow.size() + " uniqueCount=" + codeMap.size() + " codes=" + joinedCodes);
+
+                // Prepare apply button state
+                applyCouponButton.setDisable(true);
+
+                // Selection change -> enable/disable apply button
+                userCouponsList.getSelectionModel().selectedItemProperty().addListener((obs, oldV, newV) -> {
+                    applyCouponButton.setDisable(newV == null);
+                });
+
+                // Single-click or double-click behavior: single click enables, double-click applies
                 userCouponsList.setOnMouseClicked(e -> {
+                    String selected = userCouponsList.getSelectionModel().getSelectedItem();
+                    applyCouponButton.setDisable(selected == null);
                     if (e.getClickCount() == 2) {
-                        String selected = userCouponsList.getSelectionModel().getSelectedItem();
                         if (selected != null && !selected.isEmpty()) {
                             String code = selected.split("\\s+")[0]; // take first token as code
                             couponField.setText(code);
@@ -190,8 +225,25 @@ public class ShoppingCartController {
                         }
                     }
                 });
+
+                // Enter key applies selected coupon
+                userCouponsList.setOnKeyPressed(e -> {
+                    switch (e.getCode()) {
+                        case ENTER:
+                            String selected = userCouponsList.getSelectionModel().getSelectedItem();
+                            if (selected != null && !selected.isEmpty()) {
+                                String code = selected.split("\\s+")[0];
+                                couponField.setText(code);
+                                handleApplyCoupon();
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                });
             } else {
                 userCouponsList.setItems(FXCollections.observableArrayList());
+                applyCouponButton.setDisable(true);
                 couponsStatusLabel.setText("No coupons available.");
             }
         });
@@ -290,7 +342,34 @@ public class ShoppingCartController {
             if (awarded) message += "\nYou earned a coupon: SAVE20 (%20 OFF). Check 'Your Coupons' in the cart.";
             if (loyalAwarded) message += "\nYou earned a loyalty coupon: LOYAL5 (%5 OFF).";
 
+            // If a coupon was applied by the user, mark it as redeemed (if it's an assigned coupon)
+            try {
+                String appliedCode = couponField.getText() == null ? "" : couponField.getText().trim();
+                if (!appliedCode.isEmpty()) {
+                    CouponDAO cd = new CouponDAO();
+                    boolean redeemed = cd.redeemUserCoupon(currentUser.getId(), appliedCode);
+                    System.out.println("handleCheckout: attempted to redeem applied coupon='" + appliedCode + "' -> " + redeemed);
+                }
+                // Also handle FREESHIP case if user had that assigned
+                if (currentFreeShipping) {
+                    CouponDAO cd = new CouponDAO();
+                    boolean redeemed = cd.redeemUserCoupon(currentUser.getId(), "FREESHIP");
+                    System.out.println("handleCheckout: attempted to redeem FREESHIP -> " + redeemed);
+                }
+            } catch (Exception ex) {
+                System.out.println("Failed to redeem applied coupon: " + ex.getMessage());
+                ex.printStackTrace();
+            }
+
             showAlert(message);
+
+            // Cleanup applied coupon state
+            couponField.clear();
+            currentCouponRate = 0.0;
+            currentFreeShipping = false;
+            displayUserCoupons();
+            refreshCart();
+
             ((Stage) checkoutButton.getScene().getWindow()).close(); 
         } else {
             showAlert("Database error while creating order! ❌");
@@ -336,6 +415,15 @@ public class ShoppingCartController {
             refreshCart();
             showAlert("Coupon applied (no percent discount).");
         }
+    }
+
+    @FXML
+    private void handleApplySelectedCoupon(ActionEvent event) {
+        String selected = userCouponsList.getSelectionModel().getSelectedItem();
+        if (selected == null || selected.isEmpty()) return;
+        String code = selected.split("\\s+")[0];
+        couponField.setText(code);
+        handleApplyCoupon();
     }
     
     private void showAlert(String msg) {

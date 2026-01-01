@@ -25,6 +25,17 @@ import java.io.File;
 import java.io.PrintWriter;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Map;
+
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.scene.chart.BarChart;
+import javafx.scene.chart.CategoryAxis;
+import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.LineChart;
+import javafx.scene.chart.PieChart;
+import javafx.scene.chart.XYChart;
+import javafx.scene.text.Font;
 
 import models.Product;
 import models.Order;
@@ -69,6 +80,12 @@ public class OwnerMainController {
     @FXML private TextArea reportPreviewArea;
     @FXML private Button logoutButton;
     @FXML private Button messagesButton;
+
+    // Analytics charts
+    @FXML private PieChart revenueByProductPie;
+    @FXML private BarChart<String, Number> dailyRevenueBar;
+    @FXML private BarChart<String, Number> topProductsBar;
+    @FXML private LineChart<String, Number> revenueLineChart;
     
     private User currentUser;
     private ObservableList<Product> products;
@@ -85,6 +102,7 @@ public class OwnerMainController {
         setupOrderTable();
         setupCarrierTable();
         loadSampleData(); 
+        loadAnalyticsCharts();
         //if(reportPreviewArea != null) handleRefreshReport(null);
     }
     
@@ -197,6 +215,7 @@ public class OwnerMainController {
             dialogStage.setScene(new Scene(page));
             dialogStage.showAndWait();
             loadSampleData(); 
+            loadAnalyticsCharts();
            // handleRefreshReport(null);
         } catch (Exception e) { 
             e.printStackTrace(); 
@@ -221,6 +240,7 @@ public class OwnerMainController {
             dialogStage.setScene(new Scene(page));
             dialogStage.showAndWait();
             loadSampleData(); 
+            loadAnalyticsCharts();
         } catch (Exception e) { 
             e.printStackTrace();
             showAlert(Alert.AlertType.ERROR, "Error", "Could not open Edit Product form.");
@@ -238,6 +258,7 @@ public class OwnerMainController {
                 if(dao.deleteProduct(selected.getId())) {
                     products.remove(selected);
                     showAlert(Alert.AlertType.INFORMATION, "Success", "Product deleted successfully.");
+                    loadAnalyticsCharts();
                 } else {
                     showAlert(Alert.AlertType.ERROR, "Error", "Could not delete product.");
                 }
@@ -300,6 +321,104 @@ public class OwnerMainController {
             try (PrintWriter writer = new PrintWriter(file)) {
                 writer.println(reportContent);
             } catch (Exception e) { e.printStackTrace(); }
+        }
+    }
+
+    /**
+     * Loads analytics charts in the Analytics tab.
+     */
+    private void loadAnalyticsCharts() {
+        try {
+            OrderDAO dao = new OrderDAO();
+
+            // Pie Chart: Top products by revenue
+            if (revenueByProductPie != null) {
+                java.util.LinkedHashMap<String, Double> top = dao.getRevenueByProductTopN(6);
+                ObservableList<PieChart.Data> pieData = FXCollections.observableArrayList();
+                for (java.util.Map.Entry<String, Double> e : top.entrySet()) {
+                    pieData.add(new PieChart.Data(e.getKey(), e.getValue()));
+                }
+                if (pieData.isEmpty()) {
+                    pieData.add(new PieChart.Data("No Data", 1));
+                }
+                revenueByProductPie.setData(pieData);
+            }
+
+            // Bar Chart: Daily revenue for last 7 days
+            if (dailyRevenueBar != null) {
+                java.util.LinkedHashMap<String, Double> daily = dao.getDailyRevenueLastNDays(7);
+                XYChart.Series<String, Number> series = new XYChart.Series<>();
+                series.setName("Revenue (₺)");
+                for (java.util.Map.Entry<String, Double> e : daily.entrySet()) {
+                    series.getData().add(new XYChart.Data<>(e.getKey(), e.getValue()));
+                }
+                dailyRevenueBar.getData().clear();
+                if (series.getData().isEmpty()) {
+                    // add empty zero bar so chart looks reasonable
+                    series.getData().add(new XYChart.Data<>("-", 0));
+                }
+                dailyRevenueBar.getData().add(series);
+            }
+
+            // Top products by quantity (kg)
+            if (topProductsBar != null) {
+                java.util.LinkedHashMap<String, Double> topQty = dao.getTopProductsByQuantityTopN(6);
+                XYChart.Series<String, Number> qtySeries = new XYChart.Series<>();
+                qtySeries.setName("Kg sold");
+                for (java.util.Map.Entry<String, Double> e : topQty.entrySet()) {
+                    qtySeries.getData().add(new XYChart.Data<>(e.getKey(), e.getValue()));
+                }
+                topProductsBar.getData().clear();
+                if (qtySeries.getData().isEmpty()) {
+                    qtySeries.getData().add(new XYChart.Data<>("-", 0));
+                }
+                topProductsBar.getData().add(qtySeries);
+
+                // Improve label visibility for long product names
+                try {
+                    CategoryAxis topXAxis = (CategoryAxis) topProductsBar.getXAxis();
+                    topXAxis.setTickLabelRotation(-40);
+                    topXAxis.setTickLabelGap(4);
+                    topXAxis.setTickLabelFont(Font.font(11));
+                    topProductsBar.setCategoryGap(12);
+                    topProductsBar.setBarGap(3);
+                } catch (Exception ignore) { }
+            }
+
+            // Revenue line chart: last 30 days
+            if (revenueLineChart != null) {
+                java.util.LinkedHashMap<String, Double> last30 = dao.getDailyRevenueLastNDays(30);
+                XYChart.Series<String, Number> revSeries = new XYChart.Series<>();
+                revSeries.setName("Revenue (₺)");
+                for (java.util.Map.Entry<String, Double> e : last30.entrySet()) {
+                    revSeries.getData().add(new XYChart.Data<>(e.getKey(), e.getValue()));
+                }
+                revenueLineChart.getData().clear();
+                if (revSeries.getData().isEmpty()) {
+                    revSeries.getData().add(new XYChart.Data<>("-", 0));
+                }
+                revenueLineChart.getData().add(revSeries);
+
+                // Rotate revenue line chart x-axis labels for readability
+                try {
+                    CategoryAxis revXAxis = (CategoryAxis) revenueLineChart.getXAxis();
+                    revXAxis.setTickLabelRotation(-45);
+                    revXAxis.setTickLabelFont(Font.font(9));
+                    revXAxis.setTickLabelGap(3);
+                } catch (Exception ignore) { }
+            }
+
+            // Ensure daily revenue x-axis labels don't overlap
+            if (dailyRevenueBar != null) {
+                try {
+                    CategoryAxis dayXAxis = (CategoryAxis) dailyRevenueBar.getXAxis();
+                    dayXAxis.setTickLabelRotation(-30);
+                    dayXAxis.setTickLabelFont(Font.font(10));
+                    dayXAxis.setTickLabelGap(3);
+                } catch (Exception ignore) { }
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
     }
 

@@ -120,7 +120,7 @@
                         <Font name="Arial Bold" size="12.0" />
                      </font>
                   </Label>
-                  <Label text="Orders over 20₺" textFill="WHITE">
+                  <Label text="Orders over 150₺" textFill="WHITE">
                      <font>
                         <Font name="Arial" size="10.0" />
                      </font>
