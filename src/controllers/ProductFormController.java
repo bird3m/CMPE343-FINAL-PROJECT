@@ -103,22 +103,25 @@ public class ProductFormController {
         String stockStr = stockField.getText().trim();
         String thresholdStr = thresholdField.getText().trim();
 
-        // 2. Basit Validation (Boşluk Kontrolü)
-        if (name.isEmpty() || priceStr.isEmpty() || stockStr.isEmpty() || thresholdStr.isEmpty()) {
-            showError("Please fill all fields!");
-            return;
-        }
+        // 2. Validation using InputValidation
+        String err;
+        err = InputValidation.validateProductName(name);
+        if (err != null) { showError(err); return; }
+
+        err = InputValidation.validatePrice(priceStr);
+        if (err != null) { showError(err); return; }
+
+        err = InputValidation.validateNonNegativeNumber(stockStr, "Stock");
+        if (err != null) { showError(err); return; }
+
+        err = InputValidation.validateNonNegativeNumber(thresholdStr, "Threshold");
+        if (err != null) { showError(err); return; }
 
         try {
             // 3. Sayısal Dönüşüm
-            double price = Double.parseDouble(priceStr);
-            double stock = Double.parseDouble(stockStr);
-            double threshold = Double.parseDouble(thresholdStr);
-
-            if (price < 0 || stock < 0 || threshold < 0) {
-                showError("Values cannot be negative!");
-                return;
-            }
+            double price = Double.parseDouble(priceStr.replace(",", "."));
+            double stock = Double.parseDouble(stockStr.replace(",", "."));
+            double threshold = Double.parseDouble(thresholdStr.replace(",", "."));
 
             boolean success;
             if (isEditMode) {

@@ -127,4 +127,48 @@ public class InputValidation {
         
         return null; // Valid
     }
+
+    /**
+     * Validates a product name.
+     * Rule: 1-80 chars, allows letters, numbers, spaces and common punctuation (- . ')
+     */
+    public static String validateProductName(String name) {
+        if (name == null || name.trim().isEmpty()) return "Product name cannot be empty.";
+        String n = name.trim();
+        if (n.length() < 1) return "Product name is too short.";
+        if (n.length() > 80) return "Product name is too long.";
+        if (!n.matches("^[a-zA-Z0-9ğüşıöçĞÜŞİÖÇ\\s\\-\\.'(),]+$")) return "Product name contains invalid characters.";
+        return null;
+    }
+
+    /**
+     * Validates a monetary field (price).
+     * Accepts decimal numbers >= 0 and reasonably bounded.
+     */
+    public static String validatePrice(String priceStr) {
+        if (priceStr == null || priceStr.trim().isEmpty()) return "Price cannot be empty.";
+        try {
+            double v = Double.parseDouble(priceStr.replace(",", "."));
+            if (v < 0) return "Price cannot be negative.";
+            if (v > 1000000) return "Price is unreasonably large.";
+        } catch (NumberFormatException e) {
+            return "Price must be a valid number (e.g., 12.50).";
+        }
+        return null;
+    }
+
+    /**
+     * Validates stock/threshold fields - must be non-negative numbers.
+     */
+    public static String validateNonNegativeNumber(String val, String label) {
+        if (val == null || val.trim().isEmpty()) return label + " cannot be empty.";
+        try {
+            double v = Double.parseDouble(val.replace(",", "."));
+            if (v < 0) return label + " cannot be negative.";
+            if (v > 1_000_000) return label + " is unreasonably large.";
+        } catch (NumberFormatException e) {
+            return label + " must be a valid number.";
+        }
+        return null;
+    }
 }

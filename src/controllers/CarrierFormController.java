@@ -32,11 +32,19 @@ public class CarrierFormController {
         String phone = phoneField.getText().trim();
         String password = passwordField.getText().trim();
 
-        // 1. Validation
-        if (username.isEmpty() || password.isEmpty() || fullName.isEmpty()) {
-            showError("Please fill all required fields.");
-            return;
-        }
+        // 1. Validation using InputValidation
+        String err;
+        err = utils.InputValidation.validateUsername(username);
+        if (err != null) { showError(err); return; }
+
+        err = utils.InputValidation.validateFullName(fullName);
+        if (err != null) { showError(err); return; }
+
+        err = utils.InputValidation.validatePhone(phone);
+        if (err != null) { showError(err); return; }
+
+        err = utils.InputValidation.validatePassword(password);
+        if (err != null) { showError(err); return; }
 
         if (userDAO.usernameExists(username)) {
             showError("Username already taken!");
