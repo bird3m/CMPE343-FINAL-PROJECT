@@ -60,6 +60,9 @@ public class CustomerMainController {
     private User currentUser;
     private ObservableList<Product> vegetables;
     private ObservableList<Product> fruits;
+    // Master lists to keep original products for filtering
+    private List<Product> masterVegetables = new ArrayList<>();
+    private List<Product> masterFruits = new ArrayList<>();
     private ProductDAO productDAO; 
     
     /**
@@ -74,6 +77,11 @@ public class CustomerMainController {
         
         // Setup cell factory for custom display
         setupListViews();
+
+        // Dynamic prefix search as user types (smoother UX)
+        searchField.textProperty().addListener((obs, oldText, newText) -> {
+            filterProducts(newText == null ? "" : newText.trim());
+        });
     }
     
     /**
@@ -173,10 +181,14 @@ public class CustomerMainController {
         vegList.sort((p1, p2) -> p1.getName().compareTo(p2.getName()));
         fruitList.sort((p1, p2) -> p1.getName().compareTo(p2.getName()));
         
-        vegetables = FXCollections.observableArrayList(vegList);
+        // keep master copies for filtering
+        masterVegetables = vegList;
+        masterFruits = fruitList;
+
+        vegetables = FXCollections.observableArrayList(masterVegetables);
         vegetableList.setItems(vegetables);
-        
-        fruits = FXCollections.observableArrayList(fruitList);
+
+        fruits = FXCollections.observableArrayList(masterFruits);
         this.fruitList.setItems(fruits);
     }
     
@@ -186,47 +198,41 @@ public class CustomerMainController {
      */
     @FXML
     private void handleSearch(ActionEvent event) {
+        // Use same behavior as dynamic filter: prefix-based, inline update
         String keyword = searchField.getText().trim();
-        
-        if (keyword.isEmpty()) {
-            // Show all products if search is empty
-            loadProducts();
+        filterProducts(keyword);
+    }
+
+    /**
+     * Filter products by prefix (case-insensitive) and update list views dynamically.
+     */
+    private void filterProducts(String keyword) {
+        if (keyword == null || keyword.isEmpty()) {
+            vegetableList.setItems(FXCollections.observableArrayList(masterVegetables));
+            fruitList.setItems(FXCollections.observableArrayList(masterFruits));
             return;
         }
-        
-        List<Product> allProducts = productDAO.getAllProducts();
-        
+
+        String lower = keyword.toLowerCase();
         List<Product> vegResults = new ArrayList<>();
         List<Product> fruitResults = new ArrayList<>();
-        
-        String lowerKeyword = keyword.toLowerCase();
-        
-        for (Product p : allProducts) {
-            // Filter by name AND stock availability
-            if (p.getName().toLowerCase().contains(lowerKeyword) && p.getStock() > 0) {
-                if ("vegetable".equals(p.getType())) {
-                    vegResults.add(p);
-                } else if ("fruit".equals(p.getType())) {
-                    fruitResults.add(p);
-                }
+
+        for (Product p : masterVegetables) {
+            if (p.getName().toLowerCase().contains(lower) && p.getStock() > 0) {
+                vegResults.add(p);
+            }
+        }
+        for (Product p : masterFruits) {
+            if (p.getName().toLowerCase().contains(lower) && p.getStock() > 0) {
+                fruitResults.add(p);
             }
         }
 
         vegResults.sort((p1, p2) -> p1.getName().compareTo(p2.getName()));
         fruitResults.sort((p1, p2) -> p1.getName().compareTo(p2.getName()));
-        
+
         vegetableList.setItems(FXCollections.observableArrayList(vegResults));
         fruitList.setItems(FXCollections.observableArrayList(fruitResults));
-        
-        // Show result count
-        int totalResults = vegResults.size() + fruitResults.size();
-        if (totalResults == 0) {
-            showAlert(Alert.AlertType.INFORMATION, "Search Results", 
-                     "No products found for: " + keyword);
-        } else {
-            showAlert(Alert.AlertType.INFORMATION, "Search Results", 
-                     "Found " + totalResults + " products matching: " + keyword);
-        }
     }
     
     /**
