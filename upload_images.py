@@ -24,20 +24,22 @@ for filename in os.listdir(FRUITS_DIR):
     name = os.path.splitext(filename)[0]  # apple.jpg -> apple
     image_data = load_image(os.path.join(FRUITS_DIR, filename))
     cursor.execute(
-        "UPDATE productinfo SET image_blob = %s WHERE name = %s",
+        "UPDATE productinfo SET image_blob = %s WHERE LOWER(name) = LOWER(%s)",
         (image_data, name)
     )
-    print(f"✅ fruit: {name}")
+    print(f"✅ fruit: {name} (rows updated: {cursor.rowcount})")
+    conn.commit()
 
 # VEGETABLES
 for filename in os.listdir(VEGETABLES_DIR):
     name = os.path.splitext(filename)[0]
     image_data = load_image(os.path.join(VEGETABLES_DIR, filename))
     cursor.execute(
-        "UPDATE productinfo SET image_blob = %s WHERE name = %s",
+        "UPDATE productinfo SET image_blob = %s WHERE LOWER(name) = LOWER(%s)",
         (image_data, name)
     )
-    print(f"✅ vegetable: {name}")
+    print(f"✅ vegetable: {name} (rows updated: {cursor.rowcount})")
+    conn.commit()
 
 conn.commit()
 cursor.close()
