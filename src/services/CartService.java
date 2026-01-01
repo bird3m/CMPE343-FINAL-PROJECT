@@ -11,19 +11,37 @@ public class CartService {
     private static List<OrderItem> cartItems = new ArrayList<>();
 
     // Sepete Ekle
-    public static void addToCart(Product product, double quantity) {
-        // Eğer ürün zaten sepette varsa miktarını artır
+    // Returns the total price added for the given quantity
+    public static double addToCart(Product product, double quantity) {
+        double stock = product.getStock();
+        double threshold = product.getThreshold();
+        double basePrice = product.getPrice();
+
+        double normalQty = 0.0;
+        if (stock > threshold) {
+            normalQty = Math.max(0.0, Math.min(quantity, stock - threshold));
+        }
+        double doubledQty = quantity - normalQty;
+
+        double addedTotal = normalQty * basePrice + doubledQty * basePrice * 2.0;
+        double addedAvgPrice = addedTotal / quantity;
+
+        // Eğer ürün zaten sepette varsa miktarını artır ve fiyat ortalamasını yeniden hesapla
         for (OrderItem item : cartItems) {
             if (item.getProductId() == product.getId()) {
-                item.setQuantity(item.getQuantity() + quantity);
-                return;
+                double existingTotal = item.getPricePerUnit() * item.getQuantity();
+                double newTotal = existingTotal + addedTotal;
+                double newQty = item.getQuantity() + quantity;
+                double newAvg = newTotal / newQty;
+                item.setQuantity(newQty);
+                item.setPricePerUnit(newAvg);
+                return addedTotal;
             }
         }
-        // Yoksa yeni ekle
-        // OrderItem constructor: (int productId, String productName, double quantity, double pricePerUnit)
-        // NOT: Senin modeline uygun hale getirdik.
-        // OrderItem modelini birazdan kontrol edeceğiz, eğer model farklıysa burayı düzeltiriz.
-        cartItems.add(new OrderItem(product.getId(), product.getName(), quantity, product.getCurrentPrice()));
+
+        // Yoksa yeni ekle (fiyat per unit olarak ortalama fiyatı sakla)
+        cartItems.add(new OrderItem(product.getId(), product.getName(), quantity, addedAvgPrice));
+        return addedTotal;
     }
 
     // Sepeti Getir

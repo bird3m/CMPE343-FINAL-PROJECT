@@ -274,32 +274,46 @@ public class CustomerMainController {
                 return;
             }
             
-            // Calculate price
-            double unitPrice = selectedProduct.getCurrentPrice();
-            double totalPrice = unitPrice * quantity;
-            
-            // Check threshold warning
+            // Calculate split pricing: units above threshold at normal price,
+            // units that reduce stock to <= threshold are doubled.
+            double stock = selectedProduct.getStock();
+            double threshold = selectedProduct.getThreshold();
+            double basePrice = selectedProduct.getPrice();
+
+            double normalQty = 0.0;
+            if (stock > threshold) {
+                normalQty = Math.max(0.0, Math.min(quantity, stock - threshold));
+            }
+            double doubledQty = quantity - normalQty;
+
+            double normalTotal = normalQty * basePrice;
+            double doubledTotal = doubledQty * basePrice * 2.0;
+            double totalPrice = normalTotal + doubledTotal;
+            double avgUnitPrice = totalPrice / quantity;
+
             String thresholdWarning = "";
-            if (selectedProduct.getStock() <= selectedProduct.getThreshold()) {
-                thresholdWarning = "\n\nLow stock! Price is doubled!";
+            if (doubledQty > 0) {
+                thresholdWarning = String.format("\n\nNote: %.2f kg charged at doubled price.", doubledQty);
+            } else if (stock <= threshold) {
+                thresholdWarning = "\n\nLow stock! Price is doubled for this product.";
             }
 
-            // Add to cart
-            CartService.addToCart(selectedProduct, quantity);
-            
-            // Success - show confirmation
-            showAlert(Alert.AlertType.INFORMATION, "Added to Cart", 
+            // Add to cart (CartService now returns added total)
+            double addedTotal = CartService.addToCart(selectedProduct, quantity);
+
+            // Success - show confirmation with breakdown
+            showAlert(Alert.AlertType.INFORMATION, "Added to Cart",
                      String.format(
                          "Successfully added to cart!\n\n" +
                          "Product: %s\n" +
                          "Quantity: %.2f kg\n" +
-                         "Unit Price: %.2f₺/kg\n" +
+                         "Unit Price (avg): %.2f₺/kg\n" +
                          "Total: %.2f₺" +
                          thresholdWarning,
                          selectedProduct.getName(),
                          quantity,
-                         unitPrice,
-                         totalPrice
+                         avgUnitPrice,
+                         addedTotal
                      ));
             
             // Clear quantity field

@@ -66,8 +66,8 @@ public class Product {
     @Override
     public String toString() {
         String priceIndicator = (stock <= threshold) ? " (2x) " : " ";
-        return String.format("%s%s- %.2f₺/kg - Stock: %.1fkg", 
-                           name, priceIndicator, getCurrentPrice(), stock);
+        return String.format("%s%s- %.2f₺/kg - Stock: %.1fkg (Threshold: %.1fkg)", 
+                           name, priceIndicator, getCurrentPrice(), stock, threshold);
     }
     
     // Getters and Setters
