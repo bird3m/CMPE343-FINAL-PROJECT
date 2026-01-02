@@ -7,6 +7,10 @@ import javafx.fxml.FXML;
 
 // --- EXPLICIT JAVAFX IMPORTS ---
 import javafx.scene.control.Alert;
+import javafx.scene.control.DatePicker;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.DateCell;
+import javafx.util.Callback;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableCell;
@@ -25,7 +29,12 @@ import services.OrderDAO;
 import services.CouponDAO; 
 
 import java.time.LocalDateTime;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.ZoneId;
+import java.time.Duration;
+import java.time.format.DateTimeFormatter;
+import javafx.collections.ObservableList;
 import java.util.List;
 import java.util.Collections;
 
@@ -48,6 +57,8 @@ public class ShoppingCartController {
     @FXML private Button continueShoppingButton;
 
     @FXML private TextField couponField; // Coupon input field
+    @FXML private DatePicker deliveryDatePicker;
+    @FXML private ComboBox<String> deliveryTimeCombo;
     @FXML private javafx.scene.control.ListView<String> userCouponsList; // User-owned coupons list
     @FXML private Label shippingLabel; // Shipping cost label
     @FXML private Label shippingNoteLabel; // Small note under shipping (e.g., "Free delivery")
@@ -62,6 +73,57 @@ public class ShoppingCartController {
         setupTable();
         refreshCart();
         displayAvailableCoupons(); // Call this to set the Tooltip
+        setupDeliveryControls();
+    }
+
+    private void setupDeliveryControls() {
+        // If controls didn't inject for some reason, skip setup to avoid NPE
+        if (deliveryDatePicker == null || deliveryTimeCombo == null) return;
+
+        ZoneId ist = ZoneId.of("Europe/Istanbul");
+        LocalDateTime nowI = LocalDateTime.now(ist);
+
+        // Populate time slots from 08:00 to 20:00 every 30 minutes
+        ObservableList<String> slots = FXCollections.observableArrayList();
+        for (int h = 8; h <= 20; h++) {
+            slots.add(String.format("%02d:00", h));
+            if (h != 20) slots.add(String.format("%02d:30", h));
+        }
+        deliveryTimeCombo.setItems(slots);
+
+        // Limit DatePicker to today .. today+2
+        LocalDate minDate = nowI.toLocalDate();
+        LocalDate maxDate = nowI.plusHours(48).toLocalDate();
+        deliveryDatePicker.setDayCellFactory(new Callback<DatePicker, DateCell>() {
+            @Override public DateCell call(DatePicker param) {
+                return new DateCell() {
+                    @Override public void updateItem(LocalDate item, boolean empty) {
+                        super.updateItem(item, empty);
+                        if (item.isBefore(minDate) || item.isAfter(maxDate)) {
+                            setDisable(true);
+                            setStyle("-fx-background-color: #eeeeee;");
+                        }
+                    }
+                };
+            }
+        });
+
+        // Set sensible defaults: now + 2 hours rounded to nearest slot
+        LocalDateTime defaultDt = nowI.plusHours(2);
+        // Round minutes to next 30-min slot
+        int minute = defaultDt.getMinute();
+        if (minute > 0 && minute <= 30) defaultDt = defaultDt.withMinute(30).withSecond(0).withNano(0);
+        else if (minute > 30) defaultDt = defaultDt.plusHours(1).withMinute(0).withSecond(0).withNano(0);
+
+        // If default time is before 08:00, move to 08:00; if after 20:00, move to next day 08:00
+        if (defaultDt.getHour() < 8) {
+            defaultDt = LocalDateTime.of(defaultDt.toLocalDate(), LocalTime.of(8,0));
+        } else if (defaultDt.getHour() > 20 || (defaultDt.getHour() == 20 && defaultDt.getMinute() > 0)) {
+            defaultDt = LocalDateTime.of(defaultDt.toLocalDate().plusDays(1), LocalTime.of(8,0));
+        }
+
+        deliveryDatePicker.setValue(defaultDt.toLocalDate());
+        deliveryTimeCombo.setValue(String.format("%02d:%02d", defaultDt.getHour(), defaultDt.getMinute()));
     }
 
     public void setUser(User user) {
@@ -305,7 +367,38 @@ public class ShoppingCartController {
         String totalStr = totalLabel.getText().replace(" ₺", "").replace(",", ".");
         double finalTotal = Double.parseDouble(totalStr);
         
-        Order newOrder = new Order(0, currentUser.getId(), currentUser.getUsername(), 0, "CREATED", LocalDateTime.now(ZoneId.of("Europe/Istanbul")).plusHours(2), finalTotal);
+        // Determine requested delivery LocalDateTime from picker/combo (Istanbul timezone)
+        ZoneId ist = ZoneId.of("Europe/Istanbul");
+        LocalDateTime nowI = LocalDateTime.now(ist);
+        LocalDateTime requested = null;
+        try {
+            if (deliveryDatePicker != null && deliveryDatePicker.getValue() != null && deliveryTimeCombo != null && deliveryTimeCombo.getValue() != null) {
+                LocalDate d = deliveryDatePicker.getValue();
+                String t = deliveryTimeCombo.getValue();
+                DateTimeFormatter tf = DateTimeFormatter.ofPattern("HH:mm");
+                LocalTime lt = LocalTime.parse(t, tf);
+                requested = LocalDateTime.of(d, lt);
+            }
+        } catch (Exception ex) { requested = null; }
+
+        if (requested == null) {
+            requested = nowI.plusHours(2);
+            // adjust into working hours same as setup
+            int minute = requested.getMinute();
+            if (minute > 0 && minute <= 30) requested = requested.withMinute(30).withSecond(0).withNano(0);
+            else if (minute > 30) requested = requested.plusHours(1).withMinute(0).withSecond(0).withNano(0);
+            if (requested.getHour() < 8) requested = LocalDateTime.of(requested.toLocalDate(), LocalTime.of(8,0));
+            else if (requested.getHour() > 20 || (requested.getHour() == 20 && requested.getMinute() > 0)) requested = LocalDateTime.of(requested.toLocalDate().plusDays(1), LocalTime.of(8,0));
+        }
+
+        // Validate within 48 hours
+        long hrs = Duration.between(nowI, requested).toHours();
+        if (hrs < 0 || hrs > 48) {
+            showAlert("Please choose a delivery time within the next 48 hours.");
+            return;
+        }
+
+        Order newOrder = new Order(0, currentUser.getId(), currentUser.getUsername(), 0, "CREATED", requested, finalTotal);
         
         boolean success = orderDAO.createOrder(newOrder, CartService.getCartItems());
         

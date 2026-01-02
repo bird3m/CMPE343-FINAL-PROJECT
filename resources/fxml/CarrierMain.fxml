@@ -105,7 +105,7 @@
                             <TableColumn fx:id="colAvailId" prefWidth="40.0" text="ID" />
                             <TableColumn fx:id="colAvailCustomer" prefWidth="150.0" text="Customer" />
                               <TableColumn fx:id="colAvailTotal" prefWidth="70.0" text="Total ($)" />
-                              <TableColumn fx:id="colAvailDate" prefWidth="120.0" text="Delivery Time" />
+                              <TableColumn fx:id="colAvailDate" prefWidth="120.0" text="Expected Delivery Time" />
                           </columns>
                         </TableView>
                         

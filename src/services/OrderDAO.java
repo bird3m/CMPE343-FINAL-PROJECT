@@ -46,12 +46,8 @@ public class OrderDAO {
                 reqDt = java.time.LocalDateTime.now(java.time.ZoneId.of("Europe/Istanbul")).plusHours(2);
             }
             // Use JDBC 4.2 setObject with LocalDateTime to avoid driver timezone conversions for DATETIME
-            try {
-                pstmtOrder.setObject(3, reqDt);
-            } catch (SQLException ex) {
-                // Fallback for older drivers: use Timestamp
-                pstmtOrder.setTimestamp(3, java.sql.Timestamp.valueOf(reqDt));
-            }
+            // Use JDBC 4.2 setObject with LocalDateTime to store DATETIME without timezone conversion
+            pstmtOrder.setObject(3, reqDt);
             
             int affectedRows = pstmtOrder.executeUpdate();
             if (affectedRows == 0) throw new SQLException("Creating order failed, no rows affected.");
@@ -265,13 +261,37 @@ public class OrderDAO {
 
     // 7. UPDATE ORDER STATUS (DELIVERY)
     public boolean updateOrderStatus(int orderId, String status) {
-        String sql = "UPDATE orderinfo SET status = ? WHERE id = ?";
-        try (Connection conn = DatabaseAdapter.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-             
-            pstmt.setString(1, status);
-            pstmt.setInt(2, orderId);
-            return pstmt.executeUpdate() > 0;
+        return updateOrderStatus(orderId, status, null);
+    }
+
+    /**
+     * Update order status and optionally set the delivered_time column when marking DELIVERED.
+     * @param orderId order id
+     * @param status new status
+     * @param deliveredTime delivered LocalDateTime (applied when status == "DELIVERED")
+     * @return true if update succeeded
+     */
+    public boolean updateOrderStatus(int orderId, String status, java.time.LocalDateTime deliveredTime) {
+        String sqlWithDelivered = "UPDATE orderinfo SET status = ?, delivered_time = ? WHERE id = ?";
+        String sqlSimple = "UPDATE orderinfo SET status = ? WHERE id = ?";
+
+        try (Connection conn = DatabaseAdapter.getConnection()) {
+            if (conn == null) return false;
+
+            if ("DELIVERED".equalsIgnoreCase(status) && deliveredTime != null) {
+                try (PreparedStatement pstmt = conn.prepareStatement(sqlWithDelivered)) {
+                    pstmt.setString(1, status);
+                    pstmt.setObject(2, deliveredTime);
+                    pstmt.setInt(3, orderId);
+                    return pstmt.executeUpdate() > 0;
+                }
+            } else {
+                try (PreparedStatement pstmt = conn.prepareStatement(sqlSimple)) {
+                    pstmt.setString(1, status);
+                    pstmt.setInt(2, orderId);
+                    return pstmt.executeUpdate() > 0;
+                }
+            }
         } catch (Exception e) { e.printStackTrace(); return false; }
     }
 
@@ -298,12 +318,26 @@ public class OrderDAO {
     // --- HELPER METHOD ---
     private Order mapRowToOrder(ResultSet rs) throws SQLException {
         // Read DATETIME as LocalDateTime to avoid timezone conversions by the driver
-        LocalDateTime deliveryTime = null;
+        LocalDateTime requested = null;
+        LocalDateTime delivered = null;
         try {
-            deliveryTime = rs.getObject("requested_delivery_time", LocalDateTime.class);
+            requested = rs.getObject("requested_delivery_time", LocalDateTime.class);
         } catch (Exception ex) {
             java.sql.Timestamp ts = rs.getTimestamp("requested_delivery_time");
-            deliveryTime = (ts != null) ? ts.toLocalDateTime() : null;
+            requested = (ts != null) ? ts.toLocalDateTime() : null;
+        }
+        try {
+            delivered = rs.getObject("delivered_time", LocalDateTime.class);
+        } catch (Exception ex) {
+            java.sql.Timestamp ts2 = rs.getTimestamp("delivered_time");
+            delivered = (ts2 != null) ? ts2.toLocalDateTime() : null;
+        }
+
+        // Prefer actual delivered time for display when order is DELIVERED
+        LocalDateTime deliveryTime = delivered;
+        String status = rs.getString("status");
+        if (!"DELIVERED".equalsIgnoreCase(status) || deliveryTime == null) {
+            deliveryTime = requested;
         }
         
         String customerName = rs.getString("username"); 
