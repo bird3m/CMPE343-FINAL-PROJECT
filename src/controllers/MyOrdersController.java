@@ -19,6 +19,13 @@ import javafx.util.Callback;
 import models.Order;
 import models.User;
 import services.OrderDAO;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.stage.Modality;
+import javafx.scene.layout.HBox;
+import services.CarrierRatingDAO;
+import models.CarrierRating;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -86,6 +93,7 @@ public class MyOrdersController {
         Callback<TableColumn<Order, Void>, TableCell<Order, Void>> cellFactory = param -> new TableCell<Order, Void>() {
             private final Button cancelBtn = new Button("Cancel");
             private final Button viewBtn = new Button("Invoice");
+            private final Button rateBtn = new Button("Rate");
 
             {
                 cancelBtn.setStyle("-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-cursor: hand;");
@@ -99,6 +107,12 @@ public class MyOrdersController {
                     Order order = getTableView().getItems().get(getIndex());
                     handleViewInvoice(order);
                 });
+
+                rateBtn.setStyle("-fx-background-color: #f1c40f; -fx-text-fill: black; -fx-cursor: hand;");
+                rateBtn.setOnAction(event -> {
+                    Order order = getTableView().getItems().get(getIndex());
+                    openRateDialog(order);
+                });
             }
 
             @Override
@@ -111,8 +125,13 @@ public class MyOrdersController {
                     if ("CREATED".equalsIgnoreCase(order.getStatus())) {
                         setGraphic(cancelBtn);
                     } else {
-                        // For ASSIGNED or DELIVERED status, show Invoice button
-                        setGraphic(viewBtn);
+                        // For ASSIGNED show Invoice, for DELIVERED show Invoice + Rate (if carrier assigned)
+                        if ("DELIVERED".equalsIgnoreCase(order.getStatus()) && order.getCarrierId() != 0) {
+                            HBox box = new HBox(8, viewBtn, rateBtn);
+                            setGraphic(box);
+                        } else {
+                            setGraphic(viewBtn);
+                        }
                     }
                 }
             }
@@ -120,6 +139,39 @@ public class MyOrdersController {
 
         colAction.setCellFactory(cellFactory);
         ordersTable.getColumns().add(colAction);
+    }
+
+    private void openRateDialog(Order order) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/RateCarrierDialog.fxml"));
+            Parent root = loader.load();
+            controllers.RateCarrierDialogController ctrl = loader.getController();
+            ctrl.setData(order.getCarrierId(), order.getId(), this.currentUser);
+
+            Stage dialog = new Stage();
+            dialog.initModality(Modality.APPLICATION_MODAL);
+            dialog.initOwner(ordersTable.getScene().getWindow());
+            dialog.setScene(new Scene(root));
+            dialog.setTitle("Rate Carrier");
+            dialog.showAndWait();
+
+            int rating = ctrl.getSelectedRating();
+            String comment = ctrl.getComment();
+            if (rating > 0) {
+                CarrierRatingDAO dao = new CarrierRatingDAO();
+                CarrierRating cr = new CarrierRating(order.getCarrierId(), currentUser.getId(), order.getId(), rating, comment);
+                boolean ok = dao.addRating(cr);
+                if (ok) {
+                    showAlert(Alert.AlertType.INFORMATION, "Thanks!", "Your rating has been saved.");
+                    loadOrders();
+                } else {
+                    showAlert(Alert.AlertType.ERROR, "Error", "Could not save rating.");
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Error", "Could not open rating dialog.");
+        }
     }
 
     private void handleViewInvoice(Order order)
