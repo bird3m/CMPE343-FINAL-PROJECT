@@ -46,8 +46,7 @@
             <children>
                 <ScrollPane fitToWidth="true" styleClass="transparent" VBox.vgrow="ALWAYS">
                     <content>
-                        <VBox fx:id="messagesContainer" spacing="12" style="-fx-padding: 20;">
-                        </VBox>
+                        <ListView fx:id="messagesList" prefHeight="400" style="-fx-padding: 12; -fx-background-color: transparent;" />
                     </content>
                 </ScrollPane>
             </children>

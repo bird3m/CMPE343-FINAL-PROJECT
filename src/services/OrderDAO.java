@@ -25,8 +25,8 @@ public class OrderDAO {
         String insertItemSQL = "INSERT INTO orderiteminfo (order_id, product_id, amount_kg, unit_price, line_total) VALUES (?, ?, ?, ?, ?)";
         String updateStockSQL = "UPDATE productinfo SET stock_kg = stock_kg - ? WHERE id = ?";
         
-        // SQL to update the invoice PDF blob
-        String updatePdfSQL = "UPDATE orderinfo SET invoice_pdf = ? WHERE id = ?";
+        // SQL to update the invoice as Base64 CLOB (invoice_log)
+        String updateLogSQL = "UPDATE orderinfo SET invoice_log = ? WHERE id = ?";
         
         Connection conn = null;
         try {
@@ -87,11 +87,15 @@ public class OrderDAO {
                 byte[] pdfData = PDFInvoiceGenerator.generateInvoicePDF(order); 
                 
                 if (pdfData != null) {
-                    PreparedStatement pstmtPdf = conn.prepareStatement(updatePdfSQL);
-                    pstmtPdf.setBytes(1, pdfData);
-                    pstmtPdf.setInt(2, orderId);
-                    pstmtPdf.executeUpdate();
-                    pstmtPdf.close();
+                    // Save Base64-encoded PDF into invoice_log (CLOB) only (requirement)
+                    try (PreparedStatement pstmtLog = conn.prepareStatement(updateLogSQL)) {
+                        String base64 = java.util.Base64.getEncoder().encodeToString(pdfData);
+                        pstmtLog.setString(1, base64);
+                        pstmtLog.setInt(2, orderId);
+                        pstmtLog.executeUpdate();
+                    } catch (Exception e) {
+                        System.err.println("Warning: Failed to save invoice_log (CLOB): " + e.getMessage());
+                    }
                 }
             } catch (Exception e) {
                 System.err.println("Warning: Failed to generate/save PDF Invoice: " + e.getMessage());

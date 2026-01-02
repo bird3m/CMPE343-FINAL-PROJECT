@@ -124,7 +124,7 @@ public class MyOrdersController {
 
     private void handleViewInvoice(Order order)
 {
-    String selectSql = "SELECT invoice_pdf FROM orderinfo WHERE id = ?";
+    String selectSql = "SELECT invoice_pdf, invoice_log FROM orderinfo WHERE id = ?";
     String updateSql = "UPDATE orderinfo SET invoice_pdf = ? WHERE id = ?";
 
     try (Connection conn = services.DatabaseAdapter.getConnection();
@@ -141,39 +141,51 @@ public class MyOrdersController {
             }
 
             byte[] data = rs.getBytes("invoice_pdf");
+            String base64Log = null;
 
-            // If missing in DB, generate it on the fly and store it.
-            if (data == null || data.length == 0)
-            {
+            if (data == null || data.length == 0) {
+                // try to read invoice_log (Base64 CLOB)
+                base64Log = rs.getString("invoice_log");
+                if (base64Log != null && !base64Log.isEmpty()) {
+                    try { data = java.util.Base64.getDecoder().decode(base64Log); } catch (Exception ex) { data = null; }
+                }
+            }
+
+            // If still missing, generate on the fly and store both forms
+            if (data == null || data.length == 0) {
                 data = services.PDFInvoiceGenerator.generateInvoicePDF(order);
 
-                if (data == null || data.length == 0)
-                {
+                if (data == null || data.length == 0) {
                     showAlert(Alert.AlertType.ERROR, "Error", "Invoice generation failed.");
                     return;
                 }
 
-                try (PreparedStatement updateStmt = conn.prepareStatement(updateSql))
-                {
+                try (PreparedStatement updateStmt = conn.prepareStatement(updateSql)) {
                     updateStmt.setBytes(1, data);
                     updateStmt.setInt(2, order.getId());
                     updateStmt.executeUpdate();
                 }
+
+                // Also store base64 into invoice_log
+                try (PreparedStatement pstmtLog = conn.prepareStatement("UPDATE orderinfo SET invoice_log = ? WHERE id = ?")) {
+                    String base64 = java.util.Base64.getEncoder().encodeToString(data);
+                    pstmtLog.setString(1, base64);
+                    pstmtLog.setInt(2, order.getId());
+                    pstmtLog.executeUpdate();
+                } catch (Exception e) {
+                    System.err.println("Warning: failed to save invoice_log: " + e.getMessage());
+                }
             }
 
-            // Save to temp file and open
-            File tempFile = new File("Invoice_" + order.getId() + ".txt");
-            try (FileOutputStream fos = new FileOutputStream(tempFile))
-            {
+            // Save to temp PDF file and open
+            File tempFile = new File("Invoice_" + order.getId() + ".pdf");
+            try (FileOutputStream fos = new FileOutputStream(tempFile)) {
                 fos.write(data);
             }
 
-            if (Desktop.isDesktopSupported())
-            {
+            if (Desktop.isDesktopSupported()) {
                 Desktop.getDesktop().open(tempFile);
-            }
-            else
-            {
+            } else {
                 showAlert(Alert.AlertType.INFORMATION, "Saved", "Invoice saved to: " + tempFile.getAbsolutePath());
             }
         }
