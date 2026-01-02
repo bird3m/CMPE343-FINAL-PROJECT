@@ -11,7 +11,7 @@ public class CouponDAO {
      * Returns 0.0 if invalid or inactive.
      */
     public double getDiscountRate(String code) {
-        String sql = "SELECT discount_rate FROM couponinfo WHERE code = ? AND is_active = 1";
+        String sql = "SELECT discount_rate FROM couponinfo WHERE UPPER(code) = UPPER(?) AND is_active = 1";
         
         try (Connection conn = DatabaseAdapter.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -89,7 +89,7 @@ public class CouponDAO {
      * Ensures a coupon with the given code exists. Returns the coupon id (existing or newly created).
      */
     public int ensureCouponExists(String code, double rate) {
-        String select = "SELECT id FROM couponinfo WHERE code = ? LIMIT 1";
+        String select = "SELECT id FROM couponinfo WHERE UPPER(code) = UPPER(?) LIMIT 1";
         try (Connection conn = DatabaseAdapter.getConnection();
              PreparedStatement ps = conn.prepareStatement(select)) {
             ps.setString(1, code);
@@ -106,7 +106,7 @@ public class CouponDAO {
         String insert = "INSERT INTO couponinfo (code, discount_rate, is_active) VALUES (?, ?, 1)";
         try (Connection conn = DatabaseAdapter.getConnection();
              PreparedStatement ps = conn.prepareStatement(insert, Statement.RETURN_GENERATED_KEYS)) {
-            ps.setString(1, code);
+            ps.setString(1, code.toUpperCase());
             ps.setDouble(2, rate);
             int affected = ps.executeUpdate();
             if (affected > 0) {
@@ -131,13 +131,26 @@ public class CouponDAO {
         int couponId = ensureCouponExists(code, defaultRateIfMissing);
         if (couponId <= 0) return false;
 
-        String check = "SELECT 1 FROM user_coupons WHERE user_id = ? AND coupon_id = ? AND redeemed = 0 LIMIT 1";
+        // Check if user already has this coupon assigned and whether it's redeemed.
+        // If an unredeemed row exists, treat as already assigned (return true).
+        // If only a redeemed row exists, allow reassign for general coupons but
+        // do NOT reassign for one-time welcome coupons (WELCOME10).
+        String check = "SELECT redeemed FROM user_coupons WHERE user_id = ? AND coupon_id = ? LIMIT 1";
         try (Connection conn = DatabaseAdapter.getConnection();
              PreparedStatement ps = conn.prepareStatement(check)) {
             ps.setInt(1, userId);
             ps.setInt(2, couponId);
             ResultSet rs = ps.executeQuery();
-            if (rs.next()) return true; // already assigned
+            if (rs.next()) {
+                int redeemed = rs.getInt("redeemed");
+                if (redeemed == 0) return true; // already assigned and usable
+                // redeemed == 1 -> previously used by this user
+                // Do not reassign WELCOME10; allow others (like LOYAL5)
+                if (code != null && code.equalsIgnoreCase("WELCOME10")) {
+                    return false;
+                }
+                // otherwise fall through and insert a new assignment
+            }
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
@@ -188,7 +201,7 @@ public class CouponDAO {
      * Returns true if coupon exists and is active
      */
     public boolean couponExists(String code) {
-        String sql = "SELECT id FROM couponinfo WHERE code = ? AND is_active = 1 LIMIT 1";
+        String sql = "SELECT id FROM couponinfo WHERE UPPER(code) = UPPER(?) AND is_active = 1 LIMIT 1";
         try (Connection conn = DatabaseAdapter.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, code);
@@ -206,7 +219,7 @@ public class CouponDAO {
      */
     public boolean redeemUserCoupon(int userId, String code) {
         String sql = "UPDATE user_coupons uc JOIN couponinfo c ON uc.coupon_id = c.id " +
-                     "SET uc.redeemed = 1 WHERE uc.user_id = ? AND c.code = ? AND uc.redeemed = 0";
+                 "SET uc.redeemed = 1 WHERE uc.user_id = ? AND UPPER(c.code) = UPPER(?) AND uc.redeemed = 0";
         try (Connection conn = DatabaseAdapter.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, userId);

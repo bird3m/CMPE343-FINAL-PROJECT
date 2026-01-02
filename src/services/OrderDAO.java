@@ -20,7 +20,7 @@ public class OrderDAO {
     public boolean createOrder(Order order, List<OrderItem> items) {
         // requested_delivery_time is mandatory, defaulting to 2 hours later.
         String insertOrderSQL = "INSERT INTO orderinfo (customer_id, total_cost, status, requested_delivery_time) " + 
-                                "VALUES (?, ?, 'CREATED', DATE_ADD(NOW(), INTERVAL 2 HOUR))";
+                    "VALUES (?, ?, 'CREATED', ?)";
                                 
         String insertItemSQL = "INSERT INTO orderiteminfo (order_id, product_id, amount_kg, unit_price, line_total) VALUES (?, ?, ?, ?, ?)";
         String updateStockSQL = "UPDATE productinfo SET stock_kg = stock_kg - ? WHERE id = ?";
@@ -39,6 +39,19 @@ public class OrderDAO {
             PreparedStatement pstmtOrder = conn.prepareStatement(insertOrderSQL, Statement.RETURN_GENERATED_KEYS);
             pstmtOrder.setInt(1, order.getCustomerId());
             pstmtOrder.setDouble(2, order.getTotalCost()); 
+            // Use the requested delivery time provided by the application (assume Istanbul zone applied earlier)
+            java.time.LocalDateTime reqDt = null;
+            try { reqDt = order.getDeliveryTime(); } catch (Exception ex) { reqDt = null; }
+            if (reqDt == null) {
+                reqDt = java.time.LocalDateTime.now(java.time.ZoneId.of("Europe/Istanbul")).plusHours(2);
+            }
+            // Use JDBC 4.2 setObject with LocalDateTime to avoid driver timezone conversions for DATETIME
+            try {
+                pstmtOrder.setObject(3, reqDt);
+            } catch (SQLException ex) {
+                // Fallback for older drivers: use Timestamp
+                pstmtOrder.setTimestamp(3, java.sql.Timestamp.valueOf(reqDt));
+            }
             
             int affectedRows = pstmtOrder.executeUpdate();
             if (affectedRows == 0) throw new SQLException("Creating order failed, no rows affected.");
@@ -284,8 +297,14 @@ public class OrderDAO {
 
     // --- HELPER METHOD ---
     private Order mapRowToOrder(ResultSet rs) throws SQLException {
-        java.sql.Timestamp ts = rs.getTimestamp("requested_delivery_time");
-        LocalDateTime deliveryTime = (ts != null) ? ts.toLocalDateTime() : null;
+        // Read DATETIME as LocalDateTime to avoid timezone conversions by the driver
+        LocalDateTime deliveryTime = null;
+        try {
+            deliveryTime = rs.getObject("requested_delivery_time", LocalDateTime.class);
+        } catch (Exception ex) {
+            java.sql.Timestamp ts = rs.getTimestamp("requested_delivery_time");
+            deliveryTime = (ts != null) ? ts.toLocalDateTime() : null;
+        }
         
         String customerName = rs.getString("username"); 
         if (customerName == null) {

@@ -1,5 +1,6 @@
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -99,7 +100,7 @@ public class Order {
         
         // Initialize order
         this.customerId = cart.getCustomerId();
-        this.orderTime = LocalDateTime.now();
+        this.orderTime = LocalDateTime.now(ZoneId.of("Europe/Istanbul"));
         this.requestedDeliveryTime = requestedDeliveryTime;
         this.status = OrderStatus.PENDING;
         
@@ -224,7 +225,7 @@ public class Order {
         }
         
         // Check if within cancellation time limit
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now = LocalDateTime.now(ZoneId.of("Europe/Istanbul"));
         long hoursSinceOrder = java.time.Duration.between(orderTime, now).toHours();
         
         if (hoursSinceOrder > CANCELLATION_TIME_LIMIT) {
@@ -248,7 +249,7 @@ public class Order {
             return false;
         }
         
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now = LocalDateTime.now(ZoneId.of("Europe/Istanbul"));
         long hoursSinceOrder = java.time.Duration.between(orderTime, now).toHours();
         
         return hoursSinceOrder <= CANCELLATION_TIME_LIMIT;
@@ -323,7 +324,7 @@ public class Order {
         invoice.append("        GREENGROCER INVOICE\n");
         invoice.append("========================================\n\n");
         
-        invoice.append("Invoice Date: ").append(LocalDateTime.now().format(formatter)).append("\n");
+        invoice.append("Invoice Date: ").append(LocalDateTime.now(ZoneId.of("Europe/Istanbul")).format(formatter)).append("\n");
         invoice.append("Order ID: ").append(orderId).append("\n");
         invoice.append("Order Date: ").append(orderTime.format(formatter)).append("\n\n");
         

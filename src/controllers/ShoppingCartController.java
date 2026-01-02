@@ -25,6 +25,7 @@ import services.OrderDAO;
 import services.CouponDAO; 
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Collections;
 
@@ -304,7 +305,7 @@ public class ShoppingCartController {
         String totalStr = totalLabel.getText().replace(" ₺", "").replace(",", ".");
         double finalTotal = Double.parseDouble(totalStr);
         
-        Order newOrder = new Order(0, currentUser.getId(), currentUser.getUsername(), 0, "CREATED", LocalDateTime.now(), finalTotal);
+        Order newOrder = new Order(0, currentUser.getId(), currentUser.getUsername(), 0, "CREATED", LocalDateTime.now(ZoneId.of("Europe/Istanbul")).plusHours(2), finalTotal);
         
         boolean success = orderDAO.createOrder(newOrder, CartService.getCartItems());
         
@@ -325,12 +326,11 @@ public class ShoppingCartController {
                 ex.printStackTrace();
             }
 
-            // Award LOYAL5 if the user has reached 5 orders
+            // Award LOYAL5 when the user reaches multiples of 5 orders (5,10,15,...)
             boolean loyalAwarded = false;
             try {
-                //OrderDAO orderDAO = new OrderDAO();
                 int orderCount = orderDAO.getOrdersByCustomerId(currentUser.getId()).size();
-                if (orderCount >= 5) {
+                if (orderCount > 0 && orderCount % 5 == 0) {
                     loyalAwarded = couponDAO.assignCouponToUserByCode(currentUser.getId(), "LOYAL5", 5.0);
                 }
             } catch (Exception ex) {
@@ -344,17 +344,35 @@ public class ShoppingCartController {
 
             // If a coupon was applied by the user, mark it as redeemed (if it's an assigned coupon)
             try {
-                String appliedCode = couponField.getText() == null ? "" : couponField.getText().trim();
+                String appliedCode = couponField.getText() == null ? "" : couponField.getText().trim().toUpperCase();
                 if (!appliedCode.isEmpty()) {
                     CouponDAO cd = new CouponDAO();
                     boolean redeemed = cd.redeemUserCoupon(currentUser.getId(), appliedCode);
                     System.out.println("handleCheckout: attempted to redeem applied coupon='" + appliedCode + "' -> " + redeemed);
+                    if (!redeemed) {
+                        // If no user_coupons row existed (public/global coupon), assign it to the user then redeem
+                        double rate = cd.getDiscountRate(appliedCode);
+                        boolean assigned = cd.assignCouponToUserByCode(currentUser.getId(), appliedCode, rate);
+                        System.out.println("handleCheckout: assigned applied coupon='" + appliedCode + "' -> " + assigned);
+                        if (assigned) {
+                            boolean redeemed2 = cd.redeemUserCoupon(currentUser.getId(), appliedCode);
+                            System.out.println("handleCheckout: redeemed after assign='" + appliedCode + "' -> " + redeemed2);
+                        }
+                    }
                 }
-                // Also handle FREESHIP case if user had that assigned
+                // Also handle FREESHIP case if user had that assigned or not
                 if (currentFreeShipping) {
                     CouponDAO cd = new CouponDAO();
                     boolean redeemed = cd.redeemUserCoupon(currentUser.getId(), "FREESHIP");
                     System.out.println("handleCheckout: attempted to redeem FREESHIP -> " + redeemed);
+                    if (!redeemed) {
+                        boolean assigned = cd.assignCouponToUserByCode(currentUser.getId(), "FREESHIP", 0.0);
+                        System.out.println("handleCheckout: assigned FREESHIP -> " + assigned);
+                        if (assigned) {
+                            boolean redeemed2 = cd.redeemUserCoupon(currentUser.getId(), "FREESHIP");
+                            System.out.println("handleCheckout: redeemed FREESHIP after assign -> " + redeemed2);
+                        }
+                    }
                 }
             } catch (Exception ex) {
                 System.out.println("Failed to redeem applied coupon: " + ex.getMessage());
@@ -378,7 +396,7 @@ public class ShoppingCartController {
 
     @FXML
     private void handleApplyCoupon() {
-        String inputCode = couponField.getText().trim();
+        String inputCode = couponField.getText().trim().toUpperCase();
         if (inputCode.isEmpty()) {
             showAlert("Please enter a coupon code.");
             return;
@@ -396,6 +414,14 @@ public class ShoppingCartController {
         if (inputCode.equalsIgnoreCase("FREESHIP")) {
             currentFreeShipping = true;
             currentCouponRate = 0.0;
+            // Remove applied coupon from UI list if present
+            try {
+                javafx.collections.ObservableList<String> items = userCouponsList.getItems();
+                if (items != null) {
+                    items.removeIf(s -> s != null && s.split("\\s+")[0].equalsIgnoreCase("FREESHIP"));
+                    userCouponsList.setItems(items);
+                }
+            } catch (Exception ex) { /* ignore if list not present */ }
             refreshCart();
             showAlert("Free shipping applied! 🚚");
             return;
@@ -406,6 +432,21 @@ public class ShoppingCartController {
         if (rate > 0) {
             currentCouponRate = rate;
             currentFreeShipping = false;
+            // Remove applied coupon from UI list if present
+            try {
+                javafx.collections.ObservableList<String> items = userCouponsList.getItems();
+                if (items != null) {
+                    items.removeIf(s -> {
+                        if (s == null || s.isEmpty()) return false;
+                        String code = s.split("\\s+")[0];
+                        return code.equalsIgnoreCase(inputCode);
+                    });
+                    userCouponsList.setItems(items);
+                    // update status label
+                    couponsStatusLabel.setText("You have " + (items.size()) + " coupon(s).");
+                }
+            } catch (Exception ex) { /* ignore if list not present */ }
+
             refreshCart(); // Refresh the labels with new discount
             showAlert("Coupon applied successfully: %" + rate + " discount!");
         } else {
