@@ -88,7 +88,7 @@ public class CustomerMainController {
         imageContainer.setAlignment(Pos.CENTER);
         imageContainer.setPrefSize(150, 110);
         imageContainer.setStyle(
-            "-fx-background-color: linear-gradient(135deg, #ffecd2, #fcb69f); " +
+            "-fx-background-color: linear-gradient(from 0% 100% to 100% 0%, #ffecd2 0%, #fcb69f 100%); " +
             "-fx-background-radius: 12; " +
             "-fx-border-color: #667eea; " +
             "-fx-border-width: 2; " +

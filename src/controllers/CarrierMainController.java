@@ -8,6 +8,13 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.layout.GridPane;
+import javafx.geometry.Insets;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
 import models.Order;
@@ -108,10 +115,66 @@ public class CarrierMainController {
             showAlert("Please select an order to complete!");
             return;
         }
-        boolean success = orderDAO.updateOrderStatus(selectedOrder.getId(), "DELIVERED");
+        // Prompt carrier to enter actual delivered date/time
+        Dialog<ButtonType> dialog = new Dialog<>();
+        dialog.setTitle("Complete Delivery");
+        dialog.setHeaderText("Enter actual delivery date and time:");
+
+        DatePicker datePicker = new DatePicker();
+        ComboBox<String> timeCombo = new ComboBox<>();
+
+        // populate 30-min slots
+        javafx.collections.ObservableList<String> slots = FXCollections.observableArrayList();
+        for (int h = 0; h < 24; h++) {
+            slots.add(String.format("%02d:00", h));
+            slots.add(String.format("%02d:30", h));
+        }
+        timeCombo.setItems(slots);
+
+        // sensible defaults (Istanbul timezone)
+        ZoneId ist = ZoneId.of("Europe/Istanbul");
+        LocalDateTime nowI = LocalDateTime.now(ist);
+        LocalDateTime defaultDt = nowI;
+        int minute = defaultDt.getMinute();
+        if (minute > 0 && minute <= 30) defaultDt = defaultDt.withMinute(30).withSecond(0).withNano(0);
+        else if (minute > 30) defaultDt = defaultDt.plusHours(1).withMinute(0).withSecond(0).withNano(0);
+
+        datePicker.setValue(defaultDt.toLocalDate());
+        timeCombo.setValue(String.format("%02d:%02d", defaultDt.getHour(), defaultDt.getMinute()));
+
+        GridPane grid = new GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new Insets(20, 150, 10, 10));
+
+        grid.add(new Label("Date:"), 0, 0);
+        grid.add(datePicker, 1, 0);
+        grid.add(new Label("Time:"), 0, 1);
+        grid.add(timeCombo, 1, 1);
+
+        dialog.getDialogPane().setContent(grid);
+        dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+
+        dialog.setResultConverter(dialogButton -> dialogButton);
+        ButtonType result = dialog.showAndWait().orElse(ButtonType.CANCEL);
+        if (result != ButtonType.OK) return;
+
+        LocalDate d = datePicker.getValue();
+        String t = timeCombo.getValue();
+        if (d == null || t == null || t.isEmpty()) {
+            showAlert("Please provide both date and time for delivery.");
+            return;
+        }
+        DateTimeFormatter tf = DateTimeFormatter.ofPattern("HH:mm");
+        LocalTime lt = LocalTime.parse(t, tf);
+        LocalDateTime delivered = LocalDateTime.of(d, lt);
+
+        boolean success = orderDAO.updateOrderStatus(selectedOrder.getId(), "DELIVERED", delivered);
         if (success) {
             showAlert("Delivery Completed! ✅");
             refreshData();
+        } else {
+            showAlert("Failed to update delivery status in DB.");
         }
     }
 
