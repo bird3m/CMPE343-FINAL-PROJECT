@@ -10,9 +10,9 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import models.Product;
 import services.ProductDAO;
-import utils.InputValidation; // Validator'ımızı kullanıyoruz
+import utils.InputValidation;
 
-import java.io.ByteArrayInputStream; // <--- Bu Import Gerekli!
+import java.io.ByteArrayInputStream;
 import java.io.File;
 
 /**
@@ -27,21 +27,21 @@ public class ProductFormController {
     @FXML private TextField priceField;
     @FXML private TextField stockField;
     @FXML private TextField thresholdField;
-    @FXML private ImageView productImageView; // Seçilen resmi göstermek için
+    @FXML private ImageView productImageView;
     @FXML private Label errorLabel;
     @FXML private Button saveButton;
 
     // --- Data ---
     private ProductDAO productDAO;
-    private Product currentProduct; // Eğer düzenleme yapıyorsak bu dolu olur
-    private File selectedImageFile; // Bilgisayardan seçilen resim dosyası
+    private Product currentProduct;
+    private File selectedImageFile;
     private boolean isEditMode = false;
 
     @FXML
     private void initialize() {
         productDAO = new ProductDAO();
         
-        // ComboBox seçenekleri
+        // ComboBox options
         typeComboBox.setItems(FXCollections.observableArrayList("vegetable", "fruit"));
         typeComboBox.getSelectionModel().selectFirst();
         
@@ -56,14 +56,14 @@ public class ProductFormController {
         this.currentProduct = product;
         this.isEditMode = true;
         
-        // Formu doldur
+        // Populate form fields
         nameField.setText(product.getName());
         typeComboBox.setValue(product.getType());
         priceField.setText(String.valueOf(product.getPrice()));
         stockField.setText(String.valueOf(product.getStock()));
         thresholdField.setText(String.valueOf(product.getThreshold()));
         
-        // Varsa mevcut resmi göster (Image objesi Product modelinde olmalı)
+           // If product already has an image, display it
         if (product.getImage() != null && product.getImage().length > 0) {
              ByteArrayInputStream bis = new ByteArrayInputStream(product.getImage());
              productImageView.setImage(new Image(bis));
@@ -89,14 +89,14 @@ public class ProductFormController {
         
         if (file != null) {
             this.selectedImageFile = file;
-            // Önizleme göster
+            // Show preview
             productImageView.setImage(new Image(file.toURI().toString()));
         }
     }
 
     @FXML
     private void handleSave(ActionEvent event) {
-        // 1. Verileri Al
+        // 1. Collect input values
         String name = nameField.getText().trim();
         String type = typeComboBox.getValue();
         String priceStr = priceField.getText().trim();
@@ -118,7 +118,7 @@ public class ProductFormController {
         if (err != null) { showError(err); return; }
 
         try {
-            // 3. Sayısal Dönüşüm
+            // 3. Numeric conversion
             double price = Double.parseDouble(priceStr.replace(",", "."));
             double stock = Double.parseDouble(stockStr.replace(",", "."));
             double threshold = Double.parseDouble(thresholdStr.replace(",", "."));
@@ -131,14 +131,12 @@ public class ProductFormController {
                 currentProduct.setPrice(price);
                 currentProduct.setStock(stock);
                 currentProduct.setThreshold(threshold);
-                // Not: setImage yapmıyoruz çünkü veritabanından tekrar çekilince güncellenecek
+                // Note: do not set image here; it will be refreshed when reloaded from DB
                 
                 success = productDAO.updateProduct(currentProduct, selectedImageFile);
             } else {
-                // INSERT (Yeni Ürün)
-                // --- İŞTE DÜZELTİLEN SATIR BURASI! ---
-                // "null" yerine "(byte[]) null" diyerek hangi constructor'ı istediğimizi belirttik.
-                // Sıralama: ID, Name, Type, Price, Stock, Threshold, Image
+                // INSERT (new product)
+                // Use explicit (byte[]) null for the image parameter to select the correct constructor
                 Product newProduct = new Product(0, name, type, price, stock, threshold, (byte[]) null);
                 
                 success = productDAO.addProduct(newProduct, selectedImageFile);

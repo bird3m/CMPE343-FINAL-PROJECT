@@ -68,9 +68,13 @@ public class UserDAO {
         }
     }
 
-    // --- USER MAPPING (HATA BURADAYDI, DÜZELDİ) ---
+    /**
+     * Map a ResultSet row to a User model instance.
+     * @param rs result set positioned at the row
+     * @return mapped User
+     * @throws SQLException on SQL error
+     */
     private User mapRowToUser(ResultSet rs) throws SQLException {
-        // Önce nesneyi oluşturup bir değişkene atıyoruz
         User user = new User(
             rs.getInt("id"),
             rs.getString("username"),
@@ -80,7 +84,7 @@ public class UserDAO {
             rs.getString("phone")
         );
         
-        // Sonra eksik bilgiyi ekliyoruz
+        // Add missing fields from result set
         user.setFullName(rs.getString("full_name")); 
         
         return user;

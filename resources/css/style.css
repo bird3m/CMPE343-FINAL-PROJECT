@@ -132,12 +132,12 @@
 
 .login-btn {
     -fx-background-color: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    -fx-text-fill: white;
+    -fx-text-fill: #0b0b0b;
     -fx-background-radius: 15;
     -fx-cursor: hand;
     -fx-effect: dropshadow(gaussian, rgba(102, 126, 234, 0.6), 20, 0, 0, 8);
-    -fx-font-weight: bold;
-    -fx-font-size: 15px;
+    -fx-font-weight: 800;
+    -fx-font-size: 16px;
 }
 
 .login-btn:hover {
@@ -154,12 +154,12 @@
 
 .register-btn {
     -fx-background-color: linear-gradient(135deg, #f093fb 0%, #4facfe 50%, #00f2fe 100%);
-    -fx-text-fill: white;
+    -fx-text-fill: #0b0b0b;
     -fx-background-radius: 15;
     -fx-cursor: hand;
     -fx-effect: dropshadow(gaussian, rgba(79, 172, 254, 0.6), 20, 0, 0, 8);
-    -fx-font-weight: bold;
-    -fx-font-size: 15px;
+    -fx-font-weight: 800;
+    -fx-font-size: 16px;
 }
 
 .register-btn:hover {

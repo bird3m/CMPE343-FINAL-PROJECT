@@ -4,6 +4,10 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Data Access Object for coupon management.
+ * Provides operations to validate, create and list coupons.
+ */
 public class CouponDAO {
 
     /**
@@ -174,7 +178,34 @@ public class CouponDAO {
      * Convenience method: ensure the WELCOME10 is assigned to the user (10% discount)
      */
     public boolean ensureWelcomeAssigned(int userId) {
+        // Do not assign if the user has ever been assigned WELCOME10 (redeemed or not)
+        try {
+            if (userHasCouponEver(userId, "WELCOME10")) {
+                System.out.println("ensureWelcomeAssigned: user " + userId + " has previously had WELCOME10; not reassigning.");
+                return false;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            // Fall through to attempt assignment if the check fails unexpectedly
+        }
         return assignCouponToUserByCode(userId, "WELCOME10", 10.0);
+    }
+
+    /**
+     * Returns true if the user has ever been assigned the given coupon code (redeemed or not).
+     */
+    public boolean userHasCouponEver(int userId, String code) {
+        String sql = "SELECT 1 FROM user_coupons uc JOIN couponinfo c ON uc.coupon_id = c.id WHERE uc.user_id = ? AND UPPER(c.code) = UPPER(?) LIMIT 1";
+        try (Connection conn = DatabaseAdapter.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            ps.setString(2, code);
+            ResultSet rs = ps.executeQuery();
+            return rs.next();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     /**

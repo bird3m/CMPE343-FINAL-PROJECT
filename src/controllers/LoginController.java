@@ -359,20 +359,20 @@ public class LoginController {
     @FXML
     private void handleRegister(ActionEvent event) {
         try {
-            // Register FXML dosyasını yükle
+            // Load Register FXML
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/Register.fxml"));
             Parent root = loader.load();
             
-            // Şu anki sahneyi al
+            // Get current stage
             Stage stage = (Stage) registerButton.getScene().getWindow();
             
-            // Yeni sahneyi oluştur
+            // Create new scene
             Scene scene = new Scene(root, 960, 540);
             scene.getStylesheets().add(
                 getClass().getResource("/css/style.css").toExternalForm()
             );
             
-            // Sahneye geçiş yap
+            // Set the new scene on the stage
             stage.setScene(scene);
             stage.setTitle("Group04 GreenGrocer - Register");
             stage.centerOnScreen();
@@ -424,10 +424,10 @@ public class LoginController {
                 CustomerMainController controller = loader.getController();
                 controller.setUser(user);
             }
-            //KURYE KONTROLÜ 
+            // Carrier role handling
             else if (user.getRole().equals("carrier")) {
                 CarrierMainController controller = loader.getController();
-                controller.setUser(user); // Kurye bilgisini içeri atıyoruz
+                controller.setUser(user); // pass carrier user to controller
             }
             // OWNER - pass user to controller
             else if (user.getRole().equals("owner")) {

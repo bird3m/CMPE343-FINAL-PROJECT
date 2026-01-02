@@ -22,12 +22,15 @@ import models.User;
 import services.OrderDAO;
 import java.util.List;
 
+/**
+ * Controller for carrier dashboard: shows available orders and assigned deliveries.
+ */
 public class CarrierMainController {
 
-    // --- FXML BİLEŞENLERİ (Yeni Mor FXML ile %100 Uyumlu) ---
+    // --- FXML COMPONENTS ---
     @FXML private Label welcomeLabel;
 
-    // TABLO 1: Available Orders
+    // TABLE 1: Available Orders
     @FXML private TableView<Order> availableOrdersTable;
     @FXML private TableColumn<Order, Integer> colAvailId;
     @FXML private TableColumn<Order, String> colAvailCustomer;

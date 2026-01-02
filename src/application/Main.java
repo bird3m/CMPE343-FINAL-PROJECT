@@ -35,7 +35,6 @@ public class Main extends Application {
     public void start(Stage primaryStage) {
         try {
             // Load Login screen (FXML)
-            // DOĞRU YOL (Aşağıdaki komutlarla çalışacak olan)
             Parent root = FXMLLoader.load(getClass().getResource("/fxml/Login.fxml"));
 
             // Create scene with fixed size

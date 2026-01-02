@@ -38,6 +38,10 @@ import javafx.collections.ObservableList;
 import java.util.List;
 import java.util.Collections;
 
+/**
+ * Controller for the shopping cart view.
+ * Manages cart items, coupon application, and checkout flow.
+ */
 public class ShoppingCartController {
 
     // --- FXML COMPONENTS ---
@@ -363,6 +367,14 @@ public class ShoppingCartController {
         }
 
         OrderDAO orderDAO = new OrderDAO();
+        // Fetch prior order count to determine "new user" status (used for SAVE20 awarding)
+        int priorOrderCount = 0;
+        try {
+            priorOrderCount = orderDAO.getOrdersByCustomerId(currentUser.getId()).size();
+        } catch (Exception ex) {
+            System.out.println("handleCheckout: failed to get prior order count: " + ex.getMessage());
+            ex.printStackTrace();
+        }
         // Parse final total from label
         String totalStr = totalLabel.getText().replace(" ₺", "").replace(",", ".");
         double finalTotal = Double.parseDouble(totalStr);
@@ -406,11 +418,11 @@ public class ShoppingCartController {
             CartService.clearCart();
             refreshCart();
 
-            // Award SAVE20 coupon for large orders (>= 500 TL)
+            // Award SAVE20 coupon for large orders (>= 500 TL) but only to new users (no prior orders)
             CouponDAO couponDAO = new CouponDAO();
             boolean awarded = false;
             try {
-                if (finalTotal >= 500.0) {
+                if (finalTotal >= 500.0 && priorOrderCount == 0) {
                     awarded = couponDAO.assignCouponToUserByCode(currentUser.getId(), "SAVE20", 20.0);
                 }
             } catch (Exception ex) {

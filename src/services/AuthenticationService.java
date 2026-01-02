@@ -8,6 +8,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+/**
+ * Utility for hashing passwords and authenticating users.
+ */
 public class AuthenticationService {
 
     public static String hashPassword(String plainPassword) {
@@ -22,14 +25,14 @@ public class AuthenticationService {
             }
             return hexString.toString();
         } catch (Exception e) {
-            throw new RuntimeException("Hashing Hatası!", e);
+            throw new RuntimeException("Hashing error!", e);
         }
     }
 
     public User authenticate(String username, String password) {
         String hashedPassword = hashPassword(password);
 
-        // DÜZELTME: Sütun adı 'password_hash' oldu!
+        // Use password_hash column for authentication
         String sql = "SELECT * FROM userinfo WHERE username = ? AND password_hash = ?";
         
         try (Connection conn = DatabaseAdapter.getConnection();
@@ -43,7 +46,7 @@ public class AuthenticationService {
                     return new User(
                         rs.getInt("id"),
                         rs.getString("username"),
-                        rs.getString("password_hash"), // Veritabanından gelen sütun adı
+                        rs.getString("password_hash"),
                         rs.getString("role"),
                         rs.getString("address"),
                         rs.getString("phone")

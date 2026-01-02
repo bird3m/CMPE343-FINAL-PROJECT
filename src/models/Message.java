@@ -2,6 +2,9 @@ package models;
 
 import java.time.LocalDateTime;
 
+/**
+ * Simple message model representing a chat message between two users.
+ */
 public class Message {
     private int id;
     private int fromUserId;
