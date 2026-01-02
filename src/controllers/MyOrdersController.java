@@ -127,9 +127,10 @@ public class MyOrdersController {
     String selectSql = "SELECT invoice_pdf, invoice_log FROM orderinfo WHERE id = ?";
     String updateSql = "UPDATE orderinfo SET invoice_pdf = ? WHERE id = ?";
 
-    try (Connection conn = services.DatabaseAdapter.getConnection();
-         PreparedStatement selectStmt = conn.prepareStatement(selectSql))
-    {
+        String savedPath = null;
+        try (Connection conn = services.DatabaseAdapter.getConnection();
+            PreparedStatement selectStmt = conn.prepareStatement(selectSql))
+        {
         selectStmt.setInt(1, order.getId());
 
         try (ResultSet rs = selectStmt.executeQuery())
@@ -150,9 +151,10 @@ public class MyOrdersController {
                     try { data = java.util.Base64.getDecoder().decode(base64Log); } catch (Exception ex) { data = null; }
                 }
             }
-
-            // If still missing, generate on the fly and store both forms
-            if (data == null || data.length == 0) {
+            // If still missing OR content doesn't look like a PDF, generate on the fly and store both forms
+            boolean looksLikePdf = (data != null && data.length >= 4 && new String(data, 0, 4, java.nio.charset.StandardCharsets.ISO_8859_1).startsWith("%PDF"));
+            if (!looksLikePdf) {
+                data = services.PDFInvoiceGenerator.generateInvoicePDF(order);
                 data = services.PDFInvoiceGenerator.generateInvoicePDF(order);
 
                 if (data == null || data.length == 0) {
@@ -182,10 +184,37 @@ public class MyOrdersController {
             try (FileOutputStream fos = new FileOutputStream(tempFile)) {
                 fos.write(data);
             }
+            savedPath = tempFile.getAbsolutePath();
 
+            boolean opened = false;
             if (Desktop.isDesktopSupported()) {
-                Desktop.getDesktop().open(tempFile);
-            } else {
+                try {
+                    Desktop.getDesktop().open(tempFile);
+                    opened = true;
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }
+
+            if (!opened) {
+                // Fallback to platform specific open commands
+                try {
+                    String path = tempFile.getAbsolutePath();
+                    String os = System.getProperty("os.name").toLowerCase();
+                    if (os.contains("win")) {
+                        new ProcessBuilder("rundll32", "url.dll,FileProtocolHandler", path).start();
+                    } else if (os.contains("mac")) {
+                        new ProcessBuilder("open", path).start();
+                    } else {
+                        new ProcessBuilder("xdg-open", path).start();
+                    }
+                    opened = true;
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }
+
+            if (!opened) {
                 showAlert(Alert.AlertType.INFORMATION, "Saved", "Invoice saved to: " + tempFile.getAbsolutePath());
             }
         }
@@ -193,7 +222,9 @@ public class MyOrdersController {
     catch (Exception e)
     {
         e.printStackTrace();
-        showAlert(Alert.AlertType.ERROR, "Error", "Could not open invoice.");
+        String msg = "Could not open invoice: " + (e.getMessage() != null ? e.getMessage() : "Unknown error");
+        if (savedPath != null) msg += "\nSaved to: " + savedPath;
+        showAlert(Alert.AlertType.ERROR, "Error", msg);
     }
 }
 

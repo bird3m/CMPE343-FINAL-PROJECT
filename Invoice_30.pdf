@@ -1,13 +1,42 @@
-==========================================
-         GREEN GROCER - INVOICE           
-==========================================
+%PDF-1.4
+%‚„œ”
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+5 0 obj
+<< /Length 518 >>
+stream
+BT /F1 12 Tf 50 750 Td (GREEN GROCER - OFFICIAL INVOICE) Tj ET
+BT /F1 12 Tf 50 736 Td (----------------------------------------) Tj ET
+BT /F1 12 Tf 50 722 Td (Order ID: #30) Tj ET
+BT /F1 12 Tf 50 708 Td (Customer: cust \(Papatya Caddesi No:12 Istanbul\)) Tj ET
+BT /F1 12 Tf 50 694 Td (Status:   CANCELLED) Tj ET
+BT /F1 12 Tf 50 680 Td (Total:    90.68 TL) Tj ET
+BT /F1 12 Tf 50 666 Td (Delivery: 2026-01-01 23:07:04) Tj ET
+BT /F1 12 Tf 50 652 Td () Tj ET
+BT /F1 12 Tf 50 638 Td (Thank you for choosing Group04!) Tj ET
 
-Order ID:    #30
-Customer:    cust
-Status:      CREATED
-Total Cost:  90.68 TL
-Delivery:    2026-01-01 18:07:04
-
-------------------------------------------
-   Thank you for choosing Group04!        
-==========================================
+endstream
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000015 00000 n 
+0000000064 00000 n 
+0000000121 00000 n 
+0000000247 00000 n 
+0000000317 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+886
+%%EOF
