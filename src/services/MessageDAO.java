@@ -10,6 +10,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Data access object for messages and conversations.
+ * Handles saving and retrieving chat messages between users.
+ */
 public class MessageDAO {
 
     public int getDefaultOwnerId() {

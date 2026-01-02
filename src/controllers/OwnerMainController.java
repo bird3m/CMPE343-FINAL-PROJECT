@@ -8,7 +8,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 
-// --- EXPLICIT IMPORTS (KARISIKLIGI ONLEMEK ICIN) ---
+// --- EXPLICIT IMPORTS (to avoid ambiguity) ---
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;

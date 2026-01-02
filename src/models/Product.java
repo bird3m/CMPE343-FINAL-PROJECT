@@ -18,7 +18,7 @@ public class Product {
     private String imagePath;
     private byte[] image; // byte array
     
-    // Constructor 1 - imagePath ile (Test için)
+    // Constructor 1 - with imagePath (used for testing)
     public Product(int id, String name, String type, double price, 
                    double stock, double threshold, String imagePath) {
         this.id = id;
@@ -30,7 +30,7 @@ public class Product {
         this.imagePath = imagePath;
     }
     
-    // Constructor 2 - byte[] image ile (Database için)
+    // Constructor 2 - with byte[] image (used with database storage)
     public Product(int id, String name, String type, double price, 
                    double stock, double threshold, byte[] image) {
         this.id = id;

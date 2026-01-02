@@ -38,6 +38,10 @@ import javafx.collections.ObservableList;
 import java.util.List;
 import java.util.Collections;
 
+/**
+ * Controller for the shopping cart view.
+ * Manages cart items, coupon application, and checkout flow.
+ */
 public class ShoppingCartController {
 
     // --- FXML COMPONENTS ---

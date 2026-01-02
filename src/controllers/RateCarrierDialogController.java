@@ -6,6 +6,9 @@ import javafx.scene.control.Label;
 import javafx.stage.Stage;
 import models.User;
 
+/**
+ * Dialog controller allowing customers to rate a carrier after delivery.
+ */
 public class RateCarrierDialogController {
 
     @FXML private Label titleLabel;

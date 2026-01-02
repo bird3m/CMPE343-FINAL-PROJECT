@@ -35,6 +35,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.List;
 
+/**
+ * Controller for displaying and managing user's orders.
+ * Provides actions for viewing invoices, cancelling orders and rating carriers.
+ */
 public class MyOrdersController {
 
     @FXML private TableView<Order> ordersTable;

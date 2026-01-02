@@ -4,6 +4,10 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
+/**
+ * Simple database connection helper.
+ * Provides a JDBC connection to the application's MySQL database.
+ */
 public class DatabaseAdapter
 {
     private static final String URL =
@@ -15,14 +19,14 @@ public class DatabaseAdapter
     {
         try
         {
-            // JDBC sürücüsünü manuel yüklememize gerek yok, zaten classpath'te
+            // Obtain a JDBC connection from DriverManager
             return DriverManager.getConnection(URL, USER, PASS);
         }
         catch (SQLException e)
         {
             System.out.println("Veritabanı bağlantısı başarısız!");
             System.out.println("Hata: " + e.getMessage());
-            e.printStackTrace();  // Detaylı hata çıktısı al
+            e.printStackTrace();  // print full stack trace for diagnostics
             return null;
         }
     }

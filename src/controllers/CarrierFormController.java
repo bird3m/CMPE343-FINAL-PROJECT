@@ -8,6 +8,9 @@ import models.User;
 import services.UserDAO;
 import services.AuthenticationService;
 
+/**
+ * Controller for creating/editing carrier user accounts.
+ */
 public class CarrierFormController {
 
     @FXML private TextField usernameField;
@@ -58,13 +61,13 @@ public class CarrierFormController {
         newCarrier.setPhone(phone);
         newCarrier.setPassword(AuthenticationService.hashPassword(password));
         newCarrier.setRole("carrier");
-        newCarrier.setAddress("Office"); // Kurye adresi varsayılan olarak ofis
+        newCarrier.setAddress("Office"); // Default carrier address
 
         // 3. Save to DB
         boolean success = userDAO.createUser(newCarrier);
 
         if (success) {
-            // Başarılıysa pencereyi kapat
+            // Close the window on success
             Stage stage = (Stage) saveButton.getScene().getWindow();
             stage.close();
         } else {

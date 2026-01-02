@@ -17,6 +17,9 @@ import services.UserDAO;
 
 import java.util.List;
 
+/**
+ * Controller for owner's chat interface. Shows conversations and messages.
+ */
 public class OwnerChatController {
 
     @FXML private ListView<User> conversationsList;

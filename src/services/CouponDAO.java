@@ -4,6 +4,10 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Data Access Object for coupon management.
+ * Provides operations to validate, create and list coupons.
+ */
 public class CouponDAO {
 
     /**

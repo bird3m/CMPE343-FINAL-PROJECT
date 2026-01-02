@@ -6,12 +6,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CartService {
-    
-    // Sepetimiz (Static olduğu için uygulama boyunca tek bir sepet olur)
+
+    /**
+     * In-memory shopping cart used by the application.
+     * This is a simple static list representing the current cart contents.
+     */
     private static List<OrderItem> cartItems = new ArrayList<>();
 
-    // Sepete Ekle
-    // Returns the total price added for the given quantity
+    /**
+     * Add a product to the cart.
+     * Pricing rule: quantity above the threshold is charged at double price.
+     * @param product product to add
+     * @param quantity quantity to add
+     * @return total price added for the given quantity
+     */
     public static double addToCart(Product product, double quantity) {
         double stock = product.getStock();
         double threshold = product.getThreshold();
@@ -26,7 +34,7 @@ public class CartService {
         double addedTotal = normalQty * basePrice + doubledQty * basePrice * 2.0;
         double addedAvgPrice = addedTotal / quantity;
 
-        // Eğer ürün zaten sepette varsa miktarını artır ve fiyat ortalamasını yeniden hesapla
+        // If the product is already in the cart, increase quantity and recalculate average unit price
         for (OrderItem item : cartItems) {
             if (item.getProductId() == product.getId()) {
                 double existingTotal = item.getPricePerUnit() * item.getQuantity();
@@ -39,22 +47,29 @@ public class CartService {
             }
         }
 
-        // Yoksa yeni ekle (fiyat per unit olarak ortalama fiyatı sakla)
+        // Otherwise add a new order item (store average price per unit)
         cartItems.add(new OrderItem(product.getId(), product.getName(), quantity, addedAvgPrice));
         return addedTotal;
     }
 
-    // Sepeti Getir
+    /**
+     * Returns the list of cart items.
+     */
     public static List<OrderItem> getCartItems() {
         return cartItems;
     }
 
-    // Sepeti Temizle (Siparişten sonra)
+    /**
+     * Clears the cart contents.
+     */
     public static void clearCart() {
         cartItems.clear();
     }
-    
-    // Toplam Tutar
+
+    /**
+     * Calculates the total price of items in the cart.
+     * @return total amount
+     */
     public static double getTotal() {
         double total = 0;
         for (OrderItem item : cartItems) {
