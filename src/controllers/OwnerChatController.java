@@ -50,7 +50,7 @@ public class OwnerChatController {
             if (newV != null) loadConversation(newV.getId());
         });
 
-        messagesList.setCellFactory(lv -> new ListCell<String>() {
+        /*messagesList.setCellFactory(lv -> new ListCell<String>() {
             @Override
             protected void updateItem(String item, boolean empty) {
                 super.updateItem(item, empty);
@@ -67,7 +67,7 @@ public class OwnerChatController {
                     }
                 }
             }
-        });
+        });*/
     }
 
     public void setUser(User user) {
