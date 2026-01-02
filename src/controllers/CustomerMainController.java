@@ -268,35 +268,40 @@ public class CustomerMainController {
         
         try {
             double quantity = Double.parseDouble(quantityText);
-            
+
             if (quantity <= 0) {
                 showAlert(Alert.AlertType.ERROR, "Invalid Quantity", "Quantity must be greater than zero!");
                 return;
             }
-            
+
             if (quantity > selectedProduct.getStock()) {
                 showAlert(Alert.AlertType.WARNING, "Insufficient Stock", 
                     String.format("Only %.2f kg available for %s!", selectedProduct.getStock(), selectedProduct.getName()));
                 return;
             }
-            
+
             double addedTotal = CartService.addToCart(selectedProduct, quantity);
-            
+
             showAlert(Alert.AlertType.INFORMATION, "Added to Cart",
                 String.format("Successfully added!\n\nProduct: %s\nQuantity: %.2f kg\nTotal: %.2f₺",
                     selectedProduct.getName(), quantity, addedTotal));
-            
+
             quantityField.clear();
-            
+
             // Deselect card
             if (selectedCard != null) {
                 selectedCard.setStyle(selectedCard.getStyle().replace("-fx-border-color: #27ae60; -fx-border-width: 4;", ""));
             }
             selectedProduct = null;
             selectedCard = null;
-            
+
         } catch (NumberFormatException e) {
             showAlert(Alert.AlertType.ERROR, "Invalid Input", "Please enter a valid number!");
+        } catch (IllegalArgumentException e) {
+            showAlert(Alert.AlertType.ERROR, "Invalid Quantity", e.getMessage());
+        } catch (Exception e) {
+            e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Error", "Failed to add to cart: " + e.getMessage());
         }
     }
     

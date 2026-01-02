@@ -23,13 +23,19 @@ public class CartService {
     public static double addToCart(Product product, double quantity) {
         double stock = product.getStock();
         double threshold = product.getThreshold();
+        if (quantity <= 0) throw new IllegalArgumentException("Quantity must be greater than zero.");
+        if (quantity > stock) throw new IllegalArgumentException("Requested quantity exceeds available stock.");
         double basePrice = product.getPrice();
 
         double normalQty = 0.0;
-        if (stock > threshold) {
+        // If threshold is invalid (<= 0), treat as no threshold (no doubling)
+        if (threshold > 0 && stock > threshold) {
             normalQty = Math.max(0.0, Math.min(quantity, stock - threshold));
+        } else {
+            // No threshold configured -> all quantity at normal price
+            normalQty = quantity;
         }
-        double doubledQty = quantity - normalQty;
+        double doubledQty = Math.max(0.0, quantity - normalQty);
 
         double addedTotal = normalQty * basePrice + doubledQty * basePrice * 2.0;
         double addedAvgPrice = addedTotal / quantity;

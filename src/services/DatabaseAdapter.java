@@ -24,8 +24,8 @@ public class DatabaseAdapter
         }
         catch (SQLException e)
         {
-            System.out.println("Veritabanı bağlantısı başarısız!");
-            System.out.println("Hata: " + e.getMessage());
+            System.err.println("Veritabanı bağlantısı başarısız!");
+            System.err.println("Hata: " + e.getMessage());
             e.printStackTrace();  // print full stack trace for diagnostics
             return null;
         }

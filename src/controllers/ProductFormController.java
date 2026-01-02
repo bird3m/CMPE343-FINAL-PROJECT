@@ -114,7 +114,7 @@ public class ProductFormController {
         err = InputValidation.validateNonNegativeNumber(stockStr, "Stock");
         if (err != null) { showError(err); return; }
 
-        err = InputValidation.validateNonNegativeNumber(thresholdStr, "Threshold");
+        err = InputValidation.validatePositiveNumber(thresholdStr, "Threshold");
         if (err != null) { showError(err); return; }
 
         try {

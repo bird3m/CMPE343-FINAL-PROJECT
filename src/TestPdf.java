@@ -15,7 +15,6 @@ public class TestPdf {
             System.err.println("PDF generation returned null");
             return;
         }
-        System.out.println("PDF generated: size=" + pdf.length);
-        System.out.println("Look for files: Invoice_debug_" + order.getId() + ".pdf and .hex in project root");
+        // PDF generated for manual inspection during development
     }
 }

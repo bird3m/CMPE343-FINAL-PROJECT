@@ -179,7 +179,7 @@ public class OrderDAO {
             
             conn.commit(); // Commit transaction
             
-            System.out.println("Order #" + orderId + " cancelled successfully, stock restored");
+            // Order cancelled and stock restored
             return affected > 0;
             
         } catch (SQLException e) {
@@ -249,10 +249,10 @@ public class OrderDAO {
 
     // 6. ASSIGN ORDER TO CARRIER
     public boolean assignOrderToCarrier(int orderId, int carrierId) {
-        String sql = "UPDATE orderinfo SET carrier_id = ?, status = 'ASSIGNED' WHERE id = ?";
+        // Only assign if order is still unassigned and in CREATED status to avoid race conditions
+        String sql = "UPDATE orderinfo SET carrier_id = ?, status = 'ASSIGNED' WHERE id = ? AND (carrier_id IS NULL OR carrier_id = 0) AND status = 'CREATED'";
         try (Connection conn = DatabaseAdapter.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
-             
             pstmt.setInt(1, carrierId);
             pstmt.setInt(2, orderId);
             return pstmt.executeUpdate() > 0;

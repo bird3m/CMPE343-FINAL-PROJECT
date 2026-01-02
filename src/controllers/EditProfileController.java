@@ -71,7 +71,7 @@ public class EditProfileController {
         addressField.setText(user.getAddress() != null ? user.getAddress() : "");
         phoneField.setText(user.getPhone() != null ? user.getPhone() : "");
         
-        System.out.println("✏️ Editing profile for: " + user.getUsername());
+        // Editing profile for user
     }
     
     /**
@@ -103,7 +103,7 @@ public class EditProfileController {
      */
     @FXML
     private void handleSave(ActionEvent event) {
-        System.out.println("\n💾 Saving profile changes...");
+        // Saving profile changes
         
         // Get new values
         String newAddress = addressField.getText().trim();
@@ -140,7 +140,7 @@ public class EditProfileController {
         boolean success = userDAO.updateUser(currentUser);
 
         if (success) {
-            System.out.println("Profile updated successfully!");
+            // Profile updated successfully
             showSuccessMessage("Profile updated successfully!");
             
             // Close window after delay

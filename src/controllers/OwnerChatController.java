@@ -207,20 +207,14 @@ public class OwnerChatController {
     @FXML
     private void handleSend(ActionEvent event) {
     String text = messageField.getText();
-    System.out.println("DEBUG: handleSend called, text = '" + text + "'");
-    System.out.println("DEBUG: selectedPartnerId = " + selectedPartnerId);
     
     if (text == null || text.trim().isEmpty() || selectedPartnerId == -1) {
-        System.out.println("DEBUG: Validation failed!");
         return;
     }
 
     Message m = new Message(currentUser.getId(), selectedPartnerId, text.trim());
     messageDAO.saveMessage(m);
-    System.out.println("DEBUG: Message saved to DB");
-    
     addMessageBubble(text.trim(), true);
-    System.out.println("DEBUG: Bubble added");
     messageField.clear();
 }
     

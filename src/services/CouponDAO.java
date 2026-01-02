@@ -100,7 +100,6 @@ public class CouponDAO {
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
                 int id = rs.getInt("id");
-                System.out.println("ensureCouponExists: found existing coupon " + code + " id=" + id);
                 return id;
             }
         } catch (SQLException e) {
@@ -117,14 +116,13 @@ public class CouponDAO {
                 ResultSet gk = ps.getGeneratedKeys();
                 if (gk.next()) {
                     int newId = gk.getInt(1);
-                    System.out.println("ensureCouponExists: created coupon " + code + " id=" + newId);
                     return newId;
                 }
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        System.out.println("ensureCouponExists: failed to create/find coupon " + code);
+        // failed to create/find coupon
         return -1;
     }
 
@@ -166,7 +164,6 @@ public class CouponDAO {
             ps.setInt(1, userId);
             ps.setInt(2, couponId);
             boolean ok = ps.executeUpdate() > 0;
-            System.out.println("assignCouponToUserByCode: assigning couponId=" + couponId + " to userId=" + userId + " result=" + ok);
             return ok;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -181,7 +178,6 @@ public class CouponDAO {
         // Do not assign if the user has ever been assigned WELCOME10 (redeemed or not)
         try {
             if (userHasCouponEver(userId, "WELCOME10")) {
-                System.out.println("ensureWelcomeAssigned: user " + userId + " has previously had WELCOME10; not reassigning.");
                 return false;
             }
         } catch (Exception e) {
@@ -214,18 +210,7 @@ public class CouponDAO {
     public void debugPrintCounts() {
         String sql1 = "SELECT COUNT(*) AS c FROM couponinfo";
         String sql2 = "SELECT COUNT(*) AS c FROM user_coupons";
-        try (Connection conn = DatabaseAdapter.getConnection();
-             Statement s = conn.createStatement()) {
-            try (ResultSet r1 = s.executeQuery(sql1)) {
-                if (r1.next()) System.out.println("couponinfo count=" + r1.getInt("c"));
-            }
-            try (ResultSet r2 = s.executeQuery(sql2)) {
-                if (r2.next()) System.out.println("user_coupons count=" + r2.getInt("c"));
-            }
-        } catch (SQLException e) {
-            System.out.println("debugPrintCounts: failed to query counts: " + e.getMessage());
-            e.printStackTrace();
-        }
+        // Intentionally left blank to avoid debug output in production.
     }
 
     /**
@@ -256,7 +241,6 @@ public class CouponDAO {
             ps.setInt(1, userId);
             ps.setString(2, code);
             int updated = ps.executeUpdate();
-            System.out.println("redeemUserCoupon: userId=" + userId + " code=" + code + " updated=" + updated);
             return updated > 0;
         } catch (SQLException e) {
             e.printStackTrace();

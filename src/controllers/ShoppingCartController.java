@@ -132,7 +132,6 @@ public class ShoppingCartController {
 
     public void setUser(User user) {
         this.currentUser = user;
-        System.out.println("ShoppingCartController.setUser: user=" + (user==null?"null":user.getUsername()) + " id=" + (user==null?"null":user.getId()));
         displayUserCoupons();
     }
 
@@ -191,7 +190,7 @@ public class ShoppingCartController {
         double finalTotal = subtotal + vat + shipping - totalDiscount;
 
         // Debug logs
-        System.out.println("refreshCart: subtotal=" + subtotal + " vat=" + vat + " thresholdMet=" + thresholdMet + " currentFreeShipping=" + currentFreeShipping + " shipping=" + shipping + " totalDiscount=" + totalDiscount + " finalTotal=" + finalTotal);
+        // refreshCart calculated totals
 
         // Update UI Labels
         subtotalLabel.setText(String.format("%.2f ₺", subtotal));
@@ -239,17 +238,16 @@ public class ShoppingCartController {
         if (currentUser == null || userCouponsList == null) return;
         CouponDAO couponDAO = new CouponDAO();
 
-        System.out.println("displayUserCoupons: fetching for userId=" + currentUser.getId());
+        // fetching user coupons for display
         // Try to fetch user coupons
         List<String> userCoupons = couponDAO.getCouponsForUser(currentUser.getId());
-        System.out.println("displayUserCoupons: found " + (userCoupons == null ? 0 : userCoupons.size()) + " coupons initially");
+        // found initial coupon count
 
         // If user has none, ensure WELCOME10 is created and assigned, then re-fetch
         if (userCoupons == null || userCoupons.isEmpty()) {
             boolean assigned = couponDAO.ensureWelcomeAssigned(currentUser.getId());
-            System.out.println("ensureWelcomeAssigned returned: " + assigned);
             userCoupons = couponDAO.getCouponsForUser(currentUser.getId());
-            System.out.println("displayUserCoupons: found " + (userCoupons == null ? 0 : userCoupons.size()) + " coupons after ensure");
+            // fetched coupons after ensure
         }
 
         // Prepare final collection for use in lambdas
@@ -270,7 +268,7 @@ public class ShoppingCartController {
                 // Show count and the exact codes in the status label
                 String joinedCodes = String.join(", ", codeMap.keySet());
                 couponsStatusLabel.setText("You have " + codeMap.size() + " coupon(s): " + joinedCodes + ". Double-click to apply.");
-                System.out.println("displayUserCoupons: rawCount=" + couponsToShow.size() + " uniqueCount=" + codeMap.size() + " codes=" + joinedCodes);
+                // prepared deduplicated coupon list for UI
 
                 // Prepare apply button state
                 applyCouponButton.setDisable(true);
@@ -323,7 +321,7 @@ public class ShoppingCartController {
         couponDAO.ensureCouponExists("LOYAL5", 5.0);
 
         List<String> available = couponDAO.getAllActiveCoupons();
-        System.out.println("displayAvailableCoupons: found " + (available==null?0:available.size()) + " active coupons");
+        // available coupons prepared for tooltip
         if (available != null && !available.isEmpty()) {
             String couponList = String.join("\n", available);
             // Set a tooltip to the coupon text field so user can see codes by hovering
@@ -372,7 +370,7 @@ public class ShoppingCartController {
         try {
             priorOrderCount = orderDAO.getOrdersByCustomerId(currentUser.getId()).size();
         } catch (Exception ex) {
-            System.out.println("handleCheckout: failed to get prior order count: " + ex.getMessage());
+            // failed to get prior order count
             ex.printStackTrace();
         }
         // Parse final total from label
@@ -427,7 +425,7 @@ public class ShoppingCartController {
                 }
             } catch (Exception ex) {
                 // Non-fatal - log and continue
-                System.out.println("Failed to award SAVE20: " + ex.getMessage());
+                // failed to award SAVE20
                 ex.printStackTrace();
             }
 
@@ -439,7 +437,7 @@ public class ShoppingCartController {
                     loyalAwarded = couponDAO.assignCouponToUserByCode(currentUser.getId(), "LOYAL5", 5.0);
                 }
             } catch (Exception ex) {
-                System.out.println("Failed to award LOYAL5: " + ex.getMessage());
+                // failed to award LOYAL5
                 ex.printStackTrace();
             }
 
@@ -453,15 +451,15 @@ public class ShoppingCartController {
                 if (!appliedCode.isEmpty()) {
                     CouponDAO cd = new CouponDAO();
                     boolean redeemed = cd.redeemUserCoupon(currentUser.getId(), appliedCode);
-                    System.out.println("handleCheckout: attempted to redeem applied coupon='" + appliedCode + "' -> " + redeemed);
+                    // attempted to redeem applied coupon
                     if (!redeemed) {
                         // If no user_coupons row existed (public/global coupon), assign it to the user then redeem
                         double rate = cd.getDiscountRate(appliedCode);
                         boolean assigned = cd.assignCouponToUserByCode(currentUser.getId(), appliedCode, rate);
-                        System.out.println("handleCheckout: assigned applied coupon='" + appliedCode + "' -> " + assigned);
+                        // assigned applied coupon
                         if (assigned) {
                             boolean redeemed2 = cd.redeemUserCoupon(currentUser.getId(), appliedCode);
-                            System.out.println("handleCheckout: redeemed after assign='" + appliedCode + "' -> " + redeemed2);
+                            // redeemed after assign
                         }
                     }
                 }
@@ -469,18 +467,18 @@ public class ShoppingCartController {
                 if (currentFreeShipping) {
                     CouponDAO cd = new CouponDAO();
                     boolean redeemed = cd.redeemUserCoupon(currentUser.getId(), "FREESHIP");
-                    System.out.println("handleCheckout: attempted to redeem FREESHIP -> " + redeemed);
+                    // attempted to redeem FREESHIP
                     if (!redeemed) {
                         boolean assigned = cd.assignCouponToUserByCode(currentUser.getId(), "FREESHIP", 0.0);
-                        System.out.println("handleCheckout: assigned FREESHIP -> " + assigned);
+                        // assigned FREESHIP
                         if (assigned) {
                             boolean redeemed2 = cd.redeemUserCoupon(currentUser.getId(), "FREESHIP");
-                            System.out.println("handleCheckout: redeemed FREESHIP after assign -> " + redeemed2);
+                            // redeemed FREESHIP after assign
                         }
                     }
                 }
             } catch (Exception ex) {
-                System.out.println("Failed to redeem applied coupon: " + ex.getMessage());
+                // failed to redeem applied coupon
                 ex.printStackTrace();
             }
 

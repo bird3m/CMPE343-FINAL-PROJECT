@@ -171,4 +171,20 @@ public class InputValidation {
         }
         return null;
     }
+
+    /**
+     * Validates that a numeric field is strictly positive (> 0).
+     * Use this for fields like Threshold where zero is invalid.
+     */
+    public static String validatePositiveNumber(String val, String label) {
+        if (val == null || val.trim().isEmpty()) return label + " cannot be empty.";
+        try {
+            double v = Double.parseDouble(val.replace(",", "."));
+            if (v <= 0) return label + " must be greater than zero.";
+            if (v > 1_000_000) return label + " is unreasonably large.";
+        } catch (NumberFormatException e) {
+            return label + " must be a valid number.";
+        }
+        return null;
+    }
 }

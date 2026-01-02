@@ -56,26 +56,59 @@ public class ProductDAO {
     // Attempt to load product image from packaged resources (resources/images/{fruits,vegetables})
     private byte[] loadResourceImage(String name, String type) {
         if (name == null || type == null) return null;
+        // Normalize name: lowercase, remove diacritics and common separators
         String lower = name.toLowerCase();
-        String folder = "fruits".equalsIgnoreCase(type) ? "fruits" : "vegetables";
+        lower = java.text.Normalizer.normalize(lower, java.text.Normalizer.Form.NFD)
+            .replaceAll("\\p{InCombiningDiacriticalMarks}+", "");
+        String compact = lower.replaceAll("[^a-z0-9]", "");
+        String spaced = lower.replaceAll("[^a-z0-9 ]", "").replaceAll("\\s+", " ");
+
+        // Accept both singular and plural type values from DB ("fruit" / "fruits", "vegetable" / "vegetables")
+        String t = type == null ? "" : type.trim().toLowerCase();
+        String folder;
+        if (t.startsWith("fruit")) {
+            folder = "fruits";
+        } else if (t.startsWith("veget")) {
+            folder = "vegetables";
+        } else {
+            // default fallback
+            folder = "vegetables";
+        }
         String[] exts = {".jpg", ".jpeg", ".png"};
 
-        for (String ext : exts) {
-            String path = "/images/" + folder + "/" + lower + ext;
-            try (InputStream is = getClass().getResourceAsStream(path)) {
-                if (is != null) {
-                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                    byte[] buffer = new byte[4096];
-                    int read;
-                    while ((read = is.read(buffer)) != -1) {
-                        baos.write(buffer, 0, read);
+        // Generate candidate base names to try (original, compact, spaced, plural/singular variants)
+        List<String> candidates = new ArrayList<>();
+        candidates.add(lower);
+        if (!compact.equals(lower)) candidates.add(compact);
+        if (!spaced.equals(lower)) candidates.add(spaced.replace(" ", "_"));
+
+        // Try adding or removing trailing 's' to handle plural/singular mismatches
+        for (String base : new ArrayList<>(candidates)) {
+            if (!base.endsWith("s")) candidates.add(base + "s");
+            if (base.endsWith("s") && base.length() > 1) candidates.add(base.substring(0, base.length() - 1));
+        }
+
+        // Try each candidate with known extensions
+        // resource name candidates computed
+        for (String cand : candidates) {
+            for (String ext : exts) {
+                String path = "/images/" + folder + "/" + cand + ext;
+                try (InputStream is = getClass().getResourceAsStream(path)) {
+                    if (is != null) {
+                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                        byte[] buffer = new byte[4096];
+                        int read;
+                        while ((read = is.read(buffer)) != -1) {
+                            baos.write(buffer, 0, read);
+                        }
+                        return baos.toByteArray();
                     }
-                    return baos.toByteArray();
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
-            } catch (IOException e) {
-                e.printStackTrace();
             }
         }
+
         return null;
     }
 
@@ -158,11 +191,28 @@ public class ProductDAO {
     }
 
     public boolean deleteProduct(int productId) {
-        String sql = "UPDATE productinfo SET is_active = 0 WHERE id = ?";
-        try (Connection conn = DatabaseAdapter.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setInt(1, productId);
-            return pstmt.executeUpdate() > 0;
+        Connection conn = null;
+        try {
+            conn = DatabaseAdapter.getConnection();
+            if (conn == null) return false;
+
+            // Try hard delete first
+            String deleteSql = "DELETE FROM productinfo WHERE id = ?";
+            try (PreparedStatement del = conn.prepareStatement(deleteSql)) {
+                del.setInt(1, productId);
+                int affected = del.executeUpdate();
+                if (affected > 0) return true;
+            } catch (SQLException ignore) {
+                // If hard delete fails (FK constraints, permissions), we'll try soft-delete below
+            }
+
+            // Fallback: soft-delete by marking inactive
+            String softSql = "UPDATE productinfo SET is_active = 0 WHERE id = ?";
+            try (PreparedStatement pstmt = conn.prepareStatement(softSql)) {
+                pstmt.setInt(1, productId);
+                return pstmt.executeUpdate() > 0;
+            }
+
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
