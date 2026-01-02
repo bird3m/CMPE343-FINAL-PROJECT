@@ -5,17 +5,15 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
-import javafx.scene.control.TextField;
-import javafx.scene.control.TitledPane;
-import javafx.scene.layout.BorderPane;
+import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.*;
+import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
 import models.Product;
@@ -23,21 +21,15 @@ import models.User;
 import services.ProductDAO;
 import services.CartService;
 
+import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Customer Main Controller
- * 
- * Features:
- * - Browse products (vegetables and fruits)
- * - Search products
- * - Add items to cart
- * - View cart, orders, profile
- * - Stock checking with threshold
+ * Customer Main Controller with Product Cards
  * 
  * @author Group04
- * @version 1.0
+ * @version 1.0 - Card Layout
  */
 public class CustomerMainController {
     
@@ -46,8 +38,8 @@ public class CustomerMainController {
     @FXML private TextField searchField;
     @FXML private TitledPane vegetablePane;
     @FXML private TitledPane fruitPane;
-    @FXML private ListView<Product> vegetableList;
-    @FXML private ListView<Product> fruitList;
+    @FXML private TilePane vegetableTilePane;  
+    @FXML private TilePane fruitTilePane;      
     @FXML private TextField quantityField;
     @FXML private Button addToCartButton;
     @FXML private Button searchButton;
@@ -58,406 +50,323 @@ public class CustomerMainController {
     @FXML private Button logoutButton;
     
     private User currentUser;
-    private ObservableList<Product> vegetables;
-    private ObservableList<Product> fruits;
-    // Master lists to keep original products for filtering
     private List<Product> masterVegetables = new ArrayList<>();
     private List<Product> masterFruits = new ArrayList<>();
-    private ProductDAO productDAO; 
+    private ProductDAO productDAO;
     
-    /**
-     * Initialize - Called automatically after FXML is loaded
-     */
+    private Product selectedProduct = null; 
+    private VBox selectedCard = null;        
+    
     @FXML
     private void initialize() {
         productDAO = new ProductDAO();
-        
-        // Load products from database
         loadProducts();
         
-        // Setup cell factory for custom display
-        setupListViews();
-
-        // Dynamic prefix search as user types (smoother UX)
+        // Dynamic search
         searchField.textProperty().addListener((obs, oldText, newText) -> {
             filterProducts(newText == null ? "" : newText.trim());
         });
     }
     
-    /**
-     * Set current user (called from Login)
-     */
     public void setUser(User user) {
         this.currentUser = user;
         usernameLabel.setText("Welcome, " + user.getUsername());
     }
     
     /**
-     * Setup ListView cell factories
+     * Create product card with image
      */
+    private VBox createProductCard(Product product) {
+        VBox card = new VBox(10);
+        card.setAlignment(Pos.CENTER);
+        card.setPrefSize(180, 240);
+        card.getStyleClass().add("product-card");
+        card.setPadding(new Insets(15));
+        
+        // Image container
+        VBox imageContainer = new VBox();
+        imageContainer.setAlignment(Pos.CENTER);
+        imageContainer.setPrefSize(150, 110);
+        imageContainer.setStyle(
+            "-fx-background-color: linear-gradient(135deg, #ffecd2, #fcb69f); " +
+            "-fx-background-radius: 12; " +
+            "-fx-border-color: #667eea; " +
+            "-fx-border-width: 2; " +
+            "-fx-border-radius: 12;"
+        );
+        
+        ImageView imageView = new ImageView();
+        imageView.setFitHeight(90);
+        imageView.setFitWidth(90);
+        imageView.setPreserveRatio(true);
+        
+        if (product.getImage() != null && product.getImage().length > 0) {
+            imageView.setImage(new Image(new ByteArrayInputStream(product.getImage())));
+        }
+        imageContainer.getChildren().add(imageView);
+        
+        // Product name
+        Label nameLabel = new Label(product.getName());
+        nameLabel.setFont(Font.font("Arial Black", 14));
+        nameLabel.setWrapText(true);
+        nameLabel.setAlignment(Pos.CENTER);
+        nameLabel.setStyle("-fx-text-fill: #2c3e50;");
+        
+        // Price container
+        HBox priceBox = new HBox(5);
+        priceBox.setAlignment(Pos.CENTER);
+        
+        Label priceIcon = new Label("💰");
+        Label priceLabel = new Label(String.format("%.2f₺/kg", product.getCurrentPrice()));
+        priceLabel.setFont(Font.font("Arial Black", 15));
+        priceLabel.setStyle("-fx-text-fill: #27ae60;");
+        priceBox.getChildren().addAll(priceIcon, priceLabel);
+        
+        // Stock info
+        HBox stockBox = new HBox(5);
+        stockBox.setAlignment(Pos.CENTER);
+        stockBox.setStyle(
+            "-fx-background-color: rgba(52, 152, 219, 0.15); " +
+            "-fx-background-radius: 8; " +
+            "-fx-padding: 5 10 5 10;"
+        );
+        
+        Label stockIcon = new Label("📦");
+        Label stockLabel = new Label(String.format("Stock: %.1f kg", product.getStock()));
+        stockLabel.setFont(Font.font("Arial Bold", 11));
+        stockLabel.setStyle("-fx-text-fill: #3498db;");
+        stockBox.getChildren().addAll(stockIcon, stockLabel);
+        
+        // Threshold warning
+        HBox warningBox = new HBox(5);
+        warningBox.setAlignment(Pos.CENTER);
+        warningBox.setStyle(
+            "-fx-background-color: rgba(231, 76, 60, 0.15); " +
+            "-fx-background-radius: 8; " +
+            "-fx-padding: 4 8 4 8;"
+        );
+        
+        Label warningLabel = new Label("⚠️ Low Stock! 2x Price");
+        warningLabel.setFont(Font.font("Arial Bold", 10));
+        warningLabel.setStyle("-fx-text-fill: #e74c3c;");
+        warningBox.getChildren().add(warningLabel);
+        warningBox.setVisible(product.getStock() <= product.getThreshold());
+        
+        VBox infoBox = new VBox(5);
+        infoBox.setAlignment(Pos.CENTER);
+        infoBox.getChildren().addAll(priceBox, stockBox, warningBox);
+        
+        card.getChildren().addAll(imageContainer, nameLabel, infoBox);
+        
+        card.setOnMouseClicked(e -> selectCard(card, product));
+        
+        return card;
+    }
+    
     /**
-     * Setup ListView cell factories with images
-    */
-    private void setupListViews() {
-    // Custom cell factory to show product info WITH IMAGE
-    vegetableList.setCellFactory(lv -> new ListCell<Product>() {
-        private javafx.scene.image.ImageView imageView = new javafx.scene.image.ImageView();
-        {
-            imageView.setFitHeight(50);
-            imageView.setFitWidth(50);
-            imageView.setPreserveRatio(true);
+     *Select card and highlight
+     */
+    private void selectCard(VBox card, Product product) {
+        // Remove previous selection
+        if (selectedCard != null) {
+            selectedCard.setStyle(
+                selectedCard.getStyle().replace(
+                    "-fx-border-color: #27ae60; -fx-border-width: 4;",
+                    ""
+                )
+            );
         }
         
-        @Override
-        protected void updateItem(Product item, boolean empty) {
-            super.updateItem(item, empty);
-            if (empty || item == null) {
-                setText(null);
-                setGraphic(null);
-            } else {
-                setText(item.toString());
-                if (item.getImage() != null && item.getImage().length > 0) {
-                    imageView.setImage(new javafx.scene.image.Image(
-                        new java.io.ByteArrayInputStream(item.getImage())
-                    ));
-                    setGraphic(imageView);
-                } else {
-                    setGraphic(null);
-                }
-            }
-        }
-    });
-    
-    fruitList.setCellFactory(lv -> new ListCell<Product>() {
-        private javafx.scene.image.ImageView imageView = new javafx.scene.image.ImageView();
-        {
-            imageView.setFitHeight(50);
-            imageView.setFitWidth(50);
-            imageView.setPreserveRatio(true);
-        }
-        
-        @Override
-        protected void updateItem(Product item, boolean empty) {
-            super.updateItem(item, empty);
-            if (empty || item == null) {
-                setText(null);
-                setGraphic(null);
-            } else {
-                setText(item.toString());
-                if (item.getImage() != null && item.getImage().length > 0) {
-                    imageView.setImage(new javafx.scene.image.Image(
-                        new java.io.ByteArrayInputStream(item.getImage())
-                    ));
-                    setGraphic(imageView);
-                } else {
-                    setGraphic(null);
-                }
-            }
-        }
-    });
-}
+        // Highlight new selection
+        card.setStyle(card.getStyle() + "-fx-border-color: #27ae60; -fx-border-width: 4;");
+        selectedCard = card;
+        selectedProduct = product;
+    }
     
     /**
-     * Load products from DATABASE and sort by name
-     * Only shows products with stock > 0
+     * Load products and create cards
      */
     private void loadProducts() {
         List<Product> allProducts = productDAO.getAllProducts();
         
-        List<Product> vegList = new ArrayList<>();
-        List<Product> fruitList = new ArrayList<>();
+        masterVegetables.clear();
+        masterFruits.clear();
         
         for (Product p : allProducts) {
-            // Only add products with available stock
             if (p.getStock() > 0) {
                 if ("vegetable".equals(p.getType())) {
-                    vegList.add(p);
+                    masterVegetables.add(p);
                 } else if ("fruit".equals(p.getType())) {
-                    fruitList.add(p);
+                    masterFruits.add(p);
                 }
             }
         }
         
-        vegList.sort((p1, p2) -> p1.getName().compareTo(p2.getName()));
-        fruitList.sort((p1, p2) -> p1.getName().compareTo(p2.getName()));
+        masterVegetables.sort((p1, p2) -> p1.getName().compareTo(p2.getName()));
+        masterFruits.sort((p1, p2) -> p1.getName().compareTo(p2.getName()));
         
-        // keep master copies for filtering
-        masterVegetables = vegList;
-        masterFruits = fruitList;
-
-        vegetables = FXCollections.observableArrayList(masterVegetables);
-        vegetableList.setItems(vegetables);
-
-        fruits = FXCollections.observableArrayList(masterFruits);
-        this.fruitList.setItems(fruits);
+        displayProducts();
     }
     
     /**
-     * Handle Search Button
-     * Only shows products with stock > 0
+     * ✅ YENİ: Display products as cards
      */
+    private void displayProducts() {
+        vegetableTilePane.getChildren().clear();
+        fruitTilePane.getChildren().clear();
+        
+        for (Product p : masterVegetables) {
+            vegetableTilePane.getChildren().add(createProductCard(p));
+        }
+        
+        for (Product p : masterFruits) {
+            fruitTilePane.getChildren().add(createProductCard(p));
+        }
+    }
+    
     @FXML
     private void handleSearch(ActionEvent event) {
-        // Use same behavior as dynamic filter: prefix-based, inline update
-        String keyword = searchField.getText().trim();
-        filterProducts(keyword);
-    }
-
-    /**
-     * Filter products by prefix (case-insensitive) and update list views dynamically.
-     */
-    private void filterProducts(String keyword) {
-        if (keyword == null || keyword.isEmpty()) {
-            vegetableList.setItems(FXCollections.observableArrayList(masterVegetables));
-            fruitList.setItems(FXCollections.observableArrayList(masterFruits));
-            return;
-        }
-
-        String lower = keyword.toLowerCase();
-        List<Product> vegResults = new ArrayList<>();
-        List<Product> fruitResults = new ArrayList<>();
-
-        for (Product p : masterVegetables) {
-            if (p.getName().toLowerCase().contains(lower) && p.getStock() > 0) {
-                vegResults.add(p);
-            }
-        }
-        for (Product p : masterFruits) {
-            if (p.getName().toLowerCase().contains(lower) && p.getStock() > 0) {
-                fruitResults.add(p);
-            }
-        }
-
-        vegResults.sort((p1, p2) -> p1.getName().compareTo(p2.getName()));
-        fruitResults.sort((p1, p2) -> p1.getName().compareTo(p2.getName()));
-
-        vegetableList.setItems(FXCollections.observableArrayList(vegResults));
-        fruitList.setItems(FXCollections.observableArrayList(fruitResults));
+        filterProducts(searchField.getText().trim());
     }
     
-    /**
-     * Handle Add to Cart Button
-     */
-    @FXML
-    private void handleAddToCart(ActionEvent event) {
-        // Get selected product from either list
-        Product selectedProduct = getSelectedProduct();
-        
-        if (selectedProduct == null) {
-            showAlert(Alert.AlertType.WARNING, "No Selection", 
-                     "Please select a product first!");
+    private void filterProducts(String keyword) {
+        if (keyword == null || keyword.isEmpty()) {
+            displayProducts();
             return;
         }
         
-        // Validate quantity input
-        String quantityText = quantityField.getText().trim();
+        String lower = keyword.toLowerCase();
         
+        vegetableTilePane.getChildren().clear();
+        fruitTilePane.getChildren().clear();
+        
+        for (Product p : masterVegetables) {
+            if (p.getName().toLowerCase().contains(lower)) {
+                vegetableTilePane.getChildren().add(createProductCard(p));
+            }
+        }
+        
+        for (Product p : masterFruits) {
+            if (p.getName().toLowerCase().contains(lower)) {
+                fruitTilePane.getChildren().add(createProductCard(p));
+            }
+        }
+    }
+    
+    @FXML
+    private void handleAddToCart(ActionEvent event) {
+        if (selectedProduct == null) {
+            showAlert(Alert.AlertType.WARNING, "No Selection", "Please select a product first!");
+            return;
+        }
+        
+        String quantityText = quantityField.getText().trim();
         if (quantityText.isEmpty()) {
-            showAlert(Alert.AlertType.WARNING, "Empty Quantity", 
-                     "Please enter quantity in kg!");
+            showAlert(Alert.AlertType.WARNING, "Empty Quantity", "Please enter quantity in kg!");
             return;
         }
         
         try {
             double quantity = Double.parseDouble(quantityText);
             
-            // Check if quantity is positive
             if (quantity <= 0) {
-                showAlert(Alert.AlertType.ERROR, "Invalid Quantity", 
-                         "Quantity must be greater than zero!");
+                showAlert(Alert.AlertType.ERROR, "Invalid Quantity", "Quantity must be greater than zero!");
                 return;
             }
             
-            // Check stock availability
             if (quantity > selectedProduct.getStock()) {
                 showAlert(Alert.AlertType.WARNING, "Insufficient Stock", 
-                         String.format(
-                             "Only %.2f kg available for %s!\n\n" +
-                             "Please reduce quantity.",
-                             selectedProduct.getStock(),
-                             selectedProduct.getName()
-                         ));
+                    String.format("Only %.2f kg available for %s!", selectedProduct.getStock(), selectedProduct.getName()));
                 return;
             }
             
-            // Calculate split pricing: units above threshold at normal price,
-            // units that reduce stock to <= threshold are doubled.
-            double stock = selectedProduct.getStock();
-            double threshold = selectedProduct.getThreshold();
-            double basePrice = selectedProduct.getPrice();
-
-            double normalQty = 0.0;
-            if (stock > threshold) {
-                normalQty = Math.max(0.0, Math.min(quantity, stock - threshold));
-            }
-            double doubledQty = quantity - normalQty;
-
-            double normalTotal = normalQty * basePrice;
-            double doubledTotal = doubledQty * basePrice * 2.0;
-            double totalPrice = normalTotal + doubledTotal;
-            double avgUnitPrice = totalPrice / quantity;
-
-            String thresholdWarning = "";
-            if (doubledQty > 0) {
-                thresholdWarning = String.format("\n\nNote: %.2f kg charged at doubled price.", doubledQty);
-            } else if (stock <= threshold) {
-                thresholdWarning = "\n\nLow stock! Price is doubled for this product.";
-            }
-
-            // Add to cart (CartService now returns added total)
             double addedTotal = CartService.addToCart(selectedProduct, quantity);
-
-            // Success - show confirmation with breakdown
-            showAlert(Alert.AlertType.INFORMATION, "Added to Cart",
-                     String.format(
-                         "Successfully added to cart!\n\n" +
-                         "Product: %s\n" +
-                         "Quantity: %.2f kg\n" +
-                         "Unit Price (avg): %.2f₺/kg\n" +
-                         "Total: %.2f₺" +
-                         thresholdWarning,
-                         selectedProduct.getName(),
-                         quantity,
-                         avgUnitPrice,
-                         addedTotal
-                     ));
             
-            // Clear quantity field
+            showAlert(Alert.AlertType.INFORMATION, "Added to Cart",
+                String.format("Successfully added!\n\nProduct: %s\nQuantity: %.2f kg\nTotal: %.2f₺",
+                    selectedProduct.getName(), quantity, addedTotal));
+            
             quantityField.clear();
             
-            // Clear selection
-            vegetableList.getSelectionModel().clearSelection();
-            fruitList.getSelectionModel().clearSelection();
+            // Deselect card
+            if (selectedCard != null) {
+                selectedCard.setStyle(selectedCard.getStyle().replace("-fx-border-color: #27ae60; -fx-border-width: 4;", ""));
+            }
+            selectedProduct = null;
+            selectedCard = null;
             
         } catch (NumberFormatException e) {
-            showAlert(Alert.AlertType.ERROR, "Invalid Input", 
-                     "Please enter a valid number!\n\n" +
-                     "Examples: 0.5, 1, 2.5, 3");
+            showAlert(Alert.AlertType.ERROR, "Invalid Input", "Please enter a valid number!");
         }
     }
     
-    /**
-     * Get selected product from both lists
-     */
-    private Product getSelectedProduct() {
-        Product selected = vegetableList.getSelectionModel().getSelectedItem();
-        if (selected == null) {
-            selected = fruitList.getSelectionModel().getSelectedItem();
-        }
-        return selected;
-    }
-    
-    /**
-     * Handle View Cart Button
-     * Refreshes products when cart window closes
-     */
     @FXML
     private void handleViewCart(ActionEvent event) {
         try {
-            FXMLLoader loader = new FXMLLoader(
-                getClass().getResource("/fxml/ShoppingCart.fxml")
-            );
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/ShoppingCart.fxml"));
             Parent root = loader.load();
-
             ShoppingCartController cartController = loader.getController();
-            cartController.setUser(currentUser); 
+            cartController.setUser(currentUser);
             
-            // Create new stage for cart
             Stage cartStage = new Stage();
             Scene scene = new Scene(root, 960, 540);
-            scene.getStylesheets().add(
-                getClass().getResource("/css/style.css").toExternalForm()
-            );
-            
+            scene.getStylesheets().add(getClass().getResource("/css/style.css").toExternalForm());
             cartStage.setScene(scene);
             cartStage.setTitle("Shopping Cart");
             cartStage.centerOnScreen();
-            
-            // Refresh products when cart window closes
-            cartStage.setOnHidden(e -> {
-                loadProducts(); // Update stock display
-            });
-            
+            cartStage.setOnHidden(e -> loadProducts());
             cartStage.show();
-            
         } catch (Exception e) {
             e.printStackTrace();
-            showAlert(Alert.AlertType.ERROR, "Error", 
-                      "Could not open shopping cart!\n\n" + e.getMessage());
+            showAlert(Alert.AlertType.ERROR, "Error", "Could not open shopping cart!");
         }
     }
     
-    /**
-     * Handle View Orders Button 
-     */
     @FXML
     private void handleViewOrders(ActionEvent event) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/MyOrders.fxml"));
             Parent root = loader.load();
-
             MyOrdersController controller = loader.getController();
-            controller.setCustomer(currentUser); 
-
+            controller.setCustomer(currentUser);
             Stage stage = new Stage();
             stage.setTitle("My Orders History");
             stage.setScene(new Scene(root));
             stage.centerOnScreen();
             stage.show();
-            
         } catch (Exception e) {
             e.printStackTrace();
-            showAlert(Alert.AlertType.ERROR, "Error", "Could not open orders screen!\n" + e.getMessage());
+            showAlert(Alert.AlertType.ERROR, "Error", "Could not open orders screen!");
         }
     }
     
-    /**
-     * Handle Profile Button
-     * Opens profile editing window
-     */
     @FXML
     private void handleProfile(ActionEvent event) {
         try {
-            FXMLLoader loader = new FXMLLoader(
-                getClass().getResource("/fxml/EditProfile.fxml")
-            );
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/EditProfile.fxml"));
             Parent root = loader.load();
-            
-            // Pass current user to profile controller
             EditProfileController controller = loader.getController();
             controller.setUser(currentUser);
-            
-            // Create new stage for profile
             Stage profileStage = new Stage();
             Scene scene = new Scene(root, 600, 500);
-            scene.getStylesheets().add(
-                getClass().getResource("/css/style.css").toExternalForm()
-            );
-            
+            scene.getStylesheets().add(getClass().getResource("/css/style.css").toExternalForm());
             profileStage.setScene(scene);
             profileStage.setTitle("Edit Profile");
             profileStage.centerOnScreen();
             profileStage.show();
-            
         } catch (Exception e) {
             e.printStackTrace();
-            showAlert(Alert.AlertType.ERROR, "Error", 
-                      "Could not open profile screen!\n\n" + e.getMessage());
+            showAlert(Alert.AlertType.ERROR, "Error", "Could not open profile screen!");
         }
     }
     
-    /**
-     * Handle Messages Button - open chat window
-     */
     @FXML
     private void handleMessages(ActionEvent event) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/Chat.fxml"));
             Parent root = loader.load();
-
             ChatController controller = loader.getController();
             controller.setUser(currentUser);
-
             Stage chatStage = new Stage();
             Scene scene = new Scene(root, 400, 600);
             scene.getStylesheets().add(getClass().getResource("/css/style.css").toExternalForm());
@@ -467,16 +376,12 @@ public class CustomerMainController {
             chatStage.show();
         } catch (Exception e) {
             e.printStackTrace();
-            showAlert(Alert.AlertType.ERROR, "Error", "Could not open chat!\n" + e.getMessage());
+            showAlert(Alert.AlertType.ERROR, "Error", "Could not open chat!");
         }
     }
     
-    /**
-     * Handle Logout Button
-     */
     @FXML
     private void handleLogout(ActionEvent event) {
-        // Confirm logout
         Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
         confirm.setTitle("Logout");
         confirm.setHeaderText("Are you sure?");
@@ -484,32 +389,20 @@ public class CustomerMainController {
         
         if (confirm.showAndWait().get() == ButtonType.OK) {
             try {
-                // Load login screen
-                Parent root = FXMLLoader.load(
-                    getClass().getResource("/fxml/Login.fxml")
-                );
-                
+                Parent root = FXMLLoader.load(getClass().getResource("/fxml/Login.fxml"));
                 Scene scene = new Scene(root, 960, 540);
-                scene.getStylesheets().add(
-                    getClass().getResource("/css/style.css").toExternalForm()
-                );
-                
+                scene.getStylesheets().add(getClass().getResource("/css/style.css").toExternalForm());
                 Stage currentStage = (Stage) logoutButton.getScene().getWindow();
                 currentStage.setScene(scene);
                 currentStage.setTitle("Group04 GreenGrocer - Login");
                 currentStage.centerOnScreen();
-                
             } catch (Exception e) {
                 e.printStackTrace();
-                showAlert(Alert.AlertType.ERROR, "Error", 
-                         "Could not logout!\n\n" + e.getMessage());
+                showAlert(Alert.AlertType.ERROR, "Error", "Could not logout!");
             }
         }
     }
     
-    /**
-     * Helper method to show alerts
-     */
     private void showAlert(Alert.AlertType type, String title, String content) {
         Alert alert = new Alert(type);
         alert.setTitle(title);
@@ -517,6 +410,4 @@ public class CustomerMainController {
         alert.setContentText(content);
         alert.showAndWait();
     }
-
-    
 }

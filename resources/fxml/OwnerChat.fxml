@@ -2,29 +2,125 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<BorderPane xmlns:fx="http://javafx.com/fxml" fx:controller="controllers.OwnerChatController" styleClass="chat-root">
+<?import javafx.scene.text.Font?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml" fx:controller="controllers.OwnerChatController" 
+            styleClass="main-root" stylesheets="@../css/style.css"
+            prefWidth="900" prefHeight="700">
+    
+    <!-- LEFT: Conversations List -->
     <left>
-        <VBox spacing="8" style="-fx-padding: 12; -fx-background-color: #ffffff; -fx-border-color: #ecf0f1;">
-            <Label text="Conversations" style="-fx-font-weight: bold; -fx-font-size: 14px;" />
-            <ListView fx:id="conversationsList" prefWidth="240" />
+        <VBox spacing="12" style="-fx-background-color: white; 
+                                  -fx-border-color: linear-gradient(to bottom, #667eea, #764ba2); 
+                                  -fx-border-width: 0 3 0 0;"
+              prefWidth="280">
+            <padding>
+                <Insets top="20" bottom="20" left="15" right="15" />
+            </padding>
+            <children>
+                <!-- Header -->
+                <HBox alignment="CENTER_LEFT" spacing="10">
+                    <children>
+                        <Label text="💬" style="-fx-font-size: 24px;" />
+                        <Label text="Conversations" 
+                               style="-fx-font-weight: bold; -fx-font-size: 18px; -fx-text-fill: #2c3e50;" />
+                    </children>
+                </HBox>
+                
+                <Separator style="-fx-background-color: linear-gradient(to right, #667eea, #764ba2);" />
+                
+                <!-- Conversations List -->
+                <ScrollPane fitToWidth="true" styleClass="transparent" VBox.vgrow="ALWAYS">
+                    <content>
+                        <ListView fx:id="conversationsList" 
+                                  style="-fx-background-color: transparent; -fx-border-color: transparent;">
+                        </ListView>
+                    </content>
+                </ScrollPane>
+            </children>
         </VBox>
     </left>
 
+    <!-- CENTER: Chat Area -->
     <center>
         <BorderPane>
+            <!-- TOP: Chat Header -->
             <top>
-                <HBox spacing="10" style="-fx-padding: 10; -fx-background-color: #f5f7fa;">
-                    <Label fx:id="chatWithLabel" text="Select a conversation" style="-fx-font-size: 16px; -fx-font-weight: bold;" />
+                <HBox alignment="CENTER_LEFT" spacing="15" styleClass="top-bar" prefHeight="70">
+                    <padding>
+                        <Insets left="20" right="20" />
+                    </padding>
+                    <children>
+                        <!-- Customer Avatar -->
+                        <VBox alignment="CENTER" prefWidth="50" prefHeight="50" 
+                              style="-fx-background-color: linear-gradient(135deg, #11998e, #38ef7d); 
+                                     -fx-background-radius: 25; 
+                                     -fx-border-color: white; 
+                                     -fx-border-width: 3; 
+                                     -fx-border-radius: 25;">
+                            <children>
+                                <Label text="👤" style="-fx-font-size: 24px;" />
+                            </children>
+                        </VBox>
+                        
+                        <!-- Customer Info -->
+                        <VBox spacing="2">
+                            <children>
+                                <Label fx:id="chatWithLabel" text="Select a conversation" 
+                                       style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 16px;" />
+                                <Label text="Customer" 
+                                       style="-fx-text-fill: rgba(255,255,255,0.8); -fx-font-size: 12px;" />
+                            </children>
+                        </VBox>
+                    </children>
                 </HBox>
             </top>
+            
+            <!-- CENTER: Messages -->
             <center>
-                <ListView fx:id="messagesList" />
+                <VBox style="-fx-background-color: linear-gradient(to bottom, #ffecd2, #fcb69f, #ffd89b);">
+                    <children>
+                        <ScrollPane fitToWidth="true" styleClass="transparent" VBox.vgrow="ALWAYS">
+                            <content>
+                                <VBox fx:id="messagesContainer" spacing="12" style="-fx-padding: 20;">
+                                </VBox>
+                            </content>
+                        </ScrollPane>
+                    </children>
+                </VBox>
             </center>
+            
+            <!-- BOTTOM: Message Input -->
             <bottom>
-                <HBox spacing="8" style="-fx-padding: 10; -fx-background-color: #ffffff;">
-                    <TextField fx:id="messageField" HBox.hgrow="ALWAYS" promptText="Type a message..." onAction="#handleSend" />
-                    <Button fx:id="sendButton" text="Send" onAction="#handleSend" />
-                </HBox>
+                <VBox style="-fx-background-color: white; -fx-border-color: #e0e0e0; -fx-border-width: 2 0 0 0;">
+                    <padding>
+                        <Insets top="15" bottom="15" left="20" right="20" />
+                    </padding>
+                    <children>
+                        <HBox spacing="12" alignment="CENTER">
+                            <children>
+                                <TextField fx:id="messageField" HBox.hgrow="ALWAYS" 
+                                           promptText="Type your message..." 
+                                           onAction="#handleSend"
+                                           style="-fx-background-color: #f5f7fa; 
+                                                  -fx-background-radius: 25; 
+                                                  -fx-border-color: transparent; 
+                                                  -fx-padding: 12 20; 
+                                                  -fx-font-size: 14px;" />
+                                
+                                <Button fx:id="sendButton" text="📤 Send" onAction="#handleSend"
+                                        style="-fx-background-color: linear-gradient(135deg, #667eea, #764ba2); 
+                                               -fx-text-fill: black; 
+                                               -fx-background-radius: 25; 
+                                               -fx-padding: 12 30; 
+                                               -fx-font-weight: bold; 
+                                               -fx-font-size: 14px; 
+                                               -fx-cursor: hand;
+                                               -fx-effect: dropshadow(gaussian, rgba(102, 126, 234, 0.5), 10, 0, 0, 5);" />
+                            </children>
+                        </HBox>
+                    </children>
+                </VBox>
             </bottom>
         </BorderPane>
     </center>

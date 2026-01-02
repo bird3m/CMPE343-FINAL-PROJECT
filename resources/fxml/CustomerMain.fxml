@@ -3,7 +3,6 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.TextField?>
@@ -12,6 +11,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.TilePane?>
 <?import javafx.scene.text.Font?>
 
 <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="540.0" prefWidth="960.0" styleClass="main-root" stylesheets="@../css/style.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.CustomerMainController">
@@ -115,7 +115,7 @@
                   <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                </padding>
                <children>
-                  <Label text="🎉 Free Delivery" textFill="#33834f">
+                  <Label text="🎉 Free Delivery" textFill="WHITE">
                      <font>
                         <Font name="Arial Bold" size="12.0" />
                      </font>
@@ -131,7 +131,7 @@
       </VBox>
    </left>
    
-   <!-- CENTER: Product Lists with TitledPane -->
+   <!-- CENTER: Product Cards with TilePane -->
    <center>
       <VBox prefHeight="400.0" prefWidth="760.0" BorderPane.alignment="CENTER">
          <children>
@@ -142,31 +142,39 @@
                         <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
                      </padding>
                      <children>
-                        <!-- VEGETABLES TitledPane -->
+                        <!-- VEGETABLES TitledPane with TilePane -->
                         <TitledPane fx:id="vegetablePane" animated="false" expanded="true" styleClass="titled-pane-veg" text="🥬 VEGETABLES">
                            <font>
-                              <Font name="Segoe UI Emoji" size="15.0" />
+                              <Font name="Arial Bold" size="15.0" />
                            </font>
                            <content>
-                              <ListView fx:id="vegetableList" prefHeight="200.0" styleClass="product-list">
-                                 <padding>
-                                    <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-                                 </padding>
-                              </ListView>
+                              <ScrollPane fitToWidth="true" style="-fx-background-color: transparent;">
+                                 <content>
+                                    <TilePane fx:id="vegetableTilePane" hgap="15.0" vgap="15.0" prefColumns="3" style="-fx-background-color: transparent;">
+                                       <padding>
+                                          <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                                       </padding>
+                                    </TilePane>
+                                 </content>
+                              </ScrollPane>
                            </content>
                         </TitledPane>
                         
-                        <!-- FRUITS TitledPane -->
+                        <!-- FRUITS TitledPane with TilePane -->
                         <TitledPane fx:id="fruitPane" animated="false" expanded="true" styleClass="titled-pane-fruit" text="🍎 FRUITS">
                            <font>
-                              <Font name="Segoe UI Emoji" size="15.0" />
+                              <Font name="Arial Bold" size="15.0" />
                            </font>
                            <content>
-                              <ListView fx:id="fruitList" prefHeight="200.0" styleClass="product-list">
-                                 <padding>
-                                    <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-                                 </padding>
-                              </ListView>
+                              <ScrollPane fitToWidth="true" style="-fx-background-color: transparent;">
+                                 <content>
+                                    <TilePane fx:id="fruitTilePane" hgap="15.0" vgap="15.0" prefColumns="3" style="-fx-background-color: transparent;">
+                                       <padding>
+                                          <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                                       </padding>
+                                    </TilePane>
+                                 </content>
+                              </ScrollPane>
                            </content>
                         </TitledPane>
                      </children>

@@ -2,21 +2,88 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<BorderPane xmlns:fx="http://javafx.com/fxml" fx:controller="controllers.ChatController" styleClass="chat-root">
+<?import javafx.scene.text.Font?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml" fx:controller="controllers.ChatController" 
+            styleClass="main-root" stylesheets="@../css/style.css"
+            prefWidth="500" prefHeight="700">
+    
+    <!-- TOP: Chat Header -->
     <top>
-        <HBox spacing="10" alignment="CENTER_LEFT" style="-fx-padding: 10; -fx-background-color: #f5f7fa;">
-            <Label fx:id="chatWithLabel" text="Owner" style="-fx-font-size: 16px; -fx-font-weight: bold;" />
+        <HBox alignment="CENTER_LEFT" spacing="15" styleClass="top-bar" prefHeight="70">
+            <padding>
+                <Insets left="20" right="20" />
+            </padding>
+            <children>
+                <!-- Owner Avatar -->
+                <VBox alignment="CENTER" prefWidth="50" prefHeight="50" 
+                      style="-fx-background-color: linear-gradient(135deg, #667eea, #764ba2); 
+                             -fx-background-radius: 25; 
+                             -fx-border-color: white; 
+                             -fx-border-width: 3; 
+                             -fx-border-radius: 25;">
+                    <children>
+                        <Label text="👨‍💼" style="-fx-font-size: 24px;" />
+                    </children>
+                </VBox>
+                
+                <!-- Chat Info -->
+                <VBox spacing="2">
+                    <children>
+                        <Label fx:id="chatWithLabel" text="GreenGrocer Support" 
+                               style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 16px;" />
+                        <Label text="Owner • Online" 
+                               style="-fx-text-fill: rgba(255,255,255,0.8); -fx-font-size: 12px;" />
+                    </children>
+                </VBox>
+            </children>
         </HBox>
     </top>
 
+    <!-- CENTER: Messages Area -->
     <center>
-        <ListView fx:id="messagesList" focusTraversable="false" style="-fx-padding: 10;" />
+        <VBox style="-fx-background-color: linear-gradient(to bottom, #ffecd2, #fcb69f, #ffd89b);">
+            <children>
+                <ScrollPane fitToWidth="true" styleClass="transparent" VBox.vgrow="ALWAYS">
+                    <content>
+                        <VBox fx:id="messagesContainer" spacing="12" style="-fx-padding: 20;">
+                        </VBox>
+                    </content>
+                </ScrollPane>
+            </children>
+        </VBox>
     </center>
 
+    <!-- BOTTOM: Message Input -->
     <bottom>
-        <HBox spacing="8" alignment="CENTER_LEFT" style="-fx-padding: 10; -fx-background-color: #ffffff;">
-            <TextField fx:id="messageField" HBox.hgrow="ALWAYS" promptText="Type a message..." onAction="#handleSend" />
-            <Button fx:id="sendButton" text="Send" onAction="#handleSend" />
-        </HBox>
+        <VBox style="-fx-background-color: white; -fx-border-color: #e0e0e0; -fx-border-width: 2 0 0 0;">
+            <padding>
+                <Insets top="15" bottom="15" left="20" right="20" />
+            </padding>
+            <children>
+                <HBox spacing="12" alignment="CENTER">
+                    <children>
+                        <TextField fx:id="messageField" HBox.hgrow="ALWAYS" 
+                                   promptText="Type your message..." 
+                                   onAction="#handleSend"
+                                   style="-fx-background-color: #f5f7fa; 
+                                          -fx-background-radius: 25; 
+                                          -fx-border-color: transparent; 
+                                          -fx-padding: 12 20; 
+                                          -fx-font-size: 14px;" />
+                        
+                        <Button fx:id="sendButton" text="📤 Send" onAction="#handleSend"
+                                style="-fx-background-color: linear-gradient(135deg, #667eea, #764ba2); 
+                                       -fx-text-fill: black; 
+                                       -fx-background-radius: 25; 
+                                       -fx-padding: 12 30; 
+                                       -fx-font-weight: bold; 
+                                       -fx-font-size: 14px; 
+                                       -fx-cursor: hand;
+                                       -fx-effect: dropshadow(gaussian, rgba(102, 126, 234, 0.5), 10, 0, 0, 5);" />
+                    </children>
+                </HBox>
+            </children>
+        </VBox>
     </bottom>
 </BorderPane>
