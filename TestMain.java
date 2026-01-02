@@ -12,8 +12,6 @@ public class TestMain {
     /**
      * Main entry point of the test application.
      * Runs all test scenarios step by step.
-     *
-     * @param args command-line arguments (not used)
      */
     public static void main(String[] args) {
         System.out.println("==============================================");
