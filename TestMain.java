@@ -1,5 +1,3 @@
-
-
 import java.time.LocalDateTime;
 
 /**
@@ -11,6 +9,12 @@ import java.time.LocalDateTime;
  */
 public class TestMain {
     
+    /**
+     * Main entry point of the test application.
+     * Runs all test scenarios step by step.
+     *
+     * @param args command-line arguments (not used)
+     */
     public static void main(String[] args) {
         System.out.println("==============================================");
         System.out.println("   GREENGROCER - SHOPPING CART TEST");
@@ -38,6 +42,10 @@ public class TestMain {
     
     // ==================== TEST 1: Input Validation ====================
     
+    /**
+     * Tests input validation rules such as product amount
+     * and password strength.
+     */
     public static void testInputValidation() {
         System.out.println("\n--- TEST 1: Input Validation ---\n");
         
@@ -76,6 +84,10 @@ public class TestMain {
     
     // ==================== TEST 2: Shopping Cart ====================
     
+    /**
+     * Tests shopping cart behavior including item merge,
+     * stock validation, discounts, and cart summary.
+     */
     public static void testShoppingCart() {
         System.out.println("\n--- TEST 2: Shopping Cart with MERGE Logic ---\n");
         
@@ -125,6 +137,10 @@ public class TestMain {
     
     // ==================== TEST 3: Order Creation ====================
     
+    /**
+     * Tests order creation, invoice generation,
+     * and delivery workflow.
+     */
     public static void testOrderCreation() {
         System.out.println("\n--- TEST 3: Order Creation ---\n");
         
@@ -180,6 +196,9 @@ public class TestMain {
     
     // ==================== TEST 4: Order Cancellation ====================
     
+    /**
+     * Tests order cancellation rules and status changes.
+     */
     public static void testOrderCancellation() {
         System.out.println("\n--- TEST 4: Order Cancellation ---\n");
         
@@ -216,6 +235,10 @@ public class TestMain {
     
     // ==================== TEST 5: Threshold Pricing ====================
     
+    /**
+     * Tests threshold-based pricing behavior
+     * when product stock is low.
+     */
     public static void testThresholdPricing() {
         System.out.println("\n--- TEST 5: Threshold Pricing (Greedy Owner!) ---\n");
         
